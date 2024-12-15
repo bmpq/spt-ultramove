@@ -32,6 +32,10 @@ namespace ultramove
             goPlayer.GetComponent<Player.FirearmController>().enabled = false;
             goPlayer.GetComponent<Player>().enabled = false;
 
+            goPlayer.GetComponentInChildren<Animator>().enabled = false;
+
+            //GameObject.Destroy(goPlayer.GetComponentInChildren<PlayerBody>().gameObject);
+
             goPlayer.AddComponent<UltraMovement>();
         }
     }

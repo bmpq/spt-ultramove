@@ -19,6 +19,8 @@ namespace ultramove
         CapsuleCollider capsule;
         private LayerMask groundLayer;
 
+        Collider[] groundHits = new Collider[3];
+
         bool toJump = false;
 
         void Start()
@@ -28,10 +30,16 @@ namespace ultramove
             rb.isKinematic = false;
             rb.useGravity = true;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+
+            rb.solverIterations = 20;
+            rb.solverVelocityIterations = 20;
 
             capsule = GetComponent<CapsuleCollider>();
-            capsule.height = 1.8f;
+            capsule.height = 1.7f;
             capsule.center = Vector3.zero;
+
+            rb.position += new Vector3(0, 2f, 0);
 
             cameraTransform = Camera.main.transform;
             Cursor.lockState = CursorLockMode.Locked;
@@ -54,6 +62,13 @@ namespace ultramove
             {
                 toJump = true;
             }
+
+            if (Input.GetKey(KeyCode.LeftControl))
+            {
+                transform.position += cameraTransform.forward * moveSpeed * Time.deltaTime * 10f;
+            }
+
+            coyoteTime -= Time.deltaTime;
         }
 
         void FixedUpdate()
@@ -78,20 +93,20 @@ namespace ultramove
             if (toJump)
             {
                 toJump = false;
-                rb.AddForce(new Vector3(0, 10, 0));
+
+                if (coyoteTime > 0f || IsGrounded())
+                {
+                    rb.AddForce(new Vector3(0, 10f, 0), ForceMode.Impulse);
+
+                    coyoteTime = 0f;
+                }
             }
-        }
-
-        void Jump()
-        {
-
         }
 
         bool IsGrounded()
         {
             Vector3 spherePosition = transform.position + (Vector3.down * (capsule.height / 2));
-            float sphereRadius = capsule.radius;
-            bool grounded = Physics.OverlapSphere(spherePosition, sphereRadius, groundLayer).Length > 0;
+            bool grounded = Physics.OverlapSphereNonAlloc(spherePosition, capsule.radius, groundHits, 1 << groundLayer) > 0;
 
             if (grounded)
             {
@@ -105,7 +120,7 @@ namespace ultramove
         {
             Vector3 spherePosition = transform.position + (Vector3.up * (capsule.height / 2 + 0.1f));
             float sphereRadius = capsule.radius;
-            bool touchingCeiling = Physics.OverlapSphere(spherePosition, sphereRadius, groundLayer).Length > 0;
+            bool touchingCeiling = Physics.OverlapSphere(spherePosition, sphereRadius, 1 << groundLayer).Length > 0;
 
             return touchingCeiling;
         }
