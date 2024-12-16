@@ -107,8 +107,6 @@ namespace ultramove
 
             coyoteTime -= Time.deltaTime;
 
-            Debug.Log(coyoteTime);
-
             if (!sliding)
             {
                 sliding = (groundCheck.isGrounded || coyoteTime > 0f) && Input.GetKeyDown(KeyCode.C) && jumpCooldown <= 0f;
@@ -176,15 +174,6 @@ namespace ultramove
                 rb.AddRelativeForce(airForce * Time.fixedDeltaTime * 1500f);
             }
 
-            if (!grounded && groundedPrevTick)
-            {
-                coyoteTime = 0.3f;
-
-                if (sliding)
-                    coyoteTime *= 2f;
-            }
-            groundedPrevTick = grounded;
-
             if (!grounded && coyoteTime < 0f)
             {
                 sliding = false;
@@ -194,11 +183,11 @@ namespace ultramove
             {
                 toJump = false;
 
-                if (coyoteTime > 0f || grounded)
+                if (coyoteTime > 0f || groundedPrevTick)
                 {
                     coyoteTime = -1f;
 
-                    rb.AddForce(new Vector3(0, 9f, 0), ForceMode.Impulse);
+                    rb.velocity = new Vector3(rb.velocity.x, 9f, rb.velocity.z);
 
                     jumpCooldown = 0.1f;
 
@@ -220,6 +209,15 @@ namespace ultramove
                 capsule.height = 1.7f;
                 capsule.center = Vector3.zero;
             }
+
+            if (!grounded && groundedPrevTick && jumpCooldown <= 0)
+            {
+                coyoteTime = 0.3f;
+
+                if (sliding)
+                    coyoteTime *= 2f;
+            }
+            groundedPrevTick = grounded;
         }
     }
 }
