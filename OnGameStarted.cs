@@ -37,6 +37,7 @@ namespace ultramove
             //GameObject.Destroy(goPlayer.GetComponentInChildren<PlayerBody>().gameObject);
 
             goPlayer.AddComponent<UltraMovement>();
+            goPlayer.AddComponent<DoorOpener>();
         }
     }
 }
