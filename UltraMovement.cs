@@ -32,6 +32,8 @@ namespace ultramove
 
         bool groundedPrevTick = false;
 
+        bool sliding;
+
         void Start()
         {
             cam = Camera.main;
@@ -98,14 +100,28 @@ namespace ultramove
             cameraTransform.position = transform.position + new Vector3(0, camLevel, 0);
             cameraTransform.rotation = Quaternion.Euler(updownRotation, horizontalRotation, 0);
 
-            jumpCooldown -= Time.deltaTime;
-
             if (Input.GetKeyDown(KeyCode.Space) && jumpCooldown <= 0f)
             {
                 toJump = true;
             }
 
             coyoteTime -= Time.deltaTime;
+
+            Debug.Log(coyoteTime);
+
+            if (!sliding)
+            {
+                sliding = (groundCheck.isGrounded || coyoteTime > 0f) && Input.GetKeyDown(KeyCode.C) && jumpCooldown <= 0f;
+            }
+            else
+            {
+                if (Input.GetKeyUp(KeyCode.C))
+                {
+                    sliding = false;
+                }
+            }
+
+            jumpCooldown -= Time.deltaTime;
 
             AnimateCamera();
         }
@@ -131,20 +147,6 @@ namespace ultramove
 
             Vector3 inputRelativeDirection = transform.TransformDirection(vectorInput.normalized);
 
-            bool sliding = grounded && Input.GetKey(KeyCode.C) && jumpCooldown <= 0f;
-            if (sliding)
-            {
-                capsule.height = 1.7f / 4f;
-                capsule.center = new Vector3(0, -capsule.height / 2f, 0);
-
-                rb.velocity = transform.forward * moveSpeed * 2f;
-            }
-            else
-            {
-                capsule.height = 1.7f;
-                capsule.center = Vector3.zero;
-            }
-
             if (grounded)
             {
                 if (jumpCooldown <= 0f && !sliding)
@@ -153,7 +155,7 @@ namespace ultramove
                     rb.velocity = Vector3.Lerp(rb.velocity, targetWalkVelocity, Time.fixedDeltaTime * 20f);
                 }
             }
-            else
+            else if (!sliding)
             {
                 Vector3 relativeVelocity = transform.InverseTransformDirection(rb.velocity);
 
@@ -177,9 +179,16 @@ namespace ultramove
             if (!grounded && groundedPrevTick)
             {
                 coyoteTime = 0.3f;
-            }
 
+                if (sliding)
+                    coyoteTime *= 2f;
+            }
             groundedPrevTick = grounded;
+
+            if (!grounded && coyoteTime < 0f)
+            {
+                sliding = false;
+            }
 
             if (toJump)
             {
@@ -187,12 +196,29 @@ namespace ultramove
 
                 if (coyoteTime > 0f || grounded)
                 {
-                    coyoteTime = 0f;
+                    coyoteTime = -1f;
 
                     rb.AddForce(new Vector3(0, 9f, 0), ForceMode.Impulse);
 
                     jumpCooldown = 0.1f;
+
+                    sliding = false;
                 }
+            }
+
+            if (sliding)
+            {
+                capsule.height = 1.7f / 4f;
+                capsule.center = new Vector3(0, -capsule.height / 2f, 0);
+
+                Vector3 slideVel = transform.forward * moveSpeed * 2f;
+                slideVel.y = -1f;
+                rb.velocity = slideVel;
+            }
+            else
+            {
+                capsule.height = 1.7f;
+                capsule.center = Vector3.zero;
             }
         }
     }
