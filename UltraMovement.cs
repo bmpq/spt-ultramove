@@ -30,6 +30,7 @@ namespace ultramove
         float camZ = 0f;
         float camLevel;
 
+        bool groundedPrevTick = false;
 
         void Start()
         {
@@ -169,6 +170,13 @@ namespace ultramove
 
                 rb.AddRelativeForce(airForce * Time.fixedDeltaTime * 1500f);
             }
+
+            if (!grounded && groundedPrevTick)
+            {
+                coyoteTime = 0.3f;
+            }
+
+            groundedPrevTick = grounded;
 
             if (toJump)
             {
