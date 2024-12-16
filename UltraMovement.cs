@@ -4,7 +4,7 @@ namespace ultramove
 {
     public class UltraMovement : MonoBehaviour
     {
-        private Transform cameraTransform;
+        private Transform camParent;
         private Camera cam;
         private Rigidbody rb;
         private float horizontalRotation = 0f;
@@ -35,14 +35,16 @@ namespace ultramove
         bool sliding;
 
         bool toSlam;
-        bool slammed;
+        bool slamming;
+
+        float shakeIntensity = 0f;
 
         void Start()
         {
             cam = Camera.main;
 
-            cameraTransform = new GameObject().transform;
-            cam.transform.SetParent(cameraTransform, false);
+            camParent = new GameObject().transform;
+            cam.transform.SetParent(camParent, false);
             cam.transform.localRotation = Quaternion.identity;
             cam.transform.localPosition = Vector3.zero;
             //Cursor.lockState = CursorLockMode.Locked;
@@ -63,7 +65,7 @@ namespace ultramove
             capsule = GetComponent<CapsuleCollider>();
             capsule.height = 1.7f;
             capsule.center = Vector3.zero;
-            capsule.radius = 0.4f;
+            capsule.radius = 0.36f;
 
             PhysicMaterial physmat = new PhysicMaterial();
             physmat.staticFriction = 0;
@@ -75,7 +77,7 @@ namespace ultramove
 
             groundCheck = new GameObject("GroundCheck").AddComponent<GroundCheck>();
             groundCheck.gameObject.transform.SetParent(transform, false);
-            groundCheck.gameObject.transform.localPosition = new Vector3(0, -capsule.height / 2f + capsule.radius - 0.3f, 0);
+            groundCheck.gameObject.transform.localPosition = new Vector3(0, -capsule.height / 2f + capsule.radius - 0.2f, 0);
             SphereCollider sphere = groundCheck.gameObject.AddComponent<SphereCollider>();
             sphere.radius = capsule.radius - 0.05f;
             sphere.isTrigger = true;
@@ -100,15 +102,15 @@ namespace ultramove
             updownRotation = Mathf.Clamp(updownRotation - mouseY, -90f, 90f);
 
             camLevel = Mathf.Lerp(camLevel, capsule.height / 2f - 0.1f, Time.deltaTime * 20f);
-            cameraTransform.position = transform.position + new Vector3(0, camLevel, 0);
-            cameraTransform.rotation = Quaternion.Euler(updownRotation, horizontalRotation, 0);
+            camParent.position = transform.position + new Vector3(0, camLevel, 0);
+            camParent.rotation = Quaternion.Euler(updownRotation, horizontalRotation, 0);
 
             if (Input.GetKeyDown(KeyCode.Space) && jumpCooldown <= 0f)
             {
                 toJump = true;
             }
 
-            if (Input.GetKeyDown(KeyCode.C) && !groundCheck.isGrounded && coyoteTime <= 0f && !slammed)
+            if (Input.GetKeyDown(KeyCode.C) && !groundCheck.isGrounded && coyoteTime <= 0f && !slamming)
             {
                 toSlam = true;
             }
@@ -141,8 +143,18 @@ namespace ultramove
 
             camZ = Mathf.Lerp(camZ, targetZ, Time.deltaTime * 10f);
             cam.transform.localEulerAngles = new Vector3(0, 0, camZ);
-        }
 
+            shakeIntensity -= Time.deltaTime * 2f;
+
+            if (sliding)
+                shakeIntensity = 0.3f;
+
+            if (shakeIntensity > 0)
+            {
+                Vector3 randomOffset = Random.insideUnitSphere * shakeIntensity;
+                cam.transform.localPosition = Vector3.Lerp(Vector3.zero, randomOffset, Time.deltaTime * 10f);
+            }
+        }
 
         void FixedUpdate()
         {
@@ -155,7 +167,9 @@ namespace ultramove
 
             if (grounded)
             {
-                slammed = false;
+                if (slamming)
+                    shakeIntensity = 1f;
+                slamming = false;
 
                 if (jumpCooldown <= 0f && !sliding)
                 {
@@ -197,7 +211,7 @@ namespace ultramove
                 {
                     coyoteTime = -1f;
 
-                    rb.velocity = new Vector3(rb.velocity.x, Mathf.Max(rb.velocity.y + 9f, 9f), rb.velocity.z);
+                    rb.velocity = new Vector3(rb.velocity.x, Mathf.Max(rb.velocity.y + 10f, 10f), rb.velocity.z);
 
                     jumpCooldown = 0.1f;
 
@@ -206,7 +220,7 @@ namespace ultramove
             }
             else if (toSlam)
             {
-                slammed = true;
+                slamming = true;
                 toSlam = false;
                 rb.velocity = new Vector3(0, -40f, 0);
             }
@@ -216,7 +230,7 @@ namespace ultramove
                 capsule.height = 1.7f / 4f;
                 capsule.center = new Vector3(0, -capsule.height / 2f, 0);
 
-                Vector3 slideVel = transform.forward * moveSpeed * 2f;
+                Vector3 slideVel = transform.forward * moveSpeed * 1.5f;
                 slideVel.y = -1f;
                 rb.velocity = slideVel;
             }
@@ -231,7 +245,7 @@ namespace ultramove
                 coyoteTime = 0.3f;
 
                 if (sliding)
-                    coyoteTime *= 2f;
+                    coyoteTime *= 3f;
             }
             groundedPrevTick = grounded;
         }
