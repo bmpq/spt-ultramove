@@ -34,6 +34,9 @@ namespace ultramove
 
         bool sliding;
 
+        bool toSlam;
+        bool slammed;
+
         void Start()
         {
             cam = Camera.main;
@@ -105,6 +108,11 @@ namespace ultramove
                 toJump = true;
             }
 
+            if (Input.GetKeyDown(KeyCode.C) && !groundCheck.isGrounded && coyoteTime <= 0f && !slammed)
+            {
+                toSlam = true;
+            }
+
             coyoteTime -= Time.deltaTime;
 
             if (!sliding)
@@ -147,6 +155,8 @@ namespace ultramove
 
             if (grounded)
             {
+                slammed = false;
+
                 if (jumpCooldown <= 0f && !sliding)
                 {
                     Vector3 targetWalkVelocity = new Vector3(inputRelativeDirection.x * moveSpeed, 0, inputRelativeDirection.z * moveSpeed);
@@ -187,12 +197,18 @@ namespace ultramove
                 {
                     coyoteTime = -1f;
 
-                    rb.velocity = new Vector3(rb.velocity.x, 9f, rb.velocity.z);
+                    rb.velocity = new Vector3(rb.velocity.x, Mathf.Max(rb.velocity.y + 9f, 9f), rb.velocity.z);
 
                     jumpCooldown = 0.1f;
 
                     sliding = false;
                 }
+            }
+            else if (toSlam)
+            {
+                slammed = true;
+                toSlam = false;
+                rb.velocity = new Vector3(0, -40f, 0);
             }
 
             if (sliding)
