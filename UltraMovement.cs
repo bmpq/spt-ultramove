@@ -14,19 +14,23 @@ namespace ultramove
 
         private float coyoteTime;
 
-        private float moveSpeed = 4f;
+        private float moveSpeed = 6f;
 
         CapsuleCollider capsule;
         private LayerMask groundLayer;
 
-        Collider[] groundHits = new Collider[3];
+        GroundCheck groundCheck;
 
-        bool toJump = false;
+        bool toJump;
 
         void Start()
         {
-            rb = GetComponent<Rigidbody>();
+            cameraTransform = Camera.main.transform;
+            Cursor.lockState = CursorLockMode.Locked;
 
+            groundLayer = LayerMask.NameToLayer("LowPolyCollider");
+
+            rb = GetComponent<Rigidbody>();
             rb.isKinematic = false;
             rb.useGravity = true;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -39,12 +43,20 @@ namespace ultramove
             capsule.height = 1.7f;
             capsule.center = Vector3.zero;
 
+            PhysicMaterial physmat = new PhysicMaterial();
+            physmat.staticFriction = 0;
+            physmat.dynamicFriction = 0;
+            physmat.frictionCombine = PhysicMaterialCombine.Minimum;
+            capsule.material = physmat;
+
             rb.position += new Vector3(0, 2f, 0);
 
-            cameraTransform = Camera.main.transform;
-            Cursor.lockState = CursorLockMode.Locked;
-
-            groundLayer = LayerMask.NameToLayer("LowPolyCollider");
+            groundCheck = new GameObject("GroundCheck").AddComponent<GroundCheck>();
+            groundCheck.gameObject.transform.SetParent(transform, false);
+            groundCheck.gameObject.transform.localPosition = new Vector3(0, -capsule.height / 2f + capsule.radius - 0.3f, 0);
+            SphereCollider sphere = groundCheck.gameObject.AddComponent<SphereCollider>();
+            sphere.radius = capsule.radius;
+            sphere.isTrigger = true;
         }
 
         void Update()
@@ -55,7 +67,7 @@ namespace ultramove
             horizontalRotation += mouseX;
             updownRotation = Mathf.Clamp(updownRotation - mouseY, -90f, 90f);
 
-            cameraTransform.position = transform.position + new Vector3(0, 0.8f, 0);
+            cameraTransform.position = transform.position + new Vector3(0, 0.5f, 0);
             cameraTransform.rotation = Quaternion.Euler(updownRotation, horizontalRotation, 0);
 
             if (Input.GetKeyDown(KeyCode.Space))
@@ -63,16 +75,15 @@ namespace ultramove
                 toJump = true;
             }
 
-            if (Input.GetKey(KeyCode.LeftControl))
-            {
-                transform.position += cameraTransform.forward * moveSpeed * Time.deltaTime * 10f;
-            }
-
             coyoteTime -= Time.deltaTime;
         }
 
+
         void FixedUpdate()
         {
+            bool grounded = groundCheck.isGrounded;
+            rb.useGravity = !grounded;
+
             rb.MoveRotation(Quaternion.Euler(0, horizontalRotation, 0));
 
             Vector3 vectorInput = Vector3.zero;
@@ -88,46 +99,33 @@ namespace ultramove
 
             Vector3 velocity = transform.TransformDirection(vectorInput.normalized) * moveSpeed;
 
-            rb.velocity = new Vector3(velocity.x, rb.velocity.y, velocity.z);
+            rb.velocity = new Vector3(velocity.x, grounded ? Mathf.Max(0, rb.velocity.y) : rb.velocity.y, velocity.z);
 
             if (toJump)
             {
                 toJump = false;
 
-                if (coyoteTime > 0f || IsGrounded())
+                if (coyoteTime > 0f || grounded)
                 {
-                    rb.AddForce(new Vector3(0, 10f, 0), ForceMode.Impulse);
-
                     coyoteTime = 0f;
+
+                    rb.AddForce(new Vector3(0, 6f, 0), ForceMode.Impulse);
                 }
             }
-        }
-
-        bool IsGrounded()
-        {
-            Vector3 spherePosition = transform.position + (Vector3.down * (capsule.height / 2));
-            bool grounded = Physics.OverlapSphereNonAlloc(spherePosition, capsule.radius, groundHits, 1 << groundLayer) > 0;
-
-            if (grounded)
-            {
-                coyoteTime = 0.2f;
-            }
-
-            return grounded;
         }
 
         bool IsTouchingCeiling()
         {
             Vector3 spherePosition = transform.position + (Vector3.up * (capsule.height / 2 + 0.1f));
             float sphereRadius = capsule.radius;
-            bool touchingCeiling = Physics.OverlapSphere(spherePosition, sphereRadius, 1 << groundLayer).Length > 0;
+            bool touchingCeiling = Physics.OverlapSphere(spherePosition, sphereRadius, groundLayer).Length > 0;
 
             return touchingCeiling;
         }
 
         bool GoingDownHill(Vector2 inputHorizontal)
         {
-            int layerMask = 1 << 18;
+            int layerMask = 1 << groundLayer;
             RaycastHit hit;
             if (Physics.Raycast(transform.position, Vector3.down, out hit, capsule.height, layerMask))
             {
@@ -149,7 +147,7 @@ namespace ultramove
 
         void GroundClamp()
         {
-            int layerMask = 1 << 18;
+            int layerMask = 1 << groundLayer;
             float targetDistanceToGround = capsule.height / 2f + capsule.radius / 2f;
             targetDistanceToGround -= 0.1f; // yeah i dont know
 
