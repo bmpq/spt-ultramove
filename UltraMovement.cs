@@ -28,6 +28,7 @@ namespace ultramove
         Vector3 vectorInput = Vector3.zero;
 
         float camZ = 0f;
+        float camLevel;
 
 
         void Start()
@@ -38,7 +39,7 @@ namespace ultramove
             cam.transform.SetParent(cameraTransform, false);
             cam.transform.localRotation = Quaternion.identity;
             cam.transform.localPosition = Vector3.zero;
-            Cursor.lockState = CursorLockMode.Locked;
+            //Cursor.lockState = CursorLockMode.Locked;
 
             groundLayer = LayerMask.NameToLayer("LowPolyCollider");
 
@@ -92,7 +93,8 @@ namespace ultramove
             horizontalRotation += mouseX;
             updownRotation = Mathf.Clamp(updownRotation - mouseY, -90f, 90f);
 
-            cameraTransform.position = transform.position + new Vector3(0, 0.5f, 0);
+            camLevel = Mathf.Lerp(camLevel, capsule.height / 2f - 0.1f, Time.deltaTime * 20f);
+            cameraTransform.position = transform.position + new Vector3(0, camLevel, 0);
             cameraTransform.rotation = Quaternion.Euler(updownRotation, horizontalRotation, 0);
 
             jumpCooldown -= Time.deltaTime;
@@ -127,6 +129,17 @@ namespace ultramove
             rb.MoveRotation(Quaternion.Euler(0, horizontalRotation, 0));
 
             Vector3 inputRelativeDirection = transform.TransformDirection(vectorInput.normalized);
+
+            if (Input.GetKey(KeyCode.C) && grounded)
+            {
+                capsule.height = 1.7f / 2.5f;
+                capsule.center = new Vector3(0, -capsule.height / 2f, 0);
+            }
+            else
+            {
+                capsule.height = 1.7f;
+                capsule.center = Vector3.zero;
+            }
 
             if (grounded)
             {
@@ -169,52 +182,6 @@ namespace ultramove
 
                     jumpCooldown = 0.1f;
                 }
-            }
-        }
-
-        bool IsTouchingCeiling()
-        {
-            Vector3 spherePosition = transform.position + (Vector3.up * (capsule.height / 2 + 0.1f));
-            float sphereRadius = capsule.radius;
-            bool touchingCeiling = Physics.OverlapSphere(spherePosition, sphereRadius, groundLayer).Length > 0;
-
-            return touchingCeiling;
-        }
-
-        bool GoingDownHill(Vector2 inputHorizontal)
-        {
-            int layerMask = 1 << groundLayer;
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, Vector3.down, out hit, capsule.height, layerMask))
-            {
-                float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
-                if (slopeAngle > 10f)
-                {
-                    Vector3 moveDirection = new Vector3(inputHorizontal.x, 0f, inputHorizontal.y);
-                    moveDirection = transform.TransformDirection(moveDirection);
-                    float downhillCheck = Vector3.Dot(moveDirection, hit.normal);
-                    if (downhillCheck > 0)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        void GroundClamp()
-        {
-            int layerMask = 1 << groundLayer;
-            float targetDistanceToGround = capsule.height / 2f + capsule.radius / 2f;
-            targetDistanceToGround -= 0.1f; // yeah i dont know
-
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, Vector3.down, out hit, targetDistanceToGround + 0.3f, layerMask))
-            {
-                Vector3 newPosition = transform.position;
-                newPosition.y = hit.point.y + targetDistanceToGround;
-                transform.position = newPosition;
             }
         }
     }
