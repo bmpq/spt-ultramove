@@ -22,6 +22,7 @@ namespace ultramove
         GroundCheck groundCheck;
 
         bool toJump;
+        float jumpCooldown;
 
         void Start()
         {
@@ -70,7 +71,9 @@ namespace ultramove
             cameraTransform.position = transform.position + new Vector3(0, 0.5f, 0);
             cameraTransform.rotation = Quaternion.Euler(updownRotation, horizontalRotation, 0);
 
-            if (Input.GetKeyDown(KeyCode.Space))
+            jumpCooldown -= Time.deltaTime;
+
+            if (Input.GetKeyDown(KeyCode.Space) && jumpCooldown <= 0f)
             {
                 toJump = true;
             }
@@ -110,6 +113,8 @@ namespace ultramove
                     coyoteTime = 0f;
 
                     rb.AddForce(new Vector3(0, 6f, 0), ForceMode.Impulse);
+
+                    jumpCooldown = 0.1f;
                 }
             }
         }
