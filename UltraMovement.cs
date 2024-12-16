@@ -131,10 +131,13 @@ namespace ultramove
 
             Vector3 inputRelativeDirection = transform.TransformDirection(vectorInput.normalized);
 
-            if (Input.GetKey(KeyCode.C) && grounded)
+            bool sliding = grounded && Input.GetKey(KeyCode.C) && jumpCooldown <= 0f;
+            if (sliding)
             {
-                capsule.height = 1.7f / 2.5f;
+                capsule.height = 1.7f / 4f;
                 capsule.center = new Vector3(0, -capsule.height / 2f, 0);
+
+                rb.velocity = transform.forward * moveSpeed * 2f;
             }
             else
             {
@@ -144,7 +147,7 @@ namespace ultramove
 
             if (grounded)
             {
-                if (jumpCooldown <= 0f)
+                if (jumpCooldown <= 0f && !sliding)
                 {
                     Vector3 targetWalkVelocity = new Vector3(inputRelativeDirection.x * moveSpeed, 0, inputRelativeDirection.z * moveSpeed);
                     rb.velocity = Vector3.Lerp(rb.velocity, targetWalkVelocity, Time.fixedDeltaTime * 20f);
