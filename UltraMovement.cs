@@ -5,6 +5,7 @@ namespace ultramove
     public class UltraMovement : MonoBehaviour
     {
         private Transform cameraTransform;
+        private Camera cam;
         private Rigidbody rb;
         private float horizontalRotation = 0f;
 
@@ -26,9 +27,17 @@ namespace ultramove
 
         Vector3 vectorInput = Vector3.zero;
 
+        float camZ = 0f;
+
+
         void Start()
         {
-            cameraTransform = Camera.main.transform;
+            cam = Camera.main;
+
+            cameraTransform = new GameObject().transform;
+            cam.transform.SetParent(cameraTransform, false);
+            cam.transform.localRotation = Quaternion.identity;
+            cam.transform.localPosition = Vector3.zero;
             Cursor.lockState = CursorLockMode.Locked;
 
             groundLayer = LayerMask.NameToLayer("LowPolyCollider");
@@ -47,6 +56,7 @@ namespace ultramove
             capsule = GetComponent<CapsuleCollider>();
             capsule.height = 1.7f;
             capsule.center = Vector3.zero;
+            capsule.radius = 0.4f;
 
             PhysicMaterial physmat = new PhysicMaterial();
             physmat.staticFriction = 0;
@@ -60,7 +70,7 @@ namespace ultramove
             groundCheck.gameObject.transform.SetParent(transform, false);
             groundCheck.gameObject.transform.localPosition = new Vector3(0, -capsule.height / 2f + capsule.radius - 0.3f, 0);
             SphereCollider sphere = groundCheck.gameObject.AddComponent<SphereCollider>();
-            sphere.radius = capsule.radius;
+            sphere.radius = capsule.radius - 0.05f;
             sphere.isTrigger = true;
         }
 
@@ -93,6 +103,19 @@ namespace ultramove
             }
 
             coyoteTime -= Time.deltaTime;
+
+            AnimateCamera();
+        }
+
+        void AnimateCamera()
+        {
+            float targetZ = -vectorInput.x * 2f;
+
+            if (!groundCheck.isGrounded)
+                targetZ *= 2f;
+
+            camZ = Mathf.Lerp(camZ, targetZ, Time.deltaTime * 10f);
+            cam.transform.localEulerAngles = new Vector3(0, 0, camZ);
         }
 
 
@@ -107,8 +130,11 @@ namespace ultramove
 
             if (grounded)
             {
-                Vector3 targetWalkVelocity = new Vector3(inputRelativeDirection.x * moveSpeed, Mathf.Max(0, rb.velocity.y), inputRelativeDirection.z * moveSpeed);
-                rb.velocity = Vector3.Lerp(rb.velocity, targetWalkVelocity, Time.fixedDeltaTime * 20f);
+                if (jumpCooldown <= 0f)
+                {
+                    Vector3 targetWalkVelocity = new Vector3(inputRelativeDirection.x * moveSpeed, 0, inputRelativeDirection.z * moveSpeed);
+                    rb.velocity = Vector3.Lerp(rb.velocity, targetWalkVelocity, Time.fixedDeltaTime * 20f);
+                }
             }
             else
             {
