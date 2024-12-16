@@ -14,7 +14,7 @@ namespace ultramove
 
         private float coyoteTime;
 
-        private float moveSpeed = 6f;
+        private float moveSpeed = 7f;
 
         CapsuleCollider capsule;
         private LayerMask groundLayer;
@@ -24,12 +24,16 @@ namespace ultramove
         bool toJump;
         float jumpCooldown;
 
+        Vector3 vectorInput = Vector3.zero;
+
         void Start()
         {
             cameraTransform = Camera.main.transform;
             Cursor.lockState = CursorLockMode.Locked;
 
             groundLayer = LayerMask.NameToLayer("LowPolyCollider");
+
+            Physics.gravity = new Vector3(0, -14f, 0);
 
             rb = GetComponent<Rigidbody>();
             rb.isKinematic = false;
@@ -65,6 +69,16 @@ namespace ultramove
             float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
             float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
+            vectorInput = Vector3.zero;
+            if (Input.GetKey(KeyCode.A))
+                vectorInput.x = -1f;
+            if (Input.GetKey(KeyCode.D))
+                vectorInput.x = 1f;
+            if (Input.GetKey(KeyCode.W))
+                vectorInput.z = 1f;
+            if (Input.GetKey(KeyCode.S))
+                vectorInput.z = -1f;
+
             horizontalRotation += mouseX;
             updownRotation = Mathf.Clamp(updownRotation - mouseY, -90f, 90f);
 
@@ -89,20 +103,33 @@ namespace ultramove
 
             rb.MoveRotation(Quaternion.Euler(0, horizontalRotation, 0));
 
-            Vector3 vectorInput = Vector3.zero;
+            Vector3 inputRelativeDirection = transform.TransformDirection(vectorInput.normalized);
 
-            if (Input.GetKey(KeyCode.A))
-                vectorInput.x = -1f;
-            if (Input.GetKey(KeyCode.D))
-                vectorInput.x = 1f;
-            if (Input.GetKey(KeyCode.W))
-                vectorInput.z = 1f;
-            if (Input.GetKey(KeyCode.S))
-                vectorInput.z = -1f;
+            if (grounded)
+            {
+                Vector3 targetWalkVelocity = new Vector3(inputRelativeDirection.x * moveSpeed, Mathf.Max(0, rb.velocity.y), inputRelativeDirection.z * moveSpeed);
+                rb.velocity = Vector3.Lerp(rb.velocity, targetWalkVelocity, Time.fixedDeltaTime * 20f);
+            }
+            else
+            {
+                Vector3 relativeVelocity = transform.InverseTransformDirection(rb.velocity);
 
-            Vector3 velocity = transform.TransformDirection(vectorInput.normalized) * moveSpeed;
+                float airVelocityLimit = moveSpeed;
+                Vector3 airForce = vectorInput.normalized;
+                airForce.y = 0f;
 
-            rb.velocity = new Vector3(velocity.x, grounded ? Mathf.Max(0, rb.velocity.y) : rb.velocity.y, velocity.z);
+                if (vectorInput.x > 0f && relativeVelocity.x > airVelocityLimit)
+                    airForce.x = 0f;
+                else if (vectorInput.x < 0f && relativeVelocity.x < -airVelocityLimit)
+                    airForce.x = 0f;
+
+                if (vectorInput.z > 0f && relativeVelocity.z > airVelocityLimit)
+                    airForce.z = 0f;
+                else if (vectorInput.z < 0f && relativeVelocity.z < -airVelocityLimit)
+                    airForce.z = 0f;
+
+                rb.AddRelativeForce(airForce * Time.fixedDeltaTime * 1500f);
+            }
 
             if (toJump)
             {
@@ -112,7 +139,7 @@ namespace ultramove
                 {
                     coyoteTime = 0f;
 
-                    rb.AddForce(new Vector3(0, 6f, 0), ForceMode.Impulse);
+                    rb.AddForce(new Vector3(0, 9f, 0), ForceMode.Impulse);
 
                     jumpCooldown = 0.1f;
                 }
