@@ -53,6 +53,11 @@ namespace ultramove
                 }
             }
 
+            foreach (Renderer rend in playerBody.BodySkins[EBodyModelPart.Feet].GetRenderers())
+            {
+                rend.forceRenderingOff = true;
+            }
+
             goPlayer.AddComponent<UltraMovement>();
             goPlayer.AddComponent<DoorOpener>();
         }
