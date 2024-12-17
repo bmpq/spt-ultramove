@@ -1,4 +1,5 @@
-﻿using EFT;
+﻿using AssetBundleLoader;
+using EFT;
 using EFT.CameraControl;
 using SPT.Reflection.Patching;
 using System;
@@ -32,7 +33,7 @@ namespace ultramove
             goPlayer.GetComponent<Player.FirearmController>().enabled = false;
             goPlayer.GetComponent<Player>().enabled = false;
 
-            goPlayer.GetComponentInChildren<Animator>().enabled = false;
+            goPlayer.GetComponentInChildren<Animator>().runtimeAnimatorController = BundleLoader.LoadAssetBundle(BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<RuntimeAnimatorController>("UltraFPS");
 
             PlayerBody playerBody = goPlayer.GetComponentInChildren<PlayerBody>();
             Collider[] cols = playerBody.GetComponentsInChildren<Collider>();
