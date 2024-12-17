@@ -76,8 +76,6 @@ namespace ultramove
             physmat.frictionCombine = PhysicMaterialCombine.Minimum;
             capsule.material = physmat;
 
-            rb.position += new Vector3(0, 2f, 0);
-
             groundCheck = new GameObject("GroundCheck").AddComponent<GroundCheck>();
             groundCheck.gameObject.transform.SetParent(transform, false);
             SphereCollider sphere = groundCheck.gameObject.AddComponent<SphereCollider>();
@@ -215,9 +213,6 @@ namespace ultramove
             if (!grounded && groundedPrevTick && jumpCooldown <= 0)
             {
                 coyoteTime = 0.3f;
-
-                if (sliding)
-                    coyoteTime *= 3f;
             }
             groundedPrevTick = grounded;
 
