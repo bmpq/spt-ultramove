@@ -67,7 +67,7 @@ namespace ultramove
 
             capsule = GetComponent<CapsuleCollider>();
             capsule.height = 1.7f;
-            capsule.center = Vector3.zero;
+            capsule.center = new Vector3(0, capsule.height / 2f, 0);
             capsule.radius = 0.36f;
 
             PhysicMaterial physmat = new PhysicMaterial();
@@ -80,10 +80,10 @@ namespace ultramove
 
             groundCheck = new GameObject("GroundCheck").AddComponent<GroundCheck>();
             groundCheck.gameObject.transform.SetParent(transform, false);
-            groundCheck.gameObject.transform.localPosition = new Vector3(0, -capsule.height / 2f + capsule.radius - 0.2f, 0);
             SphereCollider sphere = groundCheck.gameObject.AddComponent<SphereCollider>();
             sphere.radius = capsule.radius - 0.05f;
             sphere.isTrigger = true;
+            groundCheck.gameObject.transform.localPosition = new Vector3(0, sphere.radius / 2f, 0);
         }
 
         void Update()
@@ -104,7 +104,7 @@ namespace ultramove
             horizontalRotation += mouseX;
             updownRotation = Mathf.Clamp(updownRotation - mouseY, -90f, 90f);
 
-            camLevel = Mathf.Lerp(camLevel, capsule.height / 2f - 0.1f, Time.deltaTime * 20f);
+            camLevel = Mathf.Lerp(camLevel, capsule.height - 0.1f, Time.deltaTime * 20f);
             camParent.position = transform.position + new Vector3(0, camLevel, 0);
             camParent.rotation = Quaternion.Euler(updownRotation, horizontalRotation, 0);
 
@@ -244,8 +244,8 @@ namespace ultramove
 
             if (sliding)
             {
-                capsule.height = 1.7f / 4f;
-                capsule.center = new Vector3(0, -capsule.height / 2f, 0);
+                capsule.height = capsule.radius * 2f;
+                capsule.center = new Vector3(0, capsule.height / 2f, 0);
 
                 Vector3 slideVel = transform.forward * moveSpeed * 1.5f;
                 slideVel.y = -1f;
@@ -254,7 +254,7 @@ namespace ultramove
             else
             {
                 capsule.height = 1.7f;
-                capsule.center = Vector3.zero;
+                capsule.center = new Vector3(0, capsule.height / 2f, 0);
             }
 
             if (!grounded && groundedPrevTick && jumpCooldown <= 0)
