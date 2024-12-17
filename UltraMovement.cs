@@ -39,6 +39,9 @@ namespace ultramove
 
         float shakeIntensity = 0f;
 
+        Vector3 dashDir;
+        float dashTime;
+
         void Start()
         {
             cam = Camera.main;
@@ -115,6 +118,12 @@ namespace ultramove
                 toSlam = true;
             }
 
+            if (Input.GetKeyDown(KeyCode.LeftShift))
+            {
+                dashDir = transform.TransformDirection(vectorInput == Vector3.zero ? new Vector3(0, 0, 1f) : vectorInput.normalized);
+                dashTime = 0.3f;
+            }
+
             coyoteTime -= Time.deltaTime;
 
             if (!sliding)
@@ -165,7 +174,12 @@ namespace ultramove
 
             Vector3 inputRelativeDirection = transform.TransformDirection(vectorInput.normalized);
 
-            if (grounded)
+            if (dashTime > 0f)
+            {
+                dashTime -= Time.fixedDeltaTime;
+                rb.velocity = Vector3.Lerp(rb.velocity, dashDir * moveSpeed * 3f, Time.fixedDeltaTime * 20f);
+            }
+            else if (grounded)
             {
                 if (slamming)
                     shakeIntensity = 1f;
@@ -209,6 +223,8 @@ namespace ultramove
 
                 if (coyoteTime > 0f || groundedPrevTick)
                 {
+                    dashTime = -1f;
+
                     coyoteTime = -1f;
 
                     rb.velocity = new Vector3(rb.velocity.x, Mathf.Max(rb.velocity.y + 10f, 10f), rb.velocity.z);
@@ -220,6 +236,7 @@ namespace ultramove
             }
             else if (toSlam)
             {
+                dashTime = -1f;
                 slamming = true;
                 toSlam = false;
                 rb.velocity = new Vector3(0, -40f, 0);
