@@ -212,6 +212,15 @@ namespace ultramove
                 rb.AddRelativeForce(airForce * Time.fixedDeltaTime * 1500f);
             }
 
+            if (!grounded && groundedPrevTick && jumpCooldown <= 0)
+            {
+                coyoteTime = 0.3f;
+
+                if (sliding)
+                    coyoteTime *= 3f;
+            }
+            groundedPrevTick = grounded;
+
             if (!grounded && coyoteTime < 0f)
             {
                 sliding = false;
@@ -256,15 +265,6 @@ namespace ultramove
                 capsule.height = 1.7f;
                 capsule.center = new Vector3(0, capsule.height / 2f, 0);
             }
-
-            if (!grounded && groundedPrevTick && jumpCooldown <= 0)
-            {
-                coyoteTime = 0.3f;
-
-                if (sliding)
-                    coyoteTime *= 3f;
-            }
-            groundedPrevTick = grounded;
         }
     }
 }
