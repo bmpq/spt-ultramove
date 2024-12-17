@@ -34,7 +34,24 @@ namespace ultramove
 
             goPlayer.GetComponentInChildren<Animator>().enabled = false;
 
-            //GameObject.Destroy(goPlayer.GetComponentInChildren<PlayerBody>().gameObject);
+            PlayerBody playerBody = goPlayer.GetComponentInChildren<PlayerBody>();
+            Collider[] cols = playerBody.GetComponentsInChildren<Collider>();
+            foreach (Collider col in cols)
+            {
+                if (col is SphereCollider sphere)
+                {
+                    sphere.radius *= 0.3f;
+                }
+                else if (col is CapsuleCollider capsule)
+                {
+                    capsule.radius *= 0.3f;
+                    capsule.height *= 0.3f;
+                }
+                else if (col is BoxCollider box)
+                {
+                    box.size *= 0.3f;
+                }
+            }
 
             goPlayer.AddComponent<UltraMovement>();
             goPlayer.AddComponent<DoorOpener>();
