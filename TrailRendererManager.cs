@@ -39,17 +39,19 @@ namespace ultramove
                 trail = CreateNewTrailRenderer();
             }
 
-            // Default to the manager's lifetime setting if no lifetime is specified.
             lifetime = lifetime > 0 ? lifetime : defaultTrailLifetime;
 
-            // Start the timer for automated returning.
+            // Start shrinking and return management coroutine.
             if (activeTrailTimers.ContainsKey(trail))
             {
                 Debug.LogWarning("Trying to reuse a trail that already has an active timer.");
                 return null;
             }
 
-            activeTrailTimers[trail] = StartCoroutine(ReturnTrailAfterDelay(trail, lifetime));
+            trail.startWidth = 0.06f;
+            trail.endWidth = trail.startWidth;
+
+            activeTrailTimers[trail] = StartCoroutine(HandleTrailLifetime(trail, lifetime));
 
             return trail;
         }
@@ -59,7 +61,6 @@ namespace ultramove
             if (trail == null || !activeTrailTimers.ContainsKey(trail))
                 return;
 
-            // Stop the automated timer if it’s still running.
             if (activeTrailTimers.TryGetValue(trail, out Coroutine timer))
             {
                 StopCoroutine(timer);
@@ -67,10 +68,10 @@ namespace ultramove
 
             activeTrailTimers.Remove(trail);
 
-            // Clear and reset the trail for reuse.
             trail.Clear();
             trail.transform.SetParent(null);
             trail.transform.localPosition = Vector3.zero;
+
             trail.emitting = false;
 
             availableTrails.Add(trail);
@@ -82,9 +83,6 @@ namespace ultramove
 
             trail.material = new Material(shader);
 
-            trail.startWidth = 0.05f;
-            trail.endWidth = 0.05f;
-
             trail.startColor = Color.white;
             trail.endColor = new Color(1, 1, 1, 0f);
 
@@ -94,14 +92,21 @@ namespace ultramove
             return trail;
         }
 
-        private IEnumerator ReturnTrailAfterDelay(TrailRenderer trail, float delay)
+        private IEnumerator HandleTrailLifetime(TrailRenderer trail, float lifetime)
         {
-            yield return new WaitForSeconds(delay);
+            float elapsed = 0f;
 
-            if (trail != null)
+            while (elapsed < lifetime)
             {
-                ReturnTrail(trail);
+                elapsed += Time.deltaTime;
+
+                trail.startWidth = Mathf.Max(0, trail.startWidth - Time.deltaTime * 0.2f);
+                trail.endWidth = trail.startWidth;
+
+                yield return null;
             }
+
+            ReturnTrail(trail);
         }
 
         private void OnDestroy()
