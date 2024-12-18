@@ -47,6 +47,9 @@
     <Reference Include="UnityEngine.AssetBundleModule">
       <HintPath>$(SPTPath)\EscapeFromTarkov_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>$(SPTPath)\EscapeFromTarkov_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+    </Reference>
     <Reference Include="Cinemachine">
       <HintPath>$(SPTPath)\EscapeFromTarkov_Data\Managed\Cinemachine.dll</HintPath>
     </Reference>

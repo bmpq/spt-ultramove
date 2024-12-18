@@ -16,12 +16,15 @@ namespace ultramove
 
         TrailRendererManager trails;
         Transform muzzle;
+        ParticleEffectManager particles;
 
         private void Start()
         {
             cam = Camera.main;
             trails = gameObject.GetOrAddComponent<TrailRendererManager>();
             player = Singleton<GameWorld>.Instance.GetAlivePlayerBridgeByProfileID(Singleton<GameWorld>.Instance.MainPlayer.ProfileId);
+
+            particles = gameObject.GetOrAddComponent<ParticleEffectManager>();
 
             muzzle = transform.FindInChildrenExact("muzzleflash_000");
             if (muzzle == null)
@@ -65,6 +68,7 @@ namespace ultramove
                     Singleton<Effects>.Instance.Emit(ballisticCollider.TypeOfMaterial, ballisticCollider, hit.point, hit.normal, 0.1f);
 
                     Trail(hit.point);
+                    particles.PlayBloodEffect(hit.point, hit.normal);
                 }
                 else
                 {
