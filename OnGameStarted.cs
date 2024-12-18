@@ -30,7 +30,10 @@ namespace ultramove
             goPlayer.GetComponent<PlayerCameraController>().enabled = false;
             goPlayer.GetComponent<SimpleCharacterController>().enabled = false;
             goPlayer.GetComponent<CharacterControllerSpawner>().enabled = false;
-            goPlayer.GetComponent<Player.FirearmController>().enabled = false;
+
+            var firearm = goPlayer.GetComponent<Player.FirearmController>();
+            GameObject weapon = firearm.ControllerGameObject;
+            firearm.enabled = false;
             goPlayer.GetComponent<Player>().enabled = false;
 
             goPlayer.GetComponentInChildren<Animator>().runtimeAnimatorController = BundleLoader.LoadAssetBundle(BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<RuntimeAnimatorController>("UltraFPS");
@@ -61,7 +64,7 @@ namespace ultramove
 
             goPlayer.AddComponent<UltraMovement>();
             goPlayer.AddComponent<DoorOpener>();
-            goPlayer.AddComponent<HandsController>();
+            goPlayer.AddComponent<HandsController>().SetWeapon(weapon);
         }
     }
 }
