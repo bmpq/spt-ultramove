@@ -14,10 +14,20 @@ namespace ultramove
 
         IPlayerOwner player;
 
+        TrailRendererManager trails;
+        Transform muzzle;
+
         private void Start()
         {
             cam = Camera.main;
+            trails = gameObject.GetOrAddComponent<TrailRendererManager>();
             player = Singleton<GameWorld>.Instance.GetAlivePlayerBridgeByProfileID(Singleton<GameWorld>.Instance.MainPlayer.ProfileId);
+
+            muzzle = transform.FindInChildrenExact("muzzleflash_000");
+            if (muzzle == null)
+            {
+                muzzle = transform.FindInChildrenExact("Base HumanRPalm");
+            }
         }
 
         public void Shoot()
@@ -53,12 +63,32 @@ namespace ultramove
                     ballisticCollider.ApplyHit(damageInfo, ShotIdStruct.EMPTY_SHOT_ID);
 
                     Singleton<Effects>.Instance.Emit(ballisticCollider.TypeOfMaterial, ballisticCollider, hit.point, hit.normal, 0.1f);
+
+                    Trail(hit.point);
                 }
                 else
                 {
                     Plugin.Log.LogWarning($"{hit.collider.gameObject.name} does not contain BallisticCollider!");
                 }
             }
+        }
+
+        void Trail(Vector3 hitpoint)
+        {
+            TrailRenderer trail = trails.GetTrail(1f);
+            trail.transform.position = muzzle.position;
+            trail.Clear();
+            trail.emitting = true;
+
+            StartCoroutine(WaitOneFrame(trail.transform, hitpoint));
+        }
+
+        IEnumerator WaitOneFrame(Transform tr, Vector3 point)
+        {
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+
+            tr.position = point;
         }
     }
 }
