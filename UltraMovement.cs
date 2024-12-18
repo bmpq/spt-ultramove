@@ -100,7 +100,7 @@ namespace ultramove
                 vectorInput.z = -1f;
 
             horizontalRotation += mouseX;
-            updownRotation = Mathf.Clamp(updownRotation - mouseY, -90f, 90f);
+            updownRotation = Mathf.Clamp(updownRotation - mouseY, -85f, 85f);
 
             camLevel = Mathf.Lerp(camLevel, capsule.height - 0.1f, Time.deltaTime * 20f);
             camParent.position = transform.position + new Vector3(0, camLevel, 0);
@@ -168,6 +168,7 @@ namespace ultramove
             bool grounded = groundCheck.isGrounded;
             rb.useGravity = !grounded;
 
+            rb.angularVelocity = Vector3.zero;
             rb.MoveRotation(Quaternion.Euler(0, horizontalRotation, 0));
 
             Vector3 inputRelativeDirection = transform.TransformDirection(vectorInput.normalized);

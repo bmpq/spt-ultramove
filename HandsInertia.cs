@@ -26,7 +26,7 @@ namespace ultramove
             inertia = Vector3.Lerp(inertia, -rb.velocity * Time.fixedDeltaTime * 0.5f, Time.deltaTime * 6f);
 
             ribcage.position = cam.transform.TransformPoint(new Vector3(0, -0.1f, 0)) + inertia;
-            ribcage.rotation = Quaternion.Lerp(ribcage.rotation, cam.transform.rotation, Time.deltaTime * 10f);
+            ribcage.rotation = cam.transform.rotation;
         }
     }
 }

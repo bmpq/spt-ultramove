@@ -50,7 +50,7 @@ namespace ultramove
             recoilPivotOriginalLocalQuaternion = recoilPivot.localRotation;
             recoilPivotOriginalLocalPosition = recoilPivot.localPosition;
 
-            recoilHighRot = recoilPivotOriginalLocalQuaternion * Quaternion.Euler(40f, 0, 10f);
+            recoilHighRot = recoilPivotOriginalLocalQuaternion * Quaternion.Euler(40f, 0, 0f);
             recoilHighPos = recoilPivotOriginalLocalPosition - new Vector3(0.1f, 0, 0.5f);
 
             palm = transform.FindInChildrenExact("Base HumanRPalm");
@@ -72,7 +72,7 @@ namespace ultramove
 
             recoilTime += Time.deltaTime;
 
-            float recoil = CalculateRecoil(recoilTime, 1f, 50f, 5f);
+            float recoil = CalculateRecoil(recoilTime, 1f, 40f, 5f);
             recoilPivot.localRotation = Quaternion.Lerp(recoilPivotOriginalLocalQuaternion, recoilHighRot, recoil);
             recoilPivot.localPosition = Vector3.Lerp(recoilPivotOriginalLocalPosition, recoilHighPos, recoil);
         }
