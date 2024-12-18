@@ -18,6 +18,8 @@ namespace ultramove
         Vector3 recoilPivotOriginalLocalPosition;
         float recoilTime;
 
+        GunController gunController;
+
         public void SetWeapon(GameObject weapon)
         {
             Destroy(weapon.GetComponentInChildren<Animator>());
@@ -44,6 +46,8 @@ namespace ultramove
 
         void Start()
         {
+            gunController = gameObject.GetComponent<GunController>();
+
             animator = GetComponentInChildren<Animator>();
 
             recoilPivot = transform.FindInChildrenExact("Base HumanRCollarbone");
@@ -68,6 +72,8 @@ namespace ultramove
             if (Input.GetMouseButtonDown(0))
             {
                 recoilTime = 0f;
+
+                gunController.Shoot();
             }
 
             recoilTime += Time.deltaTime;

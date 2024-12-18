@@ -64,6 +64,7 @@ namespace ultramove
 
             goPlayer.AddComponent<UltraMovement>();
             goPlayer.AddComponent<DoorOpener>();
+            goPlayer.AddComponent<GunController>();
             goPlayer.AddComponent<HandsController>().SetWeapon(weapon);
             goPlayer.AddComponent<HandsInertia>();
         }
