@@ -6,8 +6,6 @@ namespace ultramove
 {
     public class HandsController : MonoBehaviour
     {
-        Transform target;
-        Camera cam;
         Animator animator;
 
         float coinCooldown;
@@ -38,17 +36,11 @@ namespace ultramove
 
         void Start()
         {
-            cam = Camera.main;
-            target = transform.FindInChildrenExact("Base HumanRibcage");
             animator = GetComponentInChildren<Animator>();
         }
 
         private void Update()
         {
-            target.localScale = new Vector3(1f, 1f, 0.8f);
-            target.position = cam.transform.TransformPoint(new Vector3(0, -0.1f, 0));
-            target.rotation = cam.transform.rotation;
-
             coinCooldown -= Time.deltaTime;
             if (Input.GetMouseButtonDown(1))
             {
