@@ -61,6 +61,7 @@ namespace ultramove
 
             goPlayer.AddComponent<UltraMovement>();
             goPlayer.AddComponent<DoorOpener>();
+            goPlayer.AddComponent<HandsController>();
         }
     }
 }
