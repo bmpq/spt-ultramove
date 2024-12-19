@@ -12,14 +12,12 @@ namespace ultramove
     {
         Camera cam;
 
-        TrailRendererManager trails;
         Transform muzzle;
         ParticleEffectManager particles;
 
         private void Start()
         {
             cam = Camera.main;
-            trails = gameObject.GetOrAddComponent<TrailRendererManager>();
             particles = gameObject.GetOrAddComponent<ParticleEffectManager>();
 
             muzzle = transform.FindInChildrenExact("muzzleflash_000");
@@ -41,31 +39,25 @@ namespace ultramove
 
             if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, layerMask))
             {
-                MaterialType matHit = EFTBallisticsInterface.Instance.Hit(hit);
+                MaterialType matHit = MaterialType.None;
 
-                Trail(hit.point);
+                if (hit.transform.tag == "DynamicCollider")
+                {
+                    if (hit.rigidbody.TryGetComponent<Coin>(out Coin coin))
+                    {
+                        coin.Hit(50);
+                    }
+                }
+                else
+                {
+                    matHit = EFTBallisticsInterface.Instance.Hit(hit);
+                }
+
+                TrailRendererManager.Instance.Trail(muzzle.position, hit.point);
 
                 if (matHit == MaterialType.Body || matHit == MaterialType.BodyArmor)
                     particles.PlayBloodEffect(hit.point, hit.normal);
             }
-        }
-
-        void Trail(Vector3 hitpoint)
-        {
-            TrailRenderer trail = trails.GetTrail(1f);
-            trail.transform.position = muzzle.position;
-            trail.Clear();
-            trail.emitting = true;
-
-            StartCoroutine(WaitOneFrame(trail.transform, hitpoint));
-        }
-
-        IEnumerator WaitOneFrame(Transform tr, Vector3 point)
-        {
-            yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();
-
-            tr.position = point;
         }
     }
 }

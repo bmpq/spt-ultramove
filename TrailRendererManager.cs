@@ -6,6 +6,20 @@ namespace ultramove
 {
     public class TrailRendererManager : MonoBehaviour
     {
+        public static TrailRendererManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new GameObject("TrailsManager").AddComponent<TrailRendererManager>();
+                    _instance.Init();
+                }
+                return _instance;
+            }
+        }
+        private static TrailRendererManager _instance;
+
         private int initialPoolSize = 10;
 
         private float defaultTrailLifetime = 0.5f;
@@ -15,9 +29,9 @@ namespace ultramove
 
         Shader shader;
 
-        private void Awake()
+        public void Init()
         {
-            shader = Shader.Find("Unlit/Color");
+            shader = Shader.Find("Sprites/Default");
 
             for (int i = 0; i < initialPoolSize; i++)
             {
@@ -25,7 +39,25 @@ namespace ultramove
             }
         }
 
-        public TrailRenderer GetTrail(float lifetime = -1f)
+        public void Trail(Vector3 a, Vector3 b)
+        {
+            TrailRenderer trail = GetTrail(1f);
+            trail.transform.position = a;
+            trail.Clear();
+            trail.emitting = true;
+
+            StartCoroutine(WaitOneFrame(trail.transform, b));
+        }
+
+        IEnumerator WaitOneFrame(Transform tr, Vector3 point)
+        {
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+
+            tr.position = point;
+        }
+
+        private TrailRenderer GetTrail(float lifetime = -1f)
         {
             TrailRenderer trail;
 
@@ -56,7 +88,7 @@ namespace ultramove
             return trail;
         }
 
-        public void ReturnTrail(TrailRenderer trail)
+        private void ReturnTrail(TrailRenderer trail)
         {
             if (trail == null || !activeTrailTimers.ContainsKey(trail))
                 return;
@@ -84,7 +116,7 @@ namespace ultramove
             trail.material = new Material(shader);
 
             trail.startColor = Color.white;
-            trail.endColor = new Color(1, 1, 1, 0f);
+            trail.endColor = Color.white;
 
             trail.time = 0.5f;
 
@@ -113,7 +145,8 @@ namespace ultramove
         {
             foreach (var trail in availableTrails)
             {
-                Destroy(trail.gameObject);
+                if (trail != null)
+                    Destroy(trail.gameObject);
             }
 
             foreach (var trail in activeTrailTimers.Keys)
