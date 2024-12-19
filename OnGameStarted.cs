@@ -68,7 +68,7 @@ namespace ultramove
             goPlayer.AddComponent<GunController>();
             goPlayer.AddComponent<HandsController>().SetWeapon(weapon);
             goPlayer.AddComponent<HandsInertia>();
-            goPlayer.AddComponent<CoinTosser>().SetPrefab(bundleUltrakill.LoadAsset<GameObject>("bitcoin"));
+            goPlayer.AddComponent<CoinTosser>().SetPrefab(bundleUltrakill.LoadAsset<GameObject>("bitcoin"), bundleUltrakill.LoadAsset<Texture>("item_barter_valuable_bitcoin_D"));
         }
     }
 }

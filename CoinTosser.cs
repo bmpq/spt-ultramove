@@ -20,9 +20,14 @@ namespace ultramove
             trailMat = new Material(Shader.Find("Sprites/Default"));
         }
 
-        public void SetPrefab(GameObject coin)
+        public void SetPrefab(GameObject coin, Texture mainTex)
         {
             prefabCoin = coin;
+
+            MeshRenderer meshRend = prefabCoin.GetComponent<MeshRenderer>();
+            meshRend.sharedMaterial = new Material(Shader.Find("p0/Reflective/Bumped Emissive Specular SMap"));
+            meshRend.sharedMaterial.mainTexture = mainTex;
+            meshRend.sharedMaterial.SetTexture("_EmissionMap", mainTex);
         }
 
         public void Toss()
