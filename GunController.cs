@@ -12,8 +12,6 @@ namespace ultramove
     {
         Camera cam;
 
-        IPlayerOwner player;
-
         TrailRendererManager trails;
         Transform muzzle;
         ParticleEffectManager particles;
@@ -22,8 +20,6 @@ namespace ultramove
         {
             cam = Camera.main;
             trails = gameObject.GetOrAddComponent<TrailRendererManager>();
-            player = Singleton<GameWorld>.Instance.GetAlivePlayerBridgeByProfileID(Singleton<GameWorld>.Instance.MainPlayer.ProfileId);
-
             particles = gameObject.GetOrAddComponent<ParticleEffectManager>();
 
             muzzle = transform.FindInChildrenExact("muzzleflash_000");
@@ -45,37 +41,12 @@ namespace ultramove
 
             if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, layerMask))
             {
-                BallisticCollider ballisticCollider = hit.collider.gameObject.GetComponent<BallisticCollider>();
-                if (ballisticCollider != null)
-                {
-                    DamageInfoStruct damageInfo = new DamageInfoStruct
-                    {
-                        DamageType = EDamageType.Bullet,
-                        Damage = 50,
-                        ArmorDamage = 15,
-                        StaminaBurnRate = 20,
-                        PenetrationPower = 15,
-                        Direction = UnityEngine.Random.onUnitSphere,
-                        HitNormal = hit.normal,
-                        HitPoint = hit.point,
-                        Player = player,
-                        IsForwardHit = true,
-                        HittedBallisticCollider = ballisticCollider
-                    };
+                MaterialType matHit = EFTBallisticsInterface.Instance.Hit(hit);
 
-                    ballisticCollider.ApplyHit(damageInfo, ShotIdStruct.EMPTY_SHOT_ID);
+                Trail(hit.point);
 
-                    Singleton<Effects>.Instance.Emit(ballisticCollider.TypeOfMaterial, ballisticCollider, hit.point, hit.normal, 0.1f);
-
-                    Trail(hit.point);
-
-                    if (ballisticCollider.TypeOfMaterial == MaterialType.Body || ballisticCollider.TypeOfMaterial == MaterialType.BodyArmor)
-                        particles.PlayBloodEffect(hit.point, hit.normal);
-                }
-                else
-                {
-                    Plugin.Log.LogWarning($"{hit.collider.gameObject.name} does not contain BallisticCollider!");
-                }
+                if (matHit == MaterialType.Body || matHit == MaterialType.BodyArmor)
+                    particles.PlayBloodEffect(hit.point, hit.normal);
             }
         }
 

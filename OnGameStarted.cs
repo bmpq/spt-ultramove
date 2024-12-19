@@ -24,6 +24,8 @@ namespace ultramove
         {
             Physics.autoSimulation = true;
 
+            EFTBallisticsInterface.Instance = new EFTBallisticsInterface(__instance);
+
             GameObject goPlayer = __instance.MainPlayer.gameObject;
 
             goPlayer.GetComponent<EftGamePlayerOwner>().enabled = false;
