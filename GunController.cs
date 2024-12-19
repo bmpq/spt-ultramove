@@ -1,10 +1,6 @@
-﻿using Comfort.Common;
-using EFT;
-using EFT.Ballistics;
-using System.Collections;
-using System.Collections.Generic;
-using Systems.Effects;
+﻿using System.Collections;
 using UnityEngine;
+using EFT.Ballistics;
 
 namespace ultramove
 {
@@ -30,7 +26,9 @@ namespace ultramove
         public void Shoot()
         {
             float rayDistance = 500f;
-            Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+
+            Vector3 rayDir = cam.transform.forward;
+            Ray ray = new Ray(cam.transform.position, rayDir);
 
             int layer12 = 1 << 12; // HighPolyCollider
             int layer16 = 1 << 16; // HitCollider (body parts)
@@ -45,7 +43,8 @@ namespace ultramove
                 {
                     if (hit.rigidbody.TryGetComponent<Coin>(out Coin coin))
                     {
-                        coin.Hit(50);
+                        hit.point = coin.transform.position;
+                        coin.Hit(hit);
                     }
                 }
                 else
