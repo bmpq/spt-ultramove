@@ -22,7 +22,7 @@ namespace ultramove
             player = gameWorld.GetAlivePlayerBridgeByProfileID(gameWorld.MainPlayer.ProfileId);
         }
 
-        public MaterialType Hit(RaycastHit hit)
+        public MaterialType Hit(RaycastHit hit, float dmg)
         {
             BallisticCollider ballisticCollider = hit.collider.gameObject.GetComponent<BallisticCollider>();
             if (ballisticCollider != null)
@@ -30,10 +30,10 @@ namespace ultramove
                 DamageInfoStruct damageInfo = new DamageInfoStruct
                 {
                     DamageType = EDamageType.Bullet,
-                    Damage = 50,
-                    ArmorDamage = 15,
-                    StaminaBurnRate = 20,
-                    PenetrationPower = 15,
+                    Damage = dmg,
+                    ArmorDamage = dmg,
+                    StaminaBurnRate = dmg,
+                    PenetrationPower = dmg,
                     Direction = UnityEngine.Random.onUnitSphere,
                     HitNormal = hit.normal,
                     HitPoint = hit.point,

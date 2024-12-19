@@ -1,6 +1,7 @@
 ﻿using EFT.Ballistics;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ultramove
@@ -18,6 +19,8 @@ namespace ultramove
         public bool active { get; private set; }
 
         bool init;
+
+        static HashSet<Coin> activeCoins = new HashSet<Coin>();
 
         RaycastHit[] hits = new RaycastHit[4];
 
@@ -41,15 +44,29 @@ namespace ultramove
             if (!init)
                 Init();
 
+            activeCoins.Add(this);
             active = true;
             delayColliderActivation = 0.2f;
             trailRenderer.emitting = true;
             trailRenderer.Clear();
         }
 
-        public void Hit(RaycastHit incomingHit)
+        public void Hit(float dmg)
         {
-            active = false;
+            Disable();
+
+            dmg *= 2f;
+
+            if (activeCoins.Count > 0)
+            {
+                Coin hitCoin = activeCoins.FirstOrDefault();
+                RaycastHit fakeHit = new RaycastHit();
+                fakeHit.point = hitCoin.transform.position;
+                hitCoin.Hit(dmg);
+
+                TrailRendererManager.Instance.Trail(transform.position, fakeHit.point);
+                return;
+            }
 
             float rayDistance = 500f;
 
@@ -80,13 +97,13 @@ namespace ultramove
                 {
                     if (hit.rigidbody.TryGetComponent<Coin>(out Coin coin))
                     {
-                        coin.Hit(hit);
+                        coin.Hit(dmg);
                         trailEndPoint = coin.transform.position;
                     }
                 }
                 else
                 {
-                    matHit = EFTBallisticsInterface.Instance.Hit(hit);
+                    matHit = EFTBallisticsInterface.Instance.Hit(hit, dmg);
                 }
 
                 break;
@@ -116,6 +133,14 @@ namespace ultramove
             active = false;
             trailRenderer.emitting = false;
             trailRenderer.Clear();
+
+            if (activeCoins.Contains(this))
+                activeCoins.Remove(this);
+        }
+
+        private void OnDisable()
+        {
+            Disable();
         }
     }
 }

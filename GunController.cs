@@ -25,6 +25,8 @@ namespace ultramove
 
         public void Shoot()
         {
+            float dmg = 20f;
+
             float rayDistance = 500f;
 
             Vector3 rayDir = cam.transform.forward;
@@ -43,13 +45,16 @@ namespace ultramove
                 {
                     if (hit.rigidbody.TryGetComponent<Coin>(out Coin coin))
                     {
-                        hit.point = coin.transform.position;
-                        coin.Hit(hit);
+                        if (coin.active)
+                        {
+                            hit.point = coin.transform.position;
+                            coin.Hit(dmg);
+                        }
                     }
                 }
                 else
                 {
-                    matHit = EFTBallisticsInterface.Instance.Hit(hit);
+                    matHit = EFTBallisticsInterface.Instance.Hit(hit, dmg);
                 }
 
                 TrailRendererManager.Instance.Trail(muzzle.position, hit.point);
