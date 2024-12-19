@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ultramove
@@ -24,14 +25,17 @@ namespace ultramove
 
         private float defaultTrailLifetime = 0.5f;
 
-        private readonly List<TrailRenderer> availableTrails = new List<TrailRenderer>();
-        private readonly Dictionary<TrailRenderer, Coroutine> activeTrailTimers = new Dictionary<TrailRenderer, Coroutine>();
+        private Queue<TrailRenderer> availableTrails;
+        private Dictionary<TrailRenderer, float> activeTrails;
 
-        Shader shader;
+        Material mat;
 
         public void Init()
         {
-            shader = Shader.Find("Sprites/Default");
+            mat = new Material(Shader.Find("Sprites/Default"));
+
+            availableTrails = new Queue<TrailRenderer>();
+            activeTrails = new Dictionary<TrailRenderer, float>();
 
             for (int i = 0; i < initialPoolSize; i++)
             {
@@ -42,6 +46,7 @@ namespace ultramove
         public void Trail(Vector3 a, Vector3 b)
         {
             TrailRenderer trail = GetTrail(1f);
+
             trail.transform.position = a;
             trail.Clear();
             trail.emitting = true;
@@ -63,8 +68,7 @@ namespace ultramove
 
             if (availableTrails.Count > 0)
             {
-                trail = availableTrails[availableTrails.Count - 1];
-                availableTrails.RemoveAt(availableTrails.Count - 1);
+                trail = availableTrails.Dequeue();
             }
             else
             {
@@ -73,32 +77,21 @@ namespace ultramove
 
             lifetime = lifetime > 0 ? lifetime : defaultTrailLifetime;
 
-            // Start shrinking and return management coroutine.
-            if (activeTrailTimers.ContainsKey(trail))
-            {
-                Debug.LogWarning("Trying to reuse a trail that already has an active timer.");
-                return null;
-            }
-
+            trail.time = 500;
             trail.startWidth = 0.06f;
             trail.endWidth = trail.startWidth;
 
-            activeTrailTimers[trail] = StartCoroutine(HandleTrailLifetime(trail, lifetime));
+            activeTrails[trail] = lifetime;
 
             return trail;
         }
 
         private void ReturnTrail(TrailRenderer trail)
         {
-            if (trail == null || !activeTrailTimers.ContainsKey(trail))
+            if (trail == null || !activeTrails.ContainsKey(trail))
                 return;
 
-            if (activeTrailTimers.TryGetValue(trail, out Coroutine timer))
-            {
-                StopCoroutine(timer);
-            }
-
-            activeTrailTimers.Remove(trail);
+            activeTrails.Remove(trail);
 
             trail.Clear();
             trail.transform.SetParent(null);
@@ -106,39 +99,43 @@ namespace ultramove
 
             trail.emitting = false;
 
-            availableTrails.Add(trail);
+            availableTrails.Enqueue(trail);
         }
 
         private TrailRenderer CreateNewTrailRenderer()
         {
             TrailRenderer trail = new GameObject().AddComponent<TrailRenderer>();
 
-            trail.material = new Material(shader);
+            trail.material = mat;
 
             trail.startColor = Color.white;
             trail.endColor = Color.white;
 
             trail.time = 0.5f;
 
-            availableTrails.Add(trail);
+            availableTrails.Enqueue(trail);
             return trail;
         }
 
-        private IEnumerator HandleTrailLifetime(TrailRenderer trail, float lifetime)
+        private void Update()
         {
-            float elapsed = 0f;
+            List<TrailRenderer> toReturn = new List<TrailRenderer>();
 
-            while (elapsed < lifetime)
+            foreach (TrailRenderer trail in activeTrails.Keys.ToArray())
             {
-                elapsed += Time.deltaTime;
+                activeTrails[trail] -= Time.deltaTime;
 
                 trail.startWidth = Mathf.Max(0, trail.startWidth - Time.deltaTime * 0.2f);
                 trail.endWidth = trail.startWidth;
 
-                yield return null;
+                if (activeTrails[trail] < 0)
+                    toReturn.Add(trail);
             }
 
-            ReturnTrail(trail);
+            foreach (var item in toReturn)
+            {
+                ReturnTrail(item);
+            }
         }
 
         private void OnDestroy()
@@ -149,12 +146,10 @@ namespace ultramove
                     Destroy(trail.gameObject);
             }
 
-            foreach (var trail in activeTrailTimers.Keys)
+            foreach (var trail in activeTrails.Keys)
             {
                 if (trail != null) Destroy(trail.gameObject);
             }
-
-            activeTrailTimers.Clear();
         }
     }
 }
