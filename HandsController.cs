@@ -19,6 +19,7 @@ namespace ultramove
         float recoilTime;
 
         GunController gunController;
+        CoinTosser coinTosser;
 
         public void SetWeapon(GameObject weapon)
         {
@@ -47,6 +48,7 @@ namespace ultramove
         void Start()
         {
             gunController = gameObject.GetComponent<GunController>();
+            coinTosser = gameObject.GetOrAddComponent<CoinTosser>();
 
             animator = GetComponentInChildren<Animator>();
 
@@ -101,6 +103,8 @@ namespace ultramove
             coinCooldown = 0.3f;
 
             animator.SetTrigger("Coin");
+
+            coinTosser.Toss();
         }
     }
 }

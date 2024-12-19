@@ -68,7 +68,9 @@ namespace ultramove
                     Singleton<Effects>.Instance.Emit(ballisticCollider.TypeOfMaterial, ballisticCollider, hit.point, hit.normal, 0.1f);
 
                     Trail(hit.point);
-                    particles.PlayBloodEffect(hit.point, hit.normal);
+
+                    if (ballisticCollider.TypeOfMaterial == MaterialType.Body || ballisticCollider.TypeOfMaterial == MaterialType.BodyArmor)
+                        particles.PlayBloodEffect(hit.point, hit.normal);
                 }
                 else
                 {

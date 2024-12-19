@@ -36,7 +36,8 @@ namespace ultramove
             firearm.enabled = false;
             goPlayer.GetComponent<Player>().enabled = false;
 
-            goPlayer.GetComponentInChildren<Animator>().runtimeAnimatorController = BundleLoader.LoadAssetBundle(BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<RuntimeAnimatorController>("UltraFPS");
+            AssetBundle bundleUltrakill = BundleLoader.LoadAssetBundle(BundleLoader.GetDefaultModAssetBundlePath("ultrakill"));
+            goPlayer.GetComponentInChildren<Animator>().runtimeAnimatorController = bundleUltrakill.LoadAsset<RuntimeAnimatorController>("UltraFPS");
 
             PlayerBody playerBody = goPlayer.GetComponentInChildren<PlayerBody>();
             Collider[] cols = playerBody.GetComponentsInChildren<Collider>();
@@ -67,6 +68,7 @@ namespace ultramove
             goPlayer.AddComponent<GunController>();
             goPlayer.AddComponent<HandsController>().SetWeapon(weapon);
             goPlayer.AddComponent<HandsInertia>();
+            goPlayer.AddComponent<CoinTosser>().SetPrefab(bundleUltrakill.LoadAsset<GameObject>("bitcoin"));
         }
     }
 }
