@@ -27,7 +27,7 @@ namespace ultramove
 
         public void Toss()
         {
-            Vector3 newPos = cam.transform.position + (cam.transform.forward * 0.5f) + (cam.transform.up * -0.4f);
+            Vector3 newPos = cam.transform.position + (cam.transform.forward * 0.8f) + (cam.transform.up * -0.7f);
 
             GameObject newCoin = Instantiate(prefabCoin, newPos, transform.rotation);
             newCoin.GetComponent<TrailRenderer>().material = trailMat;
@@ -36,12 +36,14 @@ namespace ultramove
 
             Rigidbody newRb = newCoin.GetComponent<Rigidbody>();
 
-            Vector3 vel = (transform.forward * 2.5f) + (transform.up * 2f);
+            Vector3 vel = (cam.transform.forward * 2.5f) + (cam.transform.up * 2f);
             vel *= 7f;
             newRb.velocity = playerrb.velocity + vel;
             newRb.maxAngularVelocity = 15;
             newRb.AddRelativeTorque(new Vector3(15, 0, 0), ForceMode.VelocityChange);
             newRb.angularDrag = 0;
+
+            newCoin.GetOrAddComponent<Coin>().Activate();
         }
     }
 }
