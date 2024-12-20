@@ -65,6 +65,11 @@ namespace ultramove
                 rend.forceRenderingOff = true;
             }
 
+            foreach (Renderer rend in playerBody.BodySkins[EBodyModelPart.Body].GetRenderers())
+            {
+                rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
+
             goPlayer.AddComponent<UltraMovement>();
             goPlayer.AddComponent<DoorOpener>();
             goPlayer.AddComponent<GunController>();

@@ -54,5 +54,10 @@ namespace ultramove
 
             return ballisticCollider.TypeOfMaterial;
         }
+
+        public void Effect(string effect, Vector3 pos)
+        {
+            Singleton<Effects>.Instance.EmitGrenade(effect, pos, Vector3.up);
+        }
     }
 }

@@ -1,3 +1,4 @@
+using EFT.Ballistics;
 using UnityEngine;
 
 namespace ultramove
@@ -163,6 +164,12 @@ namespace ultramove
             }
         }
 
+        void Slam()
+        {
+            shakeIntensity = 1f;
+            EFTBallisticsInterface.Instance.Effect("big_round_impact", transform.position);
+        }
+
         void FixedUpdate()
         {
             bool grounded = groundCheck.isGrounded;
@@ -181,7 +188,9 @@ namespace ultramove
             else if (grounded)
             {
                 if (slamming)
-                    shakeIntensity = 1f;
+                {
+                    Slam();
+                }
                 slamming = false;
 
                 if (jumpCooldown <= 0f && !sliding)

@@ -116,7 +116,7 @@ namespace ultramove
 
             GameObject newCoin = Instantiate(prefabCoin);
             newCoin.GetComponent<TrailRenderer>().material = trailMat;
-            newCoin.transform.localScale = Vector3.one * 2f;
+            newCoin.transform.localScale = Vector3.one * 3f;
 
             coinPool.Add(newCoin.GetOrAddComponent<Coin>());
 
