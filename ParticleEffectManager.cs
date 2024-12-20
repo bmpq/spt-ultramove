@@ -5,11 +5,26 @@ namespace ultramove
 {
     public class ParticleEffectManager : MonoBehaviour
     {
-        private Queue<ParticleSystem> particlePool = new Queue<ParticleSystem>();
-        private const int PoolSize = 10;
-
-        private void Awake()
+        public static ParticleEffectManager Instance
         {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new GameObject("ParticleEffectManager").AddComponent<ParticleEffectManager>();
+                    _instance.Init();
+                }
+                return _instance;
+            }
+        }
+        private static ParticleEffectManager _instance;
+
+        private Queue<ParticleSystem> particlePool = new Queue<ParticleSystem>();
+        private const int PoolSize = 10; // Adjust based on expected usage
+
+        private void Init()
+        {
+            // Pre-populate the pool with reusable particle systems
             for (int i = 0; i < PoolSize; i++)
             {
                 particlePool.Enqueue(CreateBloodEffectObject());

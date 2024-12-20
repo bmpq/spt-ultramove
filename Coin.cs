@@ -14,7 +14,7 @@ namespace ultramove
 
         Collider[] colliders;
 
-        float delayColliderActivation;
+        float timeActive;
 
         public bool active { get; private set; }
 
@@ -46,28 +46,56 @@ namespace ultramove
 
             activeCoins.Add(this);
             active = true;
-            delayColliderActivation = 0.2f;
+            timeActive = 0f;
             trailRenderer.emitting = true;
             trailRenderer.Clear();
         }
 
-        public void Hit(float dmg)
+        public void Hit(float dmg, bool split = false)
         {
-            Disable();
-
             dmg *= 2f;
+
+            split = IsOnApex();
+
+            Disable();
 
             if (activeCoins.Count > 0)
             {
                 Coin hitCoin = activeCoins.FirstOrDefault();
-                RaycastHit fakeHit = new RaycastHit();
-                fakeHit.point = hitCoin.transform.position;
                 hitCoin.Hit(dmg);
 
-                TrailRendererManager.Instance.Trail(transform.position, fakeHit.point);
-                return;
+                TrailRendererManager.Instance.Trail(transform.position, hitCoin.transform.position);
+
+                if (!split)
+                    return;
+
+                split = false;
             }
 
+            for (int i = 0; i < (split ? 2 : 1); i++)
+            {
+                (BallisticCollider, RaycastHit) target = EFTTargetInterface.GetCoinTarget(transform);
+
+                if (target.Item1 == null)
+                {
+                    if (Raycast(transform, out RaycastHit hit))
+                    {
+                        EFTBallisticsInterface.Instance.Hit(hit, dmg);
+                        TrailRendererManager.Instance.Trail(transform.position, hit.point);
+                    }
+                }
+                else
+                {
+                    MaterialType matHit = EFTBallisticsInterface.Instance.Hit(target.Item1, target.Item2, dmg);
+                    TrailRendererManager.Instance.Trail(transform.position, target.Item2.point);
+                    if (matHit == MaterialType.Body || matHit == MaterialType.BodyArmor)
+                        ParticleEffectManager.Instance.PlayBloodEffect(target.Item2.point, target.Item2.normal);
+                }
+            }
+        }
+
+        bool Raycast(Transform transform, out RaycastHit hit)
+        {
             float rayDistance = 500f;
 
             Vector3 rayDir = transform.up;
@@ -84,47 +112,32 @@ namespace ultramove
             int hitsAmount = Physics.RaycastNonAlloc(ray, hits, rayDistance, layerMask);
             for (int i = 0; i < hitsAmount; i++)
             {
-                RaycastHit hit = hits[i];
-
-                MaterialType matHit = MaterialType.None;
-
-                if (hit.rigidbody == rb)
+                if (hits[i].rigidbody == rb)
                     continue;
 
-                trailEndPoint = hit.point;
-
-                if (hit.transform.tag == "DynamicCollider")
-                {
-                    if (hit.rigidbody.TryGetComponent<Coin>(out Coin coin))
-                    {
-                        coin.Hit(dmg);
-                        trailEndPoint = coin.transform.position;
-                    }
-                }
-                else
-                {
-                    matHit = EFTBallisticsInterface.Instance.Hit(hit, dmg);
-                }
-
-                break;
-
-                //if (matHit == MaterialType.Body || matHit == MaterialType.BodyArmor)
-                //    particles.PlayBloodEffect(hit.point, hit.normal);
+                hit = hits[i];
+                return true;
             }
 
-            TrailRendererManager.Instance.Trail(transform.position, trailEndPoint);
+            hit = new RaycastHit();
+            return false;
         }
 
         private void Update()
         {
-            if (delayColliderActivation > 0f)
-                delayColliderActivation -= Time.deltaTime;
+            timeActive += Time.deltaTime;
+        }
+
+        bool IsOnApex()
+        {
+            return timeActive > 0.33f && timeActive < 0.35f;
         }
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (delayColliderActivation > 0f)
+            if (timeActive < 0.2f)
                 return;
+
             Disable();
         }
 

@@ -9,12 +9,10 @@ namespace ultramove
         Camera cam;
 
         Transform muzzle;
-        ParticleEffectManager particles;
 
         private void Start()
         {
             cam = Camera.main;
-            particles = gameObject.GetOrAddComponent<ParticleEffectManager>();
 
             muzzle = transform.FindInChildrenExact("muzzleflash_000");
             if (muzzle == null)
@@ -35,7 +33,8 @@ namespace ultramove
             int layer12 = 1 << 12; // HighPolyCollider
             int layer16 = 1 << 16; // HitCollider (body parts)
             int layer11 = 1 << 11; // Terrain
-            int layerMask = layer12 | layer16 | layer11;
+            int layer15 = 1 << 15; // Loot (Coin)
+            int layerMask = layer12 | layer16 | layer11 | layer15;
 
             if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, layerMask))
             {
@@ -60,7 +59,7 @@ namespace ultramove
                 TrailRendererManager.Instance.Trail(muzzle.position, hit.point);
 
                 if (matHit == MaterialType.Body || matHit == MaterialType.BodyArmor)
-                    particles.PlayBloodEffect(hit.point, hit.normal);
+                    ParticleEffectManager.Instance.PlayBloodEffect(hit.point, hit.normal);
             }
         }
     }

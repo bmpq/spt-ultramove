@@ -25,31 +25,34 @@ namespace ultramove
         public MaterialType Hit(RaycastHit hit, float dmg)
         {
             BallisticCollider ballisticCollider = hit.collider.gameObject.GetComponent<BallisticCollider>();
-            if (ballisticCollider != null)
+            return Hit(ballisticCollider, hit, dmg);
+        }
+
+        public MaterialType Hit(BallisticCollider ballisticCollider, RaycastHit hit, float dmg)
+        {
+            if (ballisticCollider == null)
+                return MaterialType.None;
+
+            DamageInfoStruct damageInfo = new DamageInfoStruct
             {
-                DamageInfoStruct damageInfo = new DamageInfoStruct
-                {
-                    DamageType = EDamageType.Bullet,
-                    Damage = dmg,
-                    ArmorDamage = dmg,
-                    StaminaBurnRate = dmg,
-                    PenetrationPower = dmg,
-                    Direction = UnityEngine.Random.onUnitSphere,
-                    HitNormal = hit.normal,
-                    HitPoint = hit.point,
-                    Player = player,
-                    IsForwardHit = true,
-                    HittedBallisticCollider = ballisticCollider
-                };
+                DamageType = EDamageType.Bullet,
+                Damage = dmg,
+                ArmorDamage = dmg,
+                StaminaBurnRate = dmg,
+                PenetrationPower = dmg,
+                Direction = UnityEngine.Random.onUnitSphere,
+                HitNormal = hit.normal,
+                HitPoint = hit.point,
+                Player = player,
+                IsForwardHit = true,
+                HittedBallisticCollider = ballisticCollider
+            };
 
-                ballisticCollider.ApplyHit(damageInfo, ShotIdStruct.EMPTY_SHOT_ID);
+            ballisticCollider.ApplyHit(damageInfo, ShotIdStruct.EMPTY_SHOT_ID);
 
-                Singleton<Effects>.Instance.Emit(ballisticCollider.TypeOfMaterial, ballisticCollider, hit.point, hit.normal, 0.1f);
+            Singleton<Effects>.Instance.Emit(ballisticCollider.TypeOfMaterial, ballisticCollider, hit.point, hit.normal, 1f);
 
-                return ballisticCollider.TypeOfMaterial;
-            }
-
-            return MaterialType.None;
+            return ballisticCollider.TypeOfMaterial;
         }
     }
 }

@@ -49,8 +49,8 @@ namespace ultramove
             Vector3 vel = (cam.transform.forward * 2.5f) + (cam.transform.up * 2f);
             vel *= 7f;
             newRb.velocity = playerrb.velocity + vel;
-            newRb.maxAngularVelocity = 15;
-            newRb.AddRelativeTorque(new Vector3(15, 0, 0), ForceMode.VelocityChange);
+            newRb.maxAngularVelocity = 25;
+            newRb.AddRelativeTorque(new Vector3(25, 0, 0), ForceMode.VelocityChange);
             newRb.angularDrag = 0;
 
             coin.Activate();
@@ -66,7 +66,7 @@ namespace ultramove
 
             GameObject newCoin = Instantiate(prefabCoin);
             newCoin.GetComponent<TrailRenderer>().material = trailMat;
-            newCoin.transform.localScale = Vector3.one * 4f;
+            newCoin.transform.localScale = Vector3.one * 2f;
 
             coinPool.Add(newCoin.GetOrAddComponent<Coin>());
 
