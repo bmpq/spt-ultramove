@@ -20,7 +20,7 @@ namespace ultramove
 
         bool init;
 
-        static HashSet<Coin> activeCoins = new HashSet<Coin>();
+        public static HashSet<Coin> activeCoins = new HashSet<Coin>();
 
         RaycastHit[] hits = new RaycastHit[4];
 
@@ -98,7 +98,7 @@ namespace ultramove
         {
             float rayDistance = 500f;
 
-            Vector3 rayDir = transform.up;
+            Vector3 rayDir = Random.onUnitSphere;
 
             Vector3 trailEndPoint = transform.position + rayDir * 10f;
 
@@ -128,9 +128,9 @@ namespace ultramove
             timeActive += Time.deltaTime;
         }
 
-        bool IsOnApex()
+        public bool IsOnApex()
         {
-            return timeActive > 0.33f && timeActive < 0.35f;
+            return timeActive > 0.33f && timeActive < 0.38f;
         }
 
         private void OnCollisionEnter(Collision collision)
