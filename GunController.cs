@@ -56,7 +56,7 @@ namespace ultramove
                     matHit = EFTBallisticsInterface.Instance.Hit(hit, dmg);
                 }
 
-                TrailRendererManager.Instance.Trail(muzzle.position, hit.point);
+                TrailRendererManager.Instance.Trail(muzzle.position, hit.point, Color.white);
 
                 if (matHit == MaterialType.Body || matHit == MaterialType.BodyArmor)
                     ParticleEffectManager.Instance.PlayBloodEffect(hit.point, hit.normal);

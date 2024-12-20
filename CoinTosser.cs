@@ -35,6 +35,7 @@ namespace ultramove
             meshRend.sharedMaterial = new Material(Shader.Find("p0/Reflective/Bumped Emissive Specular SMap"));
             meshRend.sharedMaterial.mainTexture = mainTex;
             meshRend.sharedMaterial.SetTexture("_EmissionMap", mainTex);
+            meshRend.sharedMaterial.SetFloat("_EmissionPower", 2f);
 
             prefabGlint = glint;
             prefabGlint.GetComponentInChildren<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Sprites/Default"));
