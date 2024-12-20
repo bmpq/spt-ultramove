@@ -218,6 +218,20 @@ namespace ultramove
                     airForce.z = 0f;
 
                 rb.AddRelativeForce(airForce * Time.fixedDeltaTime * 1500f);
+
+                if (DetectWall(out Vector3 wallNormal))
+                {
+                    rb.velocity = new Vector3(rb.velocity.x * 0.9f, Mathf.Max(-1f, rb.velocity.y), rb.velocity.z * 0.9f);
+
+                    if (toJump && jumpCooldown <= 0f)
+                    {
+                        toJump = false;
+                        jumpCooldown = 0.1f;
+
+                        Vector3 jumpDirection = wallNormal + Vector3.up;
+                        rb.AddForce(jumpDirection.normalized * 14f, ForceMode.Impulse);
+                    }
+                }
             }
 
             if (!grounded && groundedPrevTick && jumpCooldown <= 0)
@@ -270,6 +284,30 @@ namespace ultramove
                 capsule.height = 1.7f;
                 capsule.center = new Vector3(0, capsule.height / 2f, 0);
             }
+
+            toJump = false;
+        }
+
+        private bool DetectWall(out Vector3 wallNormal)
+        {
+            wallNormal = Vector3.zero;
+
+            if (vectorInput == Vector3.zero)
+                return false;
+
+            Vector3 inputRelativeDirection = transform.TransformDirection(vectorInput.normalized);
+
+            int layer1 = 1 << 18; // LowPolyCollider
+            int layer2 = 1 << 11; // Terrain
+            int layerMask = layer1 | layer2;
+
+            if (Physics.SphereCast(transform.position + new Vector3(0, capsule.height / 2f, 0), capsule.radius / 2f, inputRelativeDirection, out RaycastHit hit, capsule.radius, layerMask))
+            {
+                wallNormal = hit.normal;
+                return true;
+            }
+
+            return false;
         }
     }
 }
