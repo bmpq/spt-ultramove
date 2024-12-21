@@ -25,6 +25,7 @@ namespace ultramove
             Physics.autoSimulation = true;
 
             EFTBallisticsInterface.Instance = new EFTBallisticsInterface(__instance);
+            PlayerAudio.Instance = new PlayerAudio(BundleLoader.LoadAssetBundle(BundleLoader.GetDefaultModAssetBundlePath("ultrakill_audio")));
 
             GameObject goPlayer = __instance.MainPlayer.gameObject;
 
