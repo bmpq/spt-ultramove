@@ -13,6 +13,8 @@ namespace ultramove
         int layerInteractive;
         int layerDoor;
 
+        Door lastDoor;
+
         private void Start()
         {
             layerInteractive = LayerMask.NameToLayer("Interactive");
@@ -28,7 +30,18 @@ namespace ultramove
                     if (door.DoorState == EDoorState.Locked ||
                         door.DoorState == EDoorState.Shut)
                         door.Interact(EFT.EInteractionType.Breach);
+
+                    lastDoor = door;
                 }
+            }
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.F) && lastDoor != null)
+            {
+                if (Vector3.Distance(transform.position, lastDoor.transform.position) < 2f)
+                    lastDoor.Interact(EFT.EInteractionType.Close);
             }
         }
     }

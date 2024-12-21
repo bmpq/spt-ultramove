@@ -207,7 +207,7 @@ namespace ultramove
                         PlayerAudio.Instance.PlayWalk();
                 }
             }
-            else if (!sliding)
+            else if (!sliding && !slamming)
             {
                 Vector3 relativeVelocity = transform.InverseTransformDirection(rb.velocity);
 

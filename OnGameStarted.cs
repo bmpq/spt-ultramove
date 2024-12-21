@@ -29,6 +29,12 @@ namespace ultramove
 
             GameObject goPlayer = __instance.MainPlayer.gameObject;
 
+            SkinnedMeshRenderer[] rends = goPlayer.GetComponentsInChildren<SkinnedMeshRenderer>();
+            foreach (var rend in rends)
+            {
+                rend.forceRenderingOff = true;
+            }
+
             goPlayer.GetComponent<EftGamePlayerOwner>().enabled = false;
             goPlayer.GetComponent<PlayerCameraController>().enabled = false;
             goPlayer.GetComponent<SimpleCharacterController>().enabled = false;
@@ -61,18 +67,9 @@ namespace ultramove
                 }
             }
 
-            foreach (Renderer rend in playerBody.BodySkins[EBodyModelPart.Feet].GetRenderers())
-            {
-                rend.forceRenderingOff = true;
-            }
-
-            foreach (Renderer rend in playerBody.BodySkins[EBodyModelPart.Body].GetRenderers())
-            {
-                rend.forceRenderingOff = true;
-            }
-
             foreach (Renderer rend in playerBody.BodySkins[EBodyModelPart.Hands].GetRenderers())
             {
+                rend.forceRenderingOff = false;
                 rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             }
 
