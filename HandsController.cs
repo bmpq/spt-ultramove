@@ -87,6 +87,8 @@ namespace ultramove
                     recoilTime = 0f;
                     if (muzzleManager != null)
                         muzzleManager.Shot();
+
+                    PlayerAudio.Instance.PlayShoot();
                 }
             }
 

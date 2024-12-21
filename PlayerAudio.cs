@@ -15,6 +15,7 @@ namespace ultramove
         private Transform player;
 
         private AudioClip[] footstepClips;
+        private AudioClip[] shootClips;
 
         private float walkCooldown = 0.36f;
         private float nextStepTime;
@@ -33,6 +34,11 @@ namespace ultramove
                 .Where(clip => clip.name.StartsWith("footstep_heavy"))
                 .OrderBy(clip => ExtractIndex(clip.name))
                 .ToArray();
+
+            shootClips = allClips
+                .Where(clip => clip.name.StartsWith("Shoot1c"))
+                .OrderBy(clip => ExtractIndex(clip.name))
+                .ToArray();
         }
 
         private int ExtractIndex(string clipName)
@@ -49,6 +55,12 @@ namespace ultramove
             PlayInTarkov(clip);
 
             nextStepTime = Time.time + walkCooldown;
+        }
+
+        public void PlayShoot()
+        {
+            AudioClip clip = shootClips[random.Next(shootClips.Length)];
+            PlayInTarkov(clip);
         }
 
         public void Play(string clip)

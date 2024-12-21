@@ -48,6 +48,8 @@ namespace ultramove
                         {
                             hit.point = coin.transform.position;
                             coin.Hit(dmg);
+
+                            PlayerAudio.Instance.Play("Ricochet");
                         }
                     }
                 }
