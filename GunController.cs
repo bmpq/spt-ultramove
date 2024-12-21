@@ -27,8 +27,8 @@ namespace ultramove
 
             float rayDistance = 500f;
 
-            Vector3 rayDir = cam.transform.forward;
-            Ray ray = new Ray(cam.transform.position, rayDir);
+            Vector3 rayDir = -muzzle.up;
+            Ray ray = new Ray(muzzle.position, rayDir);
 
             int layer12 = 1 << 12; // HighPolyCollider
             int layer16 = 1 << 16; // HitCollider (body parts)

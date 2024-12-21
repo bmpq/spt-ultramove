@@ -24,9 +24,11 @@ namespace ultramove
 
         AudioClip[] allClips;
 
+        Dictionary<AudioClip, BetterSource> loops = new Dictionary<AudioClip, BetterSource>();
+
         public PlayerAudio(AssetBundle bundle)
         {
-            player = Singleton<GameWorld>.Instance.MainPlayer.Transform.Original;
+            player = Camera.main.transform;
 
             allClips = bundle.LoadAllAssets<AudioClip>();
 
@@ -75,9 +77,13 @@ namespace ultramove
             }
         }
 
+        public void Sliding(bool sliding)
+        {
+        }
+
         void PlayInTarkov(AudioClip clip)
         {
-            Singleton<BetterAudio>.Instance.PlayAtPoint(player.position, clip, 0, BetterAudio.AudioSourceGroupType.Character, 5, 1f, EOcclusionTest.None, null, false);
+            Singleton<BetterAudio>.Instance.PlayAtPoint(player.position + player.forward * 0.5f, clip, 0, BetterAudio.AudioSourceGroupType.Character, 5, 1f, EOcclusionTest.None, null, false);
         }
     }
 }

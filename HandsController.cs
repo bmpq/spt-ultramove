@@ -80,8 +80,6 @@ namespace ultramove
 
             if (Input.GetMouseButtonDown(0))
             {
-                recoilTime = 0f;
-
                 bool shot = gunController.Shoot();
 
                 if (shot)

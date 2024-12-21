@@ -130,6 +130,9 @@ namespace ultramove
 
         private void Update()
         {
+            if (!active)
+                return;
+
             bool prevApex = IsOnApex();
 
             timeActive += Time.deltaTime;
@@ -140,6 +143,9 @@ namespace ultramove
 
         public bool IsOnApex()
         {
+            if (!active)
+                return false;
+
             return timeActive > SPLITWINDOWSTART && timeActive < SPLITWINDOWSTART + SPLITWINDOWSIZE;
         }
 

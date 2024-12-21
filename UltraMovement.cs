@@ -44,6 +44,9 @@ namespace ultramove
         Vector3 dashDir;
         float dashTime;
 
+        Vector3 prevVelocity;
+        Vector3 lastCollisionImpulse;
+
         void Start()
         {
             cam = Camera.main;
@@ -142,6 +145,8 @@ namespace ultramove
                 }
             }
 
+            PlayerAudio.Instance.Sliding(sliding);
+
             jumpCooldown -= Time.deltaTime;
 
             AnimateCamera();
@@ -177,6 +182,8 @@ namespace ultramove
 
         void FixedUpdate()
         {
+            Vector3 curVelocity = rb.velocity;
+
             bool grounded = groundCheck.isGrounded;
             rb.useGravity = !grounded;
 
@@ -242,6 +249,12 @@ namespace ultramove
                 }
             }
 
+            if (grounded && !groundedPrevTick)
+            {
+                if (Mathf.Min(prevVelocity.y, -lastCollisionImpulse.y) < -7f)
+                    PlayerAudio.Instance.Play("Landing");
+            }
+
             if (!grounded && groundedPrevTick && jumpCooldown <= 0)
             {
                 coyoteTime = 0.3f;
@@ -268,6 +281,8 @@ namespace ultramove
                     jumpCooldown = 0.1f;
 
                     sliding = false;
+
+                    PlayerAudio.Instance.Play("Bluezone-Autobots-footstep-013");
                 }
             }
             else if (toSlam)
@@ -294,6 +309,13 @@ namespace ultramove
             }
 
             toJump = false;
+
+            prevVelocity = curVelocity;
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            lastCollisionImpulse = collision.impulse;
         }
 
         private bool DetectWall(out Vector3 wallNormal)
