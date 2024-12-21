@@ -34,6 +34,7 @@ namespace ultramove
         bool groundedPrevTick = false;
 
         bool sliding;
+        Vector3 slideDir;
 
         bool toSlam;
         bool slamming;
@@ -128,6 +129,10 @@ namespace ultramove
             if (!sliding)
             {
                 sliding = (groundCheck.isGrounded || coyoteTime > 0f) && Input.GetKeyDown(KeyCode.C) && jumpCooldown <= 0f;
+                if (sliding)
+                {
+                    slideDir = transform.forward;
+                }
             }
             else
             {
@@ -275,7 +280,7 @@ namespace ultramove
                 capsule.height = capsule.radius * 2f;
                 capsule.center = new Vector3(0, capsule.height / 2f, 0);
 
-                Vector3 slideVel = transform.forward * moveSpeed * 1.5f;
+                Vector3 slideVel = slideDir * moveSpeed * 1.5f;
                 slideVel.y = -1f;
                 rb.velocity = slideVel;
             }
