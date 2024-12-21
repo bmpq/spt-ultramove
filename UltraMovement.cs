@@ -203,7 +203,8 @@ namespace ultramove
                     Vector3 targetWalkVelocity = new Vector3(inputRelativeDirection.x * moveSpeed, 0, inputRelativeDirection.z * moveSpeed);
                     rb.velocity = Vector3.Lerp(rb.velocity, targetWalkVelocity, Time.fixedDeltaTime * 20f);
 
-                    PlayerAudio.Instance.PlayWalk();
+                    if (rb.velocity.magnitude > 0.1f)
+                        PlayerAudio.Instance.PlayWalk();
                 }
             }
             else if (!sliding)

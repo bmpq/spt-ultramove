@@ -117,6 +117,8 @@ namespace ultramove
             animator.SetTrigger("Coin");
 
             coinTosser.Toss();
+
+            PlayerAudio.Instance.Play("coinflip");
         }
     }
 }

@@ -21,11 +21,13 @@ namespace ultramove
 
         private static readonly System.Random random = new System.Random();
 
+        AudioClip[] allClips;
+
         public PlayerAudio(AssetBundle bundle)
         {
             player = Singleton<GameWorld>.Instance.MainPlayer.Transform.Original;
 
-            AudioClip[] allClips = bundle.LoadAllAssets<AudioClip>();
+            allClips = bundle.LoadAllAssets<AudioClip>();
 
             footstepClips = allClips
                 .Where(clip => clip.name.StartsWith("footstep_heavy"))
@@ -44,10 +46,26 @@ namespace ultramove
             if (Time.time < nextStepTime) return;
 
             AudioClip clip = footstepClips[random.Next(footstepClips.Length)];
-
-            Singleton<BetterAudio>.Instance.PlayAtPoint(player.position, clip, 0, BetterAudio.AudioSourceGroupType.Character, 5, 1f, EOcclusionTest.None, null, false);
+            PlayInTarkov(clip);
 
             nextStepTime = Time.time + walkCooldown;
+        }
+
+        public void Play(string clip)
+        {
+            foreach (var item in allClips)
+            {
+                if (item.name.StartsWith(clip))
+                {
+                    PlayInTarkov(item);
+                    return;
+                }
+            }
+        }
+
+        void PlayInTarkov(AudioClip clip)
+        {
+            Singleton<BetterAudio>.Instance.PlayAtPoint(player.position, clip, 0, BetterAudio.AudioSourceGroupType.Character, 5, 1f, EOcclusionTest.None, null, false);
         }
     }
 }
