@@ -14,7 +14,10 @@ namespace ultramove
 
         Collider[] colliders;
 
-        float timeActive;
+        public float timeActive { get; private set; }
+
+        public const float SPLITWINDOWSTART = 0.33f;
+        public const float SPLITWINDOWSIZE = 0.05f;
 
         public bool active { get; private set; }
 
@@ -127,12 +130,17 @@ namespace ultramove
 
         private void Update()
         {
+            bool prevApex = IsOnApex();
+
             timeActive += Time.deltaTime;
+
+            if (IsOnApex() && !prevApex)
+                PlayerAudio.Instance.Play("coinflash");
         }
 
         public bool IsOnApex()
         {
-            return timeActive > 0.33f && timeActive < 0.38f;
+            return timeActive > SPLITWINDOWSTART && timeActive < SPLITWINDOWSTART + SPLITWINDOWSIZE;
         }
 
         private void OnCollisionEnter(Collision collision)

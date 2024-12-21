@@ -60,7 +60,11 @@ namespace ultramove
                     GameObject glint = glintPool[activeGlintIndex];
                     glint.transform.position = coin.transform.position;
                     glint.transform.rotation = Quaternion.LookRotation(cam.transform.forward);
-                    glint.transform.localScale = Vector3.one * 0.5f;
+
+                    float t = coin.timeActive - Coin.SPLITWINDOWSTART;
+                    t = t /= Coin.SPLITWINDOWSIZE;
+
+                    glint.transform.localScale = Vector3.Lerp(Vector3.one * 0.5f, Vector3.zero, t);
                     activeGlintIndex++;
                 }
             }
@@ -70,18 +74,6 @@ namespace ultramove
             {
                 glintPool[i].transform.position = new Vector3(0, -900, 0);
             }
-        }
-
-        GameObject GetGlint()
-        {
-            foreach (GameObject glint in glintPool)
-            {
-                if (!glint.activeSelf)
-                    return glint;
-            }
-
-            glintPool.Add(Instantiate(prefabGlint));
-            return glintPool[glintPool.Count - 1];
         }
 
         public void Toss()
