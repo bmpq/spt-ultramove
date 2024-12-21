@@ -21,7 +21,7 @@ namespace ultramove
             }
         }
 
-        public void Shoot()
+        public bool Shoot()
         {
             float dmg = 20f;
 
@@ -60,7 +60,11 @@ namespace ultramove
 
                 if (matHit == MaterialType.Body || matHit == MaterialType.BodyArmor)
                     ParticleEffectManager.Instance.PlayBloodEffect(hit.point, hit.normal);
+
+                return true;
             }
+
+            return false;
         }
     }
 }

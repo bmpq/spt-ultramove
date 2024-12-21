@@ -24,7 +24,7 @@ namespace ultramove
 
         RaycastHit[] hits = new RaycastHit[4];
 
-        Color colorTrail = new Color(1, 0.9f, 0.4f);
+        Color colorTrail = new Color(1, 0.7f, 0.1f);
 
         void Init()
         {
@@ -64,7 +64,7 @@ namespace ultramove
             if (activeCoins.Count > 0)
             {
                 Coin hitCoin = activeCoins.FirstOrDefault();
-                hitCoin.Hit(dmg);
+                hitCoin.Hit(dmg, split);
 
                 TrailRendererManager.Instance.Trail(transform.position, hitCoin.transform.position, colorTrail);
 

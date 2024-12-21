@@ -19,11 +19,16 @@ namespace ultramove
         float recoilTime;
 
         GunController gunController;
+        MuzzleManager muzzleManager;
+
         CoinTosser coinTosser;
+
 
         public void SetWeapon(GameObject weapon)
         {
             Destroy(weapon.GetComponentInChildren<Animator>());
+
+            muzzleManager = weapon.GetComponent<MuzzleManager>();
 
             Transform container = weapon.transform.FindInChildrenExact("weapon");
             container.SetParent(null);
@@ -75,7 +80,14 @@ namespace ultramove
             {
                 recoilTime = 0f;
 
-                gunController.Shoot();
+                bool shot = gunController.Shoot();
+
+                if (shot)
+                {
+                    recoilTime = 0f;
+                    if (muzzleManager != null)
+                        muzzleManager.Shot();
+                }
             }
 
             recoilTime += Time.deltaTime;

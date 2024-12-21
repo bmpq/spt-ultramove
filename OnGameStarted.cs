@@ -67,6 +67,11 @@ namespace ultramove
 
             foreach (Renderer rend in playerBody.BodySkins[EBodyModelPart.Body].GetRenderers())
             {
+                rend.forceRenderingOff = true;
+            }
+
+            foreach (Renderer rend in playerBody.BodySkins[EBodyModelPart.Hands].GetRenderers())
+            {
                 rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             }
 

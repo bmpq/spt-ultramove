@@ -39,7 +39,7 @@ namespace ultramove
 
             prefabGlint = glint;
             prefabGlint.GetComponentInChildren<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Sprites/Default"));
-            prefabGlint.GetComponentInChildren<MeshRenderer>().sharedMaterial.color = new Color(1, 0.9f, 0.7f, 1);
+            prefabGlint.GetComponentInChildren<MeshRenderer>().sharedMaterial.color = new Color(1, 0.9f, 0.4f, 1);
         }
 
         private void Update()
