@@ -121,10 +121,13 @@ namespace ultramove
                 toSlam = true;
             }
 
-            if (Input.GetKeyDown(KeyCode.LeftShift))
+            if (Input.GetKeyDown(KeyCode.LeftShift) && dashTime <= 0f)
             {
                 dashDir = transform.TransformDirection(vectorInput == Vector3.zero ? new Vector3(0, 0, 1f) : vectorInput.normalized);
+
                 dashTime = 0.3f;
+
+                PlayerAudio.Instance.Play("Dodge3");
             }
 
             coyoteTime -= Time.deltaTime;

@@ -63,7 +63,7 @@ namespace ultramove
             main.loop = false;
             main.startColor = Color.red;
             main.startSize = 0.1f;
-            main.startSpeed = new ParticleSystem.MinMaxCurve(3, 15);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(2, 6);
             main.startLifetime = new ParticleSystem.MinMaxCurve(0.1f, 2f);
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.gravityModifier = 1f;
