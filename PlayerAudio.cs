@@ -13,11 +13,12 @@ namespace ultramove
     {
         public static PlayerAudio Instance;
         private Transform player;
+        private Transform cam;
 
         private AudioClip[] footstepClips;
         private AudioClip[] shootClips;
 
-        private float walkCooldown = 0.36f;
+        private float walkCooldown = 0.33f;
         private float nextStepTime;
 
         private static readonly System.Random random = new System.Random();
@@ -28,7 +29,8 @@ namespace ultramove
 
         public PlayerAudio(AssetBundle bundle)
         {
-            player = Camera.main.transform;
+            player = Singleton<GameWorld>.Instance.MainPlayer.Transform.Original;
+            cam = Camera.main.transform;
 
             allClips = bundle.LoadAllAssets<AudioClip>();
 
@@ -54,7 +56,7 @@ namespace ultramove
             if (Time.time < nextStepTime) return;
 
             AudioClip clip = footstepClips[random.Next(footstepClips.Length)];
-            PlayInTarkov(clip, 0.5f);
+            PlayInTarkov(clip, player.position, 0.5f);
 
             nextStepTime = Time.time + walkCooldown;
         }
@@ -62,16 +64,18 @@ namespace ultramove
         public void PlayShoot()
         {
             AudioClip clip = shootClips[random.Next(shootClips.Length)];
-            PlayInTarkov(clip);
+            PlayInTarkov(clip, cam.position + cam.forward);
         }
 
         public void Play(string clip, float volume = 1f)
         {
+            Vector3 pos = player.position;
+
             foreach (var item in allClips)
             {
                 if (item.name.StartsWith(clip))
                 {
-                    PlayInTarkov(item, volume);
+                    PlayInTarkov(item, pos, volume);
                     return;
                 }
             }
@@ -81,9 +85,9 @@ namespace ultramove
         {
         }
 
-        void PlayInTarkov(AudioClip clip, float volume = 1f)
+        void PlayInTarkov(AudioClip clip, Vector3 pos, float volume = 1f)
         {
-            Singleton<BetterAudio>.Instance.PlayAtPoint(player.position + player.forward * 0.5f, clip, 0, BetterAudio.AudioSourceGroupType.Character, 5, volume, EOcclusionTest.None, null, false);
+            Singleton<BetterAudio>.Instance.PlayAtPoint(pos, clip, 0, BetterAudio.AudioSourceGroupType.Character, 5, volume, EOcclusionTest.None, null, false);
         }
     }
 }

@@ -63,7 +63,7 @@ namespace ultramove
             main.loop = false;
             main.startColor = Color.red;
             main.startSize = 0.1f;
-            main.startSpeed = new ParticleSystem.MinMaxCurve(7f, 10f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(3, 15);
             main.startLifetime = new ParticleSystem.MinMaxCurve(0.1f, 2f);
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.gravityModifier = 1f;
@@ -82,16 +82,17 @@ namespace ultramove
             trails.enabled = true;
             trails.ratio = 1.0f;
             trails.mode = ParticleSystemTrailMode.PerParticle;
-            trails.lifetime = new ParticleSystem.MinMaxCurve(0.1f, 0.5f);
+            trails.lifetime = new ParticleSystem.MinMaxCurve(0.1f, 0.3f);
             trails.dieWithParticles = false;
 
             trails.textureMode = ParticleSystemTrailTextureMode.Stretch;
-            trails.widthOverTrail = 1f;
+            trails.widthOverTrail = new ParticleSystem.MinMaxCurve(2f, new AnimationCurve(new Keyframe(0, 1f), new Keyframe(1, 0)));
             trails.colorOverTrail = new ParticleSystem.MinMaxGradient(Color.red, new Color(0.5f, 0f, 0f, 0f));
 
             var particleRenderer = bloodEffect.GetComponent<ParticleSystemRenderer>();
             Material trailMaterial = new Material(Shader.Find("Sprites/Default"));
             trailMaterial.color = Color.red;
+            particleRenderer.material = trailMaterial;
             particleRenderer.trailMaterial = trailMaterial;
 
             return ps;
