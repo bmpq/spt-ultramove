@@ -69,7 +69,7 @@ namespace ultramove
                 Coin hitCoin = activeCoins.FirstOrDefault();
                 hitCoin.Hit(dmg, split);
 
-                TrailRendererManager.Instance.Trail(transform.position, hitCoin.transform.position, colorTrail);
+                TrailRendererManager.Instance.Trail(transform.position, hitCoin.transform.position, colorTrail, 2f);
 
                 if (!split)
                     return;
@@ -88,13 +88,13 @@ namespace ultramove
                     if (Raycast(transform, out RaycastHit hit))
                     {
                         EFTBallisticsInterface.Instance.Hit(hit, dmg);
-                        TrailRendererManager.Instance.Trail(transform.position, hit.point, colorTrail);
+                        TrailRendererManager.Instance.Trail(transform.position, hit.point, colorTrail, 2f);
                     }
                 }
                 else
                 {
                     MaterialType matHit = EFTBallisticsInterface.Instance.Hit(target.Item1, target.Item2, dmg);
-                    TrailRendererManager.Instance.Trail(transform.position, target.Item2.point, colorTrail);
+                    TrailRendererManager.Instance.Trail(transform.position, target.Item2.point, colorTrail, 2f);
                     if (matHit == MaterialType.Body || matHit == MaterialType.BodyArmor)
                         ParticleEffectManager.Instance.PlayBloodEffect(target.Item2.point, target.Item2.normal);
 

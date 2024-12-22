@@ -43,7 +43,7 @@ namespace ultramove
             }
         }
 
-        public void Trail(Vector3 a, Vector3 b, Color color)
+        public void Trail(Vector3 a, Vector3 b, Color color, float lifetime = 1f)
         {
             TrailRenderer trail = GetTrail(1f);
 
@@ -52,6 +52,7 @@ namespace ultramove
             trail.emitting = true;
             trail.startColor = color;
             trail.endColor = color;
+            trail.time = lifetime;
 
             StartCoroutine(WaitOneFrame(trail.transform, b));
         }
@@ -79,7 +80,7 @@ namespace ultramove
 
             lifetime = lifetime > 0 ? lifetime : defaultTrailLifetime;
 
-            trail.time = 500;
+            trail.time = lifetime;
             trail.startWidth = 0.06f;
             trail.endWidth = trail.startWidth;
 
@@ -113,8 +114,6 @@ namespace ultramove
             trail.startColor = Color.white;
             trail.endColor = Color.white;
 
-            trail.time = 0.5f;
-
             availableTrails.Enqueue(trail);
             return trail;
         }
@@ -127,7 +126,7 @@ namespace ultramove
             {
                 activeTrails[trail] -= Time.deltaTime;
 
-                trail.startWidth = Mathf.Max(0, trail.startWidth - Time.deltaTime * 0.3f);
+                trail.startWidth = Mathf.Max(0, trail.startWidth - Time.deltaTime / trail.time / 3f);
                 trail.endWidth = trail.startWidth;
 
                 if (activeTrails[trail] < 0)
