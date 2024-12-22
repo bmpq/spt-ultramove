@@ -81,5 +81,23 @@ namespace ultramove
 
             return true;
         }
+
+        public static void Slam(Vector3 pos)
+        {
+            float maxDist = 5f;
+
+            foreach (Player player in Singleton<GameWorld>.Instance.AllAlivePlayersList)
+            {
+                if (player.IsYourPlayer)
+                    continue;
+
+                if (Vector3.Distance(player.Position, pos) > maxDist)
+                    continue;
+
+                player.Transform.Original.position += new Vector3(0, 1f, 0);
+
+                player.ReceiveDamage(66f, EBodyPart.LeftLeg, EDamageType.Explosion, 0f, MaterialType.Body);
+            }
+        }
     }
 }

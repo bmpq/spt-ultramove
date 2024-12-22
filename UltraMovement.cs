@@ -178,6 +178,7 @@ namespace ultramove
         {
             shakeIntensity = 1f;
             EFTBallisticsInterface.Instance.Effect("big_round_impact", transform.position);
+            EFTTargetInterface.Slam(transform.position);
         }
 
         void FixedUpdate()
