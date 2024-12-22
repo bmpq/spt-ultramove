@@ -9,7 +9,7 @@ namespace ultramove
 {
     public static class EFTTargetInterface
     {
-        public static (BallisticCollider, RaycastHit) GetCoinTarget(Transform source)
+        public static (BallisticCollider, RaycastHit) GetCoinTarget(Transform source, BallisticCollider exclude)
         {
             float distLimit = 100f;
             float closestDist = Mathf.Infinity;
@@ -28,6 +28,9 @@ namespace ultramove
                 if (player.MainParts.TryGetValue(BodyPartType.head, out var headPart))
                 {
                     BallisticCollider collider = headPart.Collider;
+
+                    if (exclude == collider)
+                        continue;
 
                     if (!LineOfSight(source.position, collider.transform.position, out RaycastHit hit))
                         continue;

@@ -77,9 +77,11 @@ namespace ultramove
                 split = false;
             }
 
+            BallisticCollider alreadyHit = null;
+
             for (int i = 0; i < (split ? 2 : 1); i++)
             {
-                (BallisticCollider, RaycastHit) target = EFTTargetInterface.GetCoinTarget(transform);
+                (BallisticCollider, RaycastHit) target = EFTTargetInterface.GetCoinTarget(transform, alreadyHit);
 
                 if (target.Item1 == null)
                 {
@@ -95,6 +97,8 @@ namespace ultramove
                     TrailRendererManager.Instance.Trail(transform.position, target.Item2.point, colorTrail);
                     if (matHit == MaterialType.Body || matHit == MaterialType.BodyArmor)
                         ParticleEffectManager.Instance.PlayBloodEffect(target.Item2.point, target.Item2.normal);
+
+                    alreadyHit = target.Item1;
                 }
             }
         }
