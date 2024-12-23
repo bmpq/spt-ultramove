@@ -55,6 +55,20 @@ namespace ultramove
             return ballisticCollider.TypeOfMaterial;
         }
 
+        public bool Parry(RaycastHit hit)
+        {
+            BodyPartCollider bodyPartCollider = hit.transform.GetComponent<BodyPartCollider>();
+
+            if (bodyPartCollider == null)
+                return false;
+
+            if (bodyPartCollider.Player.IsYourPlayer)
+                return false;
+
+            Hit(hit, 9999);
+            return true;
+        }
+
         public void Effect(string effect, Vector3 pos)
         {
             Singleton<Effects>.Instance.EmitGrenade(effect, pos, Vector3.up);

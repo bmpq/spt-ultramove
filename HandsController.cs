@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using EFT.Ballistics;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,6 +24,8 @@ namespace ultramove
         MuzzleManager muzzleManager;
 
         CoinTosser coinTosser;
+
+        Camera cam;
 
 
         public void SetWeapon(GameObject weapon)
@@ -57,6 +59,8 @@ namespace ultramove
 
         void Start()
         {
+            cam = Camera.main;
+
             gunController = gameObject.GetComponent<GunController>();
             coinTosser = gameObject.GetOrAddComponent<CoinTosser>();
 
@@ -147,8 +151,30 @@ namespace ultramove
 
         void Parry()
         {
-            animator.SetTrigger("Parry");
-            parryPause = 0.3f;
+            bool parried = false;
+
+            int layerMask = 1 << 16;
+            RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, 0.6f, cam.transform.forward, 2f, layerMask);
+
+            Plugin.Log.LogInfo("raycast result: " + hits.Length);
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                RaycastHit hit = hits[i];
+
+                parried = EFTBallisticsInterface.Instance.Parry(hit);
+
+                if (parried)
+                    break;
+            }
+
+            if (parried)
+            {
+                animator.SetTrigger("Parry");
+                parryPause = 0.3f;
+
+                CameraShaker.Shake(2f);
+            }
         }
     }
 }
