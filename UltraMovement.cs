@@ -39,8 +39,6 @@ namespace ultramove
         bool toSlam;
         bool slamming;
 
-        float shakeIntensity = 0f;
-
         Vector3 dashDir;
         float dashTime;
 
@@ -165,21 +163,13 @@ namespace ultramove
             camZ = Mathf.Lerp(camZ, targetZ, Time.deltaTime * 10f);
             cam.transform.localEulerAngles = new Vector3(0, 0, camZ);
 
-            shakeIntensity -= Time.deltaTime * 2f;
-
             if (sliding)
-                shakeIntensity = 0.3f;
-
-            if (shakeIntensity > 0)
-            {
-                Vector3 randomOffset = Random.insideUnitSphere * shakeIntensity;
-                cam.transform.localPosition = Vector3.Lerp(Vector3.zero, randomOffset, Time.deltaTime * 10f);
-            }
+                CameraShaker.Shake(0.3f);
         }
 
         void Slam()
         {
-            shakeIntensity = 1f;
+            CameraShaker.Shake(1f);
             EFTBallisticsInterface.Instance.Effect("big_round_impact", transform.position);
             EFTTargetInterface.Slam(transform.position);
         }

@@ -18,6 +18,8 @@ namespace ultramove
         Vector3 recoilPivotOriginalLocalPosition;
         float recoilTime;
 
+        float parryPause;
+
         GunController gunController;
         MuzzleManager muzzleManager;
 
@@ -72,6 +74,20 @@ namespace ultramove
 
         private void Update()
         {
+            if (parryPause > 0f)
+            {
+                parryPause -= Time.unscaledDeltaTime;
+
+                if (parryPause < 0.25f)
+                {
+                    Time.timeScale = 0;
+                }
+            }
+            else
+            {
+                Time.timeScale = 1f;
+            }
+
             coinCooldown -= Time.deltaTime;
             if (Input.GetMouseButtonDown(1))
             {
@@ -132,6 +148,7 @@ namespace ultramove
         void Parry()
         {
             animator.SetTrigger("Parry");
+            parryPause = 0.3f;
         }
     }
 }

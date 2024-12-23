@@ -82,6 +82,8 @@ namespace ultramove
                 bundleUltrakill.LoadAsset<GameObject>("bitcoin"), 
                 bundleUltrakill.LoadAsset<Texture>("item_barter_valuable_bitcoin_D"),
                 bundleUltrakill.LoadAsset<GameObject>("glint"));
+
+            Camera.main.gameObject.AddComponent<CameraShaker>();
         }
     }
 }
