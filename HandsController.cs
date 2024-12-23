@@ -173,7 +173,8 @@ namespace ultramove
                 animator.SetTrigger("Parry");
                 parryPause = 0.3f;
 
-                CameraShaker.Shake(2f);
+                CameraShaker.Shake(1f);
+                PlayerAudio.Instance.Play("Ricochet");
             }
         }
     }

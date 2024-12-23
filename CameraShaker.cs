@@ -8,9 +8,13 @@ namespace ultramove
     {
         private static float shakeIntensity;
 
+        PrismEffects prism;
+
         void Start()
         {
-
+            prism = GetComponent<PrismEffects>();
+            prism.bloomThreshold = 0f;
+            prism.bloomIntensity = 0.5f;
         }
 
         public static void Shake(float intensity)
@@ -26,6 +30,8 @@ namespace ultramove
             shakeIntensity -= Time.unscaledDeltaTime * 2f;
             if (shakeIntensity < 0f)
                 shakeIntensity = 0f;
+
+            prism.useBloom = Time.timeScale < 0.1f;
         }
     }
 }
