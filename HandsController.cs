@@ -1,4 +1,5 @@
-﻿using EFT.Ballistics;
+﻿using EFT;
+using EFT.Ballistics;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,7 +11,6 @@ namespace ultramove
 
         float coinCooldown;
 
-        Transform palm;
         Transform recoilPivot;
         Vector3 recoilHighPos;
         Quaternion recoilHighRot;
@@ -41,7 +41,7 @@ namespace ultramove
 
             Transform handMarker = container.transform.FindInChildrenExact("weapon_R_hand_marker");
 
-            Transform palm = transform.FindInChildrenExact("Base HumanRPalm");
+            Transform palm = GetComponentInChildren<PlayerBody>().SkeletonRootJoint.Bones["Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1/Base HumanRForearm2/Base HumanRForearm3/Base HumanRPalm"];
 
             Vector3 offset = handMarker.position;
             for (int i = 0; i < container.childCount; i++)
@@ -66,14 +66,12 @@ namespace ultramove
 
             animator = GetComponentInChildren<Animator>();
 
-            recoilPivot = transform.FindInChildrenExact("Base HumanRCollarbone");
+            recoilPivot = GetComponentInChildren<PlayerBody>().SkeletonRootJoint.Bones["Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base HumanRibcage/Base HumanRCollarbone"];
             recoilPivotOriginalLocalQuaternion = recoilPivot.localRotation;
             recoilPivotOriginalLocalPosition = recoilPivot.localPosition;
 
             recoilHighRot = recoilPivotOriginalLocalQuaternion * Quaternion.Euler(40f, 0, 0f);
             recoilHighPos = recoilPivotOriginalLocalPosition - new Vector3(0.1f, 0, 0.5f);
-
-            palm = transform.FindInChildrenExact("Base HumanRPalm");
         }
 
         private void Update()

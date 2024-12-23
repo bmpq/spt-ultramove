@@ -10,15 +10,13 @@ namespace ultramove
 
         Transform muzzle;
 
-        private void Start()
+        public void SetWeapon(GameObject gameObject)
         {
             cam = Camera.main;
 
-            muzzle = transform.FindInChildrenExact("muzzleflash_000");
-            if (muzzle == null)
-            {
-                muzzle = transform.FindInChildrenExact("Base HumanRPalm");
-            }
+            MuzzleManager manager = gameObject.GetComponent<MuzzleManager>();
+
+            muzzle = manager.MuzzleJets[0].transform;
         }
 
         public bool Shoot()

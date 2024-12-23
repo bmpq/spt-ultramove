@@ -56,7 +56,7 @@ namespace ultramove
             if (Time.time < nextStepTime) return;
 
             AudioClip clip = footstepClips[random.Next(footstepClips.Length)];
-            PlayInTarkov(clip, player.position, 0.5f);
+            PlayInTarkov(clip, player.position, 1f);
 
             nextStepTime = Time.time + walkCooldown;
         }
@@ -79,6 +79,8 @@ namespace ultramove
                     return;
                 }
             }
+
+            Plugin.Log.LogError($"Could not find audio clip {clip}!");
         }
 
         public void Sliding(bool sliding)
