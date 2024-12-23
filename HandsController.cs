@@ -32,6 +32,12 @@ namespace ultramove
         {
             Destroy(weapon.GetComponentInChildren<Animator>());
 
+            float blendPalmDist = 0;
+            if (gameObject.GetComponent<Player.FirearmController>().Item is ShotgunItemClass)
+                blendPalmDist = 1f;
+            animator = GetComponentInChildren<Animator>();
+            animator.SetFloat("BlendPalmDist", blendPalmDist);
+
             muzzleManager = weapon.GetComponent<MuzzleManager>();
 
             Transform container = weapon.transform.FindInChildrenExact("weapon");
@@ -49,8 +55,8 @@ namespace ultramove
                 container.GetChild(i).position -= offset;
             }
 
-            container.SetParent(palm, false);
-            container.localPosition = new Vector3(0, -0.025f, -0.01);
+            container.SetParent(palm, true);
+            container.localPosition = new Vector3(0, -0.025f, -0.01f);
             container.localEulerAngles = new Vector3(0, 180, 90f);
 
             weapon.transform.SetParent(palm, false);
@@ -61,10 +67,11 @@ namespace ultramove
         {
             cam = Camera.main;
 
+            GetComponentInChildren<PlayerBody>().SkeletonRootJoint.Bones["Root_Joint"].localPosition = Vector3.zero;
+
             gunController = gameObject.GetComponent<GunController>();
             coinTosser = gameObject.GetOrAddComponent<CoinTosser>();
 
-            animator = GetComponentInChildren<Animator>();
 
             recoilPivot = GetComponentInChildren<PlayerBody>().SkeletonRootJoint.Bones["Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base HumanRibcage/Base HumanRCollarbone"];
             recoilPivotOriginalLocalQuaternion = recoilPivot.localRotation;
@@ -118,7 +125,7 @@ namespace ultramove
 
             recoilTime += Time.deltaTime;
 
-            float recoil = CalculateRecoil(recoilTime, 1f, 40f, 5f);
+            float recoil = CalculateRecoil(recoilTime, 0.9f, 40f, 5f);
             recoilPivot.localRotation = Quaternion.Lerp(recoilPivotOriginalLocalQuaternion, recoilHighRot, recoil);
             recoilPivot.localPosition = Vector3.Lerp(recoilPivotOriginalLocalPosition, recoilHighPos, recoil);
         }
