@@ -50,6 +50,7 @@ namespace ultramove
             container.localEulerAngles = new Vector3(0, 180, 90f);
 
             weapon.transform.SetParent(palm, false);
+            weapon.transform.localPosition = Vector3.zero;
         }
 
         void Start()
@@ -76,6 +77,11 @@ namespace ultramove
             {
                 if (coinCooldown <= 0f)
                     Coin();
+            }
+
+            if (Input.GetKeyDown(KeyCode.V))
+            {
+                Parry();
             }
 
             if (Input.GetMouseButtonDown(0))
@@ -121,6 +127,11 @@ namespace ultramove
             coinTosser.Toss();
 
             PlayerAudio.Instance.Play("coinflip");
+        }
+
+        void Parry()
+        {
+            animator.SetTrigger("Parry");
         }
     }
 }
