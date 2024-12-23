@@ -50,7 +50,7 @@ namespace ultramove
             }
 
             container.SetParent(palm, false);
-            container.localPosition = new Vector3(0, -0.025f, 0);
+            container.localPosition = new Vector3(0, -0.025f, -0.01);
             container.localEulerAngles = new Vector3(0, 180, 90f);
 
             weapon.transform.SetParent(palm, false);

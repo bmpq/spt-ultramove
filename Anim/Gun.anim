@@ -36,7 +36,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: {x: -12.152, y: -35.547, z: -42.589}
+        value: {x: -20.215, y: -46.127003, z: -28.594002}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -53,7 +53,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: {x: 135.678, y: -29.67099, z: -41.966003}
+        value: {x: 158.482, y: -55.829987, z: -73.389984}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -125,7 +125,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: {x: -2.352, y: 12.080001, z: -65.638}
+        value: {x: 15.967001, y: 22.765001, z: -108.828}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -491,7 +491,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -12.152
+        value: -20.215
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -511,7 +511,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -35.547
+        value: -46.127003
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -531,7 +531,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -42.589
+        value: -28.594002
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -551,7 +551,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 135.678
+        value: 158.482
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -572,7 +572,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -29.67099
+        value: -55.829987
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -593,7 +593,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -41.966003
+        value: -73.389984
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -803,7 +803,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -2.352
+        value: 15.967001
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -823,7 +823,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 12.080001
+        value: 22.765001
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -843,7 +843,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -65.638
+        value: -108.828
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -1605,7 +1605,9 @@ AnimationClip:
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
     path: Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base
-      HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1
+      HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1/Base
+      HumanRForearm2/Base HumanRForearm3/Base HumanRPalm/Base HumanRDigit11/Base
+      HumanRDigit12/Base HumanRDigit13
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1616,7 +1618,9 @@ AnimationClip:
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
     path: Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base
-      HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1
+      HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1/Base
+      HumanRForearm2/Base HumanRForearm3/Base HumanRPalm/Base HumanRDigit11/Base
+      HumanRDigit12/Base HumanRDigit13
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1627,7 +1631,9 @@ AnimationClip:
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
     path: Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base
-      HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1
+      HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1/Base
+      HumanRForearm2/Base HumanRForearm3/Base HumanRPalm/Base HumanRDigit11/Base
+      HumanRDigit12/Base HumanRDigit13
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1833,8 +1839,7 @@ AnimationClip:
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
     path: Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base
-      HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1/Base
-      HumanRForearm2/Base HumanRForearm3/Base HumanRPalm
+      HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1845,8 +1850,7 @@ AnimationClip:
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
     path: Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base
-      HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1/Base
-      HumanRForearm2/Base HumanRForearm3/Base HumanRPalm
+      HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1857,8 +1861,7 @@ AnimationClip:
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
     path: Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base
-      HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1/Base
-      HumanRForearm2/Base HumanRForearm3/Base HumanRPalm
+      HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1906,8 +1909,7 @@ AnimationClip:
     attribute: m_LocalEulerAngles.x
     path: Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base
       HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1/Base
-      HumanRForearm2/Base HumanRForearm3/Base HumanRPalm/Base HumanRDigit11/Base
-      HumanRDigit12/Base HumanRDigit13
+      HumanRForearm2/Base HumanRForearm3/Base HumanRPalm
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1919,8 +1921,7 @@ AnimationClip:
     attribute: m_LocalEulerAngles.y
     path: Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base
       HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1/Base
-      HumanRForearm2/Base HumanRForearm3/Base HumanRPalm/Base HumanRDigit11/Base
-      HumanRDigit12/Base HumanRDigit13
+      HumanRForearm2/Base HumanRForearm3/Base HumanRPalm
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1932,8 +1933,7 @@ AnimationClip:
     attribute: m_LocalEulerAngles.z
     path: Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base
       HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1/Base
-      HumanRForearm2/Base HumanRForearm3/Base HumanRPalm/Base HumanRDigit11/Base
-      HumanRDigit12/Base HumanRDigit13
+      HumanRForearm2/Base HumanRForearm3/Base HumanRPalm
     classID: 4
     script: {fileID: 0}
   m_HasGenericRootTransform: 0
