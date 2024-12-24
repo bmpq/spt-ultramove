@@ -55,8 +55,40 @@ namespace ultramove
             return ballisticCollider.TypeOfMaterial;
         }
 
-        public bool Parry(RaycastHit hit)
+        public void Explosion(Vector3 pos)
         {
+            foreach (var enemy in Singleton<GameWorld>.Instance.AllAlivePlayersList)
+            {
+                if (Vector3.Distance(enemy.Position, pos) < 3f)
+                {
+                    float dmg = 9999;
+
+                    DamageInfoStruct damageInfo = new DamageInfoStruct
+                    {
+                        DamageType = EDamageType.Bullet,
+                        Damage = dmg,
+                        ArmorDamage = dmg,
+                        StaminaBurnRate = dmg,
+                        PenetrationPower = dmg,
+                        Player = player,
+                        IsForwardHit = true
+                    };
+
+                    enemy.ApplyDamageInfo(damageInfo, EBodyPart.Head, EBodyPartColliderType.HeadCommon, 0);
+                }
+            }
+
+            Effect("big_explosion", pos);
+        }
+
+        public bool Parry(RaycastHit hit, Transform source)
+        {
+            if (hit.rigidbody.TryGetComponent<Projectile>(out Projectile projectile))
+            {
+                projectile.Parry(source);
+                return true;
+            }
+
             BodyPartCollider bodyPartCollider = hit.transform.GetComponent<BodyPartCollider>();
 
             if (bodyPartCollider == null)

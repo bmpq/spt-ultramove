@@ -16,7 +16,7 @@ namespace ultramove
 
         private float coyoteTime;
 
-        private float moveSpeed = 7f;
+        private float moveSpeed;
 
         CapsuleCollider capsule;
         private LayerMask groundLayer;
@@ -57,7 +57,7 @@ namespace ultramove
 
             groundLayer = LayerMask.NameToLayer("LowPolyCollider");
 
-            Physics.gravity = new Vector3(0, -14f, 0);
+            Physics.gravity = new Vector3(0, -40f, 0);
 
             rb = GetComponent<Rigidbody>();
             rb.isKinematic = false;
@@ -65,8 +65,12 @@ namespace ultramove
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
-            rb.solverIterations = 20;
-            rb.solverVelocityIterations = 20;
+            rb.mass = 100;
+
+            moveSpeed = 16.5f;
+
+            rb.solverIterations = 30;
+            rb.solverVelocityIterations = 5;
 
             capsule = GetComponent<CapsuleCollider>();
             capsule.height = 1.7f;
@@ -226,7 +230,7 @@ namespace ultramove
                 else if (vectorInput.z < 0f && relativeVelocity.z < -airVelocityLimit)
                     airForce.z = 0f;
 
-                rb.AddRelativeForce(airForce * Time.fixedDeltaTime * 1500f);
+                rb.AddRelativeForce(airForce * Time.fixedDeltaTime * 3000f, ForceMode.Acceleration);
 
                 if (DetectWall(out Vector3 wallNormal))
                 {
@@ -264,13 +268,16 @@ namespace ultramove
             {
                 toJump = false;
 
+                float num = 680f;
+                float jumpPower = 90f;
+
                 if (coyoteTime > 0f || groundedPrevTick)
                 {
                     dashTime = -1f;
 
                     coyoteTime = -1f;
 
-                    rb.velocity = new Vector3(rb.velocity.x, Mathf.Max(rb.velocity.y + 10f, 10f), rb.velocity.z);
+                    rb.AddForce(Vector3.up * jumpPower * num * 2.6f);
 
                     jumpCooldown = 0.1f;
 
@@ -284,7 +291,7 @@ namespace ultramove
                 dashTime = -1f;
                 slamming = true;
                 toSlam = false;
-                rb.velocity = new Vector3(0, -40f, 0);
+                rb.velocity = new Vector3(0, -100f, 0);
             }
 
             if (sliding)

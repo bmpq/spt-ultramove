@@ -158,16 +158,14 @@ namespace ultramove
         {
             bool parried = false;
 
-            int layerMask = 1 << 16;
+            int layerMask = 1 << 16 | 1 << 15;
             RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, 0.6f, cam.transform.forward, 2f, layerMask);
-
-            Plugin.Log.LogInfo("raycast result: " + hits.Length);
 
             for (int i = 0; i < hits.Length; i++)
             {
                 RaycastHit hit = hits[i];
 
-                parried = EFTBallisticsInterface.Instance.Parry(hit);
+                parried = EFTBallisticsInterface.Instance.Parry(hit, cam.transform);
 
                 if (parried)
                     break;
