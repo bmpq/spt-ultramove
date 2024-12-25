@@ -45,6 +45,8 @@ namespace ultramove
         Vector3 prevVelocity;
         Vector3 lastCollisionImpulse;
 
+        float jumpPower = 680f * 90f * 2.6f;
+
         void Start()
         {
             cam = Camera.main;
@@ -241,8 +243,8 @@ namespace ultramove
                         toJump = false;
                         jumpCooldown = 0.1f;
 
-                        Vector3 jumpDirection = wallNormal + Vector3.up;
-                        rb.AddForce(jumpDirection.normalized * 14f, ForceMode.Impulse);
+                        Vector3 jumpDirection = (wallNormal * 0.75f) + Vector3.up;
+                        rb.AddForce(jumpDirection.normalized * jumpPower);
                     }
                 }
             }
@@ -268,16 +270,13 @@ namespace ultramove
             {
                 toJump = false;
 
-                float num = 680f;
-                float jumpPower = 90f;
-
                 if (coyoteTime > 0f || groundedPrevTick)
                 {
                     dashTime = -1f;
 
                     coyoteTime = -1f;
 
-                    rb.AddForce(Vector3.up * jumpPower * num * 2.6f);
+                    rb.AddForce(Vector3.up * jumpPower);
 
                     jumpCooldown = 0.1f;
 
