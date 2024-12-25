@@ -21,6 +21,8 @@ namespace ultramove
             primed = false;
 
             EFTBallisticsInterface.Instance.Explosion(collision.contacts[0].point);
+
+            CameraShaker.Shake(0.5f);
         }
     }
 }
