@@ -60,7 +60,8 @@ namespace ultramove
         {
             dmg *= 2f;
 
-            split = IsOnApex();
+            if (!split)
+                split = IsOnApex();
 
             Disable();
 
