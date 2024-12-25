@@ -67,7 +67,7 @@ namespace ultramove
             PlayInTarkov(clip, cam.position + cam.forward);
         }
 
-        public void Play(string clip, float volume = 1f)
+        public void Play(string clip, float volume = 1f, float pitch = 1f)
         {
             Vector3 pos = player.position;
 

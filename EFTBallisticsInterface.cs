@@ -59,7 +59,7 @@ namespace ultramove
         {
             foreach (var enemy in Singleton<GameWorld>.Instance.AllAlivePlayersList)
             {
-                if (Vector3.Distance(enemy.Position, pos) < 3f)
+                if (Vector3.Distance(enemy.Position, pos) < 5f)
                 {
                     float dmg = 9999;
 

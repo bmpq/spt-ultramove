@@ -29,6 +29,9 @@ namespace ultramove
 
         Color colorTrail = new Color(1, 0.7f, 0.1f);
 
+        static float timeLastRicoshot;
+        static int sequenceRicoshot;
+
         void Init()
         {
             rb = GetComponent<Rigidbody>();
@@ -63,14 +66,19 @@ namespace ultramove
             if (!split)
                 split = IsOnApex();
 
+            if (Time.time - timeLastRicoshot < 0.2f)
+                sequenceRicoshot++;
+            else
+                sequenceRicoshot = 0;
+            PlayerAudio.Instance.Play("Ricochet", 1f, 1f + sequenceRicoshot * 0.05f);
+            timeLastRicoshot = Time.time;
+
             Disable();
 
             if (activeCoins.Count > 0)
             {
                 Coin hitCoin = activeCoins.FirstOrDefault();
-                hitCoin.Hit(dmg, split);
-
-                TrailRendererManager.Instance.Trail(transform.position, hitCoin.transform.position, colorTrail, 2f);
+                StartCoroutine(DelayHit(hitCoin, dmg, split));
 
                 if (!split)
                     return;
@@ -102,6 +110,13 @@ namespace ultramove
                     alreadyHit = target.Item1;
                 }
             }
+        }
+
+        private IEnumerator DelayHit(Coin hitCoin, float dmg, bool split)
+        {
+            yield return new WaitForSeconds(0.1f);
+            hitCoin.Hit(dmg, split);
+            TrailRendererManager.Instance.Trail(transform.position, hitCoin.transform.position, colorTrail, 2f);
         }
 
         bool Raycast(Transform transform, out RaycastHit hit)
