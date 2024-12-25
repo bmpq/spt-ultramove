@@ -251,7 +251,8 @@ namespace ultramove
 
             if (grounded && !groundedPrevTick)
             {
-                if (Mathf.Min(prevVelocity.y, -lastCollisionImpulse.y) < -7f)
+                Debug.Log(Mathf.Min(prevVelocity.y, -lastCollisionImpulse.y));
+                if (Mathf.Min(prevVelocity.y, -lastCollisionImpulse.y) < -1500f)
                     PlayerAudio.Instance.Play("Landing");
             }
 
@@ -260,11 +261,6 @@ namespace ultramove
                 coyoteTime = 0.3f;
             }
             groundedPrevTick = grounded;
-
-            if (!grounded && coyoteTime < 0f)
-            {
-                sliding = false;
-            }
 
             if (toJump)
             {
@@ -300,7 +296,9 @@ namespace ultramove
 
                 Vector3 slideVel = slideDir * moveSpeed * 1.5f;
                 slideVel.y = -1f;
-                rb.velocity = slideVel;
+
+                if (grounded)
+                    rb.velocity = slideVel;
             }
             else
             {
