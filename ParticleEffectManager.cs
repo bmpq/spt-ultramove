@@ -46,38 +46,6 @@ namespace ultramove
             StartCoroutine(RecycleAfterFinish(particleSystem));
         }
 
-        public void PlayWhoosh(Transform tr)
-        {
-            ParticleSystem particleSystem = GetParticleSystem();
-
-            SetEffectWhoosh(particleSystem);
-
-            particleSystem.transform.SetParent(tr);
-            particleSystem.transform.localPosition = Vector3.zero;
-            particleSystem.transform.localRotation = Quaternion.identity;
-
-            particleSystem.gameObject.SetActive(true);
-            particleSystem.Play();
-
-            StartCoroutine(RecycleAfterFinish(particleSystem));
-        }
-
-        public void PlayBloodEffect(Vector3 position, Vector3 normal)
-        {
-            ParticleSystem particleSystem = GetParticleSystem();
-
-            SetEffectBlood(particleSystem);
-
-            Transform psTransform = particleSystem.transform;
-            psTransform.position = position;
-            psTransform.rotation = Quaternion.LookRotation(normal);
-
-            particleSystem.gameObject.SetActive(true);
-            particleSystem.Play();
-
-            StartCoroutine(RecycleAfterFinish(particleSystem));
-        }
-
         private void SetEffectCoinRicochet(ParticleSystem ps)
         {
             var main = ps.main;
@@ -108,77 +76,6 @@ namespace ultramove
             trails.enabled = false;
 
             trails.worldSpace = false;
-        }
-
-        private void SetEffectWhoosh(ParticleSystem ps)
-        {
-            var main = ps.main;
-            main.loop = false;
-            main.startColor = Color.white;
-            main.startSize = 0.1f;
-            main.startSpeed = 0;
-            main.startLifetime = new ParticleSystem.MinMaxCurve(0.1f, 2f);
-            main.simulationSpace = ParticleSystemSimulationSpace.Local;
-            main.gravityModifier = 0;
-
-            var emission = ps.emission;
-            emission.rateOverTime = 0f; // No continuous emission
-            var burst = new ParticleSystem.Burst(0f, 300);
-            emission.SetBursts(new ParticleSystem.Burst[] { burst });
-
-            var shape = ps.shape;
-            shape.shapeType = ParticleSystemShapeType.Box;
-            shape.scale = Vector3.one * 4f;
-
-            var trails = ps.trails;
-            trails.enabled = true;
-            trails.ratio = 1.0f;
-            trails.mode = ParticleSystemTrailMode.PerParticle;
-            trails.lifetime = new ParticleSystem.MinMaxCurve(0.1f, 0.3f);
-            trails.dieWithParticles = false;
-
-            trails.textureMode = ParticleSystemTrailTextureMode.Stretch;
-            trails.widthOverTrail = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(new Keyframe(0, 1f), new Keyframe(1, 0)));
-            trails.colorOverTrail = new ParticleSystem.MinMaxGradient(Color.white, new Color(1, 1, 1, 0f));
-
-            trails.worldSpace = true;
-        }
-
-        private void SetEffectBlood(ParticleSystem ps)
-        {
-            var main = ps.main;
-            main.loop = false;
-            main.startColor = Color.red;
-            main.startSize = 0.1f;
-            main.startSpeed = new ParticleSystem.MinMaxCurve(2, 6);
-            main.startLifetime = new ParticleSystem.MinMaxCurve(0.1f, 2f);
-            main.simulationSpace = ParticleSystemSimulationSpace.World;
-            main.gravityModifier = 1f;
-
-            var emission = ps.emission;
-            emission.rateOverTime = 0f; // No continuous emission
-            var burst = new ParticleSystem.Burst(0f, 30);
-            emission.SetBursts(new ParticleSystem.Burst[] { burst });
-
-            var shape = ps.shape;
-            shape.shapeType = ParticleSystemShapeType.Cone;
-            shape.angle = 40f;
-            shape.radius = 0.3f;
-            shape.scale = Vector3.one;
-
-            var limit = ps.limitVelocityOverLifetime;
-            limit.enabled = false;
-
-            var trails = ps.trails;
-            trails.enabled = true;
-            trails.ratio = 1.0f;
-            trails.mode = ParticleSystemTrailMode.PerParticle;
-            trails.lifetime = new ParticleSystem.MinMaxCurve(0.1f, 0.3f);
-            trails.dieWithParticles = false;
-
-            trails.textureMode = ParticleSystemTrailTextureMode.Stretch;
-            trails.widthOverTrail = new ParticleSystem.MinMaxCurve(2f, new AnimationCurve(new Keyframe(0, 1f), new Keyframe(1, 0)));
-            trails.colorOverTrail = new ParticleSystem.MinMaxGradient(Color.red, new Color(0.5f, 0f, 0f, 0f));
         }
 
         ParticleSystem GetParticleSystem()

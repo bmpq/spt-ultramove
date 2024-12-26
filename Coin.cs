@@ -105,8 +105,6 @@ namespace ultramove
                 {
                     MaterialType matHit = EFTBallisticsInterface.Instance.Hit(target.Item1, target.Item2, dmg);
                     TrailRendererManager.Instance.Trail(transform.position, target.Item2.point, colorTrail, 2f);
-                    if (matHit == MaterialType.Body || matHit == MaterialType.BodyArmor)
-                        ParticleEffectManager.Instance.PlayBloodEffect(target.Item2.point, target.Item2.normal);
 
                     alreadyHit = target.Item1;
                 }

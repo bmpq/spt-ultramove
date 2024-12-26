@@ -71,6 +71,8 @@ namespace ultramove
                         StaminaBurnRate = dmg,
                         PenetrationPower = dmg,
                         Player = player,
+                        HitPoint = enemy.MainParts[BodyPartType.head].Position,
+                        HitNormal = (pos - enemy.MainParts[BodyPartType.head].Position).normalized,
                         IsForwardHit = true
                     };
 
