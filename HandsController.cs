@@ -27,16 +27,26 @@ namespace ultramove
 
         Camera cam;
 
+        void SetWeaponHandPosition()
+        {
+            float blendPalmDist = 1;
+
+            Weapon weaponClass = gameObject.GetComponent<Player.FirearmController>().Item;
+
+            if (!(weaponClass is RevolverItemClass) &&
+                !(weaponClass is PistolItemClass) &&
+                !(weaponClass is SmgItemClass))
+                blendPalmDist = 0f;
+
+            animator = GetComponentInChildren<Animator>();
+            animator.SetFloat("BlendPalmDist", blendPalmDist);
+        }
 
         public void SetWeapon(GameObject weapon)
         {
             Destroy(weapon.GetComponentInChildren<Animator>());
 
-            float blendPalmDist = 0;
-            if (gameObject.GetComponent<Player.FirearmController>().Item is ShotgunItemClass)
-                blendPalmDist = 1f;
-            animator = GetComponentInChildren<Animator>();
-            animator.SetFloat("BlendPalmDist", blendPalmDist);
+            SetWeaponHandPosition();
 
             muzzleManager = weapon.GetComponent<MuzzleManager>();
 
@@ -161,14 +171,13 @@ namespace ultramove
             int layerMask = 1 << 16 | 1 << 15;
             RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, 0.6f, cam.transform.forward, 2f, layerMask);
 
+            RaycastHit hit = new RaycastHit();
+
             for (int i = 0; i < hits.Length; i++)
             {
-                RaycastHit hit = hits[i];
+                hit = hits[i];
 
                 parried = EFTBallisticsInterface.Instance.Parry(hit, cam.transform);
-
-                if (parried)
-                    break;
             }
 
             if (parried)
