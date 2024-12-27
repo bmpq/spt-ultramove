@@ -35,6 +35,7 @@ namespace ultramove
 
         bool sliding;
         Vector3 slideDir;
+        ParticleSystem psSlide;
 
         bool toSlam;
         bool slamming;
@@ -91,6 +92,26 @@ namespace ultramove
             sphere.radius = capsule.radius - 0.05f;
             sphere.isTrigger = true;
             groundCheck.gameObject.transform.localPosition = new Vector3(0, sphere.radius / 2f, 0);
+
+            Material mat = new Material(Shader.Find("Sprites/Default"));
+            psSlide = new GameObject("Slide Particles").AddComponent<ParticleSystem>();
+            var main = psSlide.main;
+            main.startSize = 0.05f;
+            main.startSpeed = 20f;
+            main.startColor = new Color(1, 0.8f, 0, 0.2f);
+            main.startLifetime = 0.1f;
+            var shape = psSlide.shape;
+            shape.radius = 0.15f;
+            shape.angle = 40;
+            var trails = psSlide.trails;
+            trails.enabled = true;
+            trails.colorOverTrail = main.startColor;
+            //trails.lifetime = 0.1f;
+            psSlide.GetComponent<ParticleSystemRenderer>().material = mat;
+            psSlide.GetComponent<ParticleSystemRenderer>().trailMaterial = mat;
+            var emission = psSlide.emission;
+            emission.rateOverTime = 70;
+            psSlide.Stop();
         }
 
         void Update()
@@ -141,7 +162,8 @@ namespace ultramove
                 sliding = (groundCheck.isGrounded || coyoteTime > 0f) && Input.GetKeyDown(KeyCode.C) && jumpCooldown <= 0f;
                 if (sliding)
                 {
-                    slideDir = transform.forward;
+                    slideDir = transform.TransformDirection(vectorInput == Vector3.zero ? new Vector3(0, 0, 1f) : vectorInput.normalized);
+                    psSlide.Play();
                 }
             }
             else
@@ -149,6 +171,13 @@ namespace ultramove
                 if (Input.GetKeyUp(KeyCode.C))
                 {
                     sliding = false;
+                    psSlide.Stop();
+                    psSlide.Clear();
+                }
+                else
+                {
+                    psSlide.gameObject.transform.position = transform.position + slideDir * 0.8f + new Vector3(0, 0.1f, 0);
+                    psSlide.gameObject.transform.rotation = Quaternion.LookRotation(-slideDir);
                 }
             }
 
@@ -251,7 +280,6 @@ namespace ultramove
 
             if (grounded && !groundedPrevTick)
             {
-                Debug.Log(Mathf.Min(prevVelocity.y, -lastCollisionImpulse.y));
                 if (Mathf.Min(prevVelocity.y, -lastCollisionImpulse.y) < -1500f)
                     PlayerAudio.Instance.Play("Landing");
             }

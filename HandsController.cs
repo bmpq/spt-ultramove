@@ -1,5 +1,6 @@
 ﻿using EFT;
 using EFT.Ballistics;
+using EFT.InventoryLogic;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,14 +30,14 @@ namespace ultramove
 
         void SetWeaponHandPosition()
         {
-            float blendPalmDist = 1;
+            float blendPalmDist = 0;
 
             Weapon weaponClass = gameObject.GetComponent<Player.FirearmController>().Item;
 
             if (!(weaponClass is RevolverItemClass) &&
                 !(weaponClass is PistolItemClass) &&
                 !(weaponClass is SmgItemClass))
-                blendPalmDist = 0f;
+                blendPalmDist = 1f;
 
             animator = GetComponentInChildren<Animator>();
             animator.SetFloat("BlendPalmDist", blendPalmDist);
