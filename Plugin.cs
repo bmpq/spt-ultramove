@@ -15,6 +15,7 @@ public class Plugin : BaseUnityPlugin
         InitConfiguration();
 
         new OnGameStarted().Enable();
+        new OnGrenadeSetThrowForce().Enable();
     }
 
     private void InitConfiguration()

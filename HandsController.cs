@@ -179,6 +179,8 @@ namespace ultramove
                 hit = hits[i];
 
                 parried = EFTBallisticsInterface.Instance.Parry(hit, cam.transform);
+                if (parried)
+                    break;
             }
 
             if (parried)

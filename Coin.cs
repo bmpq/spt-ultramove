@@ -27,7 +27,7 @@ namespace ultramove
 
         RaycastHit[] hits = new RaycastHit[4];
 
-        Color colorTrail = new Color(1, 0.7f, 0.1f);
+        Color colorTrail = new Color(1, 0.4f, 0f);
 
         static float timeLastRicoshot;
         static int sequenceRicoshot;
