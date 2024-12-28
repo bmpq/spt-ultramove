@@ -171,14 +171,18 @@ namespace ultramove
                 if (Input.GetKeyUp(KeyCode.C))
                 {
                     sliding = false;
-                    psSlide.Stop();
-                    psSlide.Clear();
                 }
                 else
                 {
-                    psSlide.gameObject.transform.position = transform.position + slideDir * 0.8f + new Vector3(0, 0.1f, 0);
+                    psSlide.gameObject.transform.position = transform.position + slideDir + new Vector3(0, 0.1f, 0);
                     psSlide.gameObject.transform.rotation = Quaternion.LookRotation(-slideDir);
                 }
+            }
+
+            if (!sliding && psSlide.isPlaying)
+            {
+                psSlide.Stop();
+                psSlide.Clear();
             }
 
             PlayerAudio.Instance.Sliding(sliding);
