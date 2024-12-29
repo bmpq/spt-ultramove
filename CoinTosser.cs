@@ -89,7 +89,7 @@ namespace ultramove
             newRb.position = newPos;
             newRb.rotation = cam.transform.rotation;
 
-            Vector3 vel = cam.transform.forward * 20f + Vector3.up * 15f;
+            Vector3 vel = cam.transform.forward * 18f + Vector3.up * 15f;
             newRb.velocity = playerrb.velocity + vel;
 
             newRb.maxAngularVelocity = 25;

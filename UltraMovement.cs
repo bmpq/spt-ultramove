@@ -46,7 +46,7 @@ namespace ultramove
         Vector3 prevVelocity;
         Vector3 lastCollisionImpulse;
 
-        float jumpPower = 680f * 90f * 2.6f;
+        const float jumpPower = 520f * 90f * 2.6f;
 
         void Start()
         {
@@ -70,7 +70,7 @@ namespace ultramove
 
             rb.mass = 100;
 
-            moveSpeed = 16.5f;
+            moveSpeed = 16.5f / 1.5f;
 
             rb.solverIterations = 30;
             rb.solverVelocityIterations = 5;
@@ -171,6 +171,8 @@ namespace ultramove
                 if (Input.GetKeyUp(KeyCode.C))
                 {
                     sliding = false;
+                    psSlide.Stop();
+                    psSlide.Clear();
                 }
                 else
                 {
