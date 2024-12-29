@@ -89,7 +89,7 @@ namespace ultramove
 
         void PlayInTarkov(AudioClip clip, Vector3 pos, float volume = 1f)
         {
-            Singleton<BetterAudio>.Instance.PlayAtPoint(pos, clip, 0, BetterAudio.AudioSourceGroupType.Character, 5, volume, EOcclusionTest.None, null, false);
+            Singleton<BetterAudio>.Instance.PlayAtPoint(pos, clip, 0, BetterAudio.AudioSourceGroupType.Nonspatial, 1, volume, EOcclusionTest.None, null, false);
         }
     }
 }
