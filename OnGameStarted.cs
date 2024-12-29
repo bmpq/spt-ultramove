@@ -84,6 +84,10 @@ namespace ultramove
                 bundleUltrakill.LoadAsset<GameObject>("glint"));
 
             Camera.main.gameObject.AddComponent<CameraShaker>();
+
+            GameObject prefabMaurice = bundleUltrakill.LoadAsset<GameObject>("Maurice");
+            GameObject newMaurice = GameObject.Instantiate(prefabMaurice, new Vector3(-10, 5, -10), Quaternion.identity);
+            newMaurice.AddComponent<Maurice>();
         }
     }
 }

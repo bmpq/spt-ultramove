@@ -156,7 +156,7 @@ namespace ultramove
 
         void Coin()
         {
-            coinCooldown = 0.15f;
+            coinCooldown = 0.05f;
 
             animator.SetTrigger("Coin");
 

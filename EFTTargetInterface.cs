@@ -9,6 +9,11 @@ namespace ultramove
 {
     public static class EFTTargetInterface
     {
+        public static Vector3 GetPlayerPosition()
+        {
+            return Singleton<GameWorld>.Instance.MainPlayer.Position;
+        }
+
         public static (BallisticCollider, RaycastHit) GetCoinTarget(Transform source, BallisticCollider exclude)
         {
             float distLimit = 100f;
