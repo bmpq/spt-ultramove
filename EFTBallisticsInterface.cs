@@ -17,9 +17,12 @@ namespace ultramove
 
         private IPlayerOwner player;
 
+        Effects.Effect effectSlide;
+
         public EFTBallisticsInterface(GameWorld gameWorld)
         {
             player = gameWorld.GetAlivePlayerBridgeByProfileID(gameWorld.MainPlayer.ProfileId);
+            effectSlide = Singleton<Effects>.Instance.EffectsArray.FirstOrDefault(c => c.Name == "Concrete");
         }
 
         public MaterialType Hit(RaycastHit hit, float dmg)
@@ -112,6 +115,13 @@ namespace ultramove
         public void Effect(string effect, Vector3 pos)
         {
             Singleton<Effects>.Instance.EmitGrenade(effect, pos, Vector3.up);
+        }
+
+        public void PlaySlide(Vector3 playerPos, Vector3 slideDir)
+        {
+            Vector3 point = playerPos + slideDir + new Vector3(0, 0.1f, 0);
+
+            Singleton<Effects>.Instance.AddEffectEmit(effectSlide, point, -slideDir * 1.3f, null, false, 0, false, true, false);
         }
     }
 }

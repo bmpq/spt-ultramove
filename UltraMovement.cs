@@ -188,6 +188,11 @@ namespace ultramove
                 psSlide.Clear();
             }
 
+            if (sliding)
+            {
+                EFTBallisticsInterface.Instance.PlaySlide(transform.position, slideDir);
+            }
+
             PlayerAudio.Instance.Sliding(sliding);
 
             jumpCooldown -= Time.deltaTime;
