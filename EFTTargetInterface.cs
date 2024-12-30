@@ -9,8 +9,15 @@ namespace ultramove
 {
     public static class EFTTargetInterface
     {
+        static Camera cam;
+
         public static Vector3 GetPlayerPosition()
         {
+            if (cam == null)
+                cam = Camera.main;
+
+            return cam.transform.position;
+
             return Singleton<GameWorld>.Instance.MainPlayer.Position;
         }
 

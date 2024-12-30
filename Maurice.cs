@@ -1,8 +1,6 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ultramove;
 using UnityEngine;
 
 namespace ultramove
@@ -10,6 +8,43 @@ namespace ultramove
     internal class Maurice : MonoBehaviour
     {
         Rigidbody rb;
+        GameObject prefabProjectile;
+
+        int projectileShotThisCycle;
+
+        float cooldown;
+
+        private readonly Queue<Projectile> projectilePool = new Queue<Projectile>();
+
+        public void SetPrefabProjectile(GameObject prefabProjectile)
+        {
+            this.prefabProjectile = prefabProjectile;
+            prefabProjectile.AddComponent<Projectile>();
+            prefabProjectile.transform.GetChild(0).gameObject.AddComponent<AlwaysFaceCamera>();
+        }
+
+        private void AddNewProjectileToPool()
+        {
+            Projectile projectile = Instantiate(prefabProjectile).GetOrAddComponent<Projectile>();
+            projectilePool.Enqueue(projectile);
+        }
+
+        private Projectile GetFromPool()
+        {
+            if (projectilePool.Count > 0)
+            {
+                return projectilePool.Dequeue();
+            }
+
+            AddNewProjectileToPool();
+            return projectilePool.Dequeue();
+        }
+
+        private void ReturnToPool(Projectile projectile)
+        {
+            projectile.gameObject.SetActive(false);
+            projectilePool.Enqueue(projectile);
+        }
 
         void Start()
         {
@@ -23,6 +58,36 @@ namespace ultramove
             Vector3 targetDirection = EFTTargetInterface.GetPlayerPosition() - transform.position;
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 100f * Time.deltaTime);
+
+            cooldown -= Time.deltaTime;
+
+            if (cooldown < 0)
+            {
+                if (projectileShotThisCycle < 6)
+                {
+                    ShootProjectile();
+
+                    projectileShotThisCycle++;
+
+                    cooldown = 0.2f;
+                }
+                else
+                {
+                    cooldown = 1f;
+                    projectileShotThisCycle = 0;
+                }
+            }
+        }
+
+        void ShootProjectile()
+        {
+            Projectile projectile = GetFromPool();
+            Vector3 startPos = transform.position + transform.forward - transform.up * 1.3f;
+
+            projectile.enabled = true;
+            projectile.Initialize(startPos, (EFTTargetInterface.GetPlayerPosition() - transform.position).normalized * 40f);
+
+            projectile.OnProjectileDone = ReturnToPool;
         }
 
         void FixedUpdate()

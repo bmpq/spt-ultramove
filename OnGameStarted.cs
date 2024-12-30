@@ -87,7 +87,7 @@ namespace ultramove
 
             GameObject prefabMaurice = bundleUltrakill.LoadAsset<GameObject>("Maurice");
             GameObject newMaurice = GameObject.Instantiate(prefabMaurice, new Vector3(-10, 5, -10), Quaternion.identity);
-            newMaurice.AddComponent<Maurice>();
+            newMaurice.AddComponent<Maurice>().SetPrefabProjectile(bundleUltrakill.LoadAsset<GameObject>("Projectile"));
         }
     }
 }

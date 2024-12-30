@@ -58,6 +58,7 @@ namespace ultramove
             cam.transform.localPosition = Vector3.zero;
             //Cursor.lockState = CursorLockMode.Locked;
 
+            gameObject.layer = 10; // PlayerCollisionTest
             groundLayer = LayerMask.NameToLayer("LowPolyCollider");
 
             Physics.gravity = new Vector3(0, -40f, 0);
@@ -320,7 +321,7 @@ namespace ultramove
                 dashTime = -1f;
                 slamming = true;
                 toSlam = false;
-                rb.velocity = new Vector3(0, -100f, 0);
+                rb.velocity = new Vector3(0, -50f, 0);
             }
 
             if (sliding)
