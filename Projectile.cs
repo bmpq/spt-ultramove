@@ -87,6 +87,8 @@ namespace ultramove
 
         public void Parry(Transform source)
         {
+            this.enabled = true;
+
             Initialize(transform.position, source.forward * 100f);
             rb.useGravity = true;
             primed = true;
@@ -94,15 +96,20 @@ namespace ultramove
 
         void OnTriggerEnter(Collider col)
         {
+            if (!enabled)
+                return;
+
             RaycastHit hit = new RaycastHit();
             hit.point = transform.position;
-            hit.normal = Vector3.forward;
+            hit.normal = Vector3.up;
 
             if (primed)
             {
                 primed = false;
-                EFTBallisticsInterface.Instance.Explosion(hit.point);
+                EFTBallisticsInterface.Instance.Explosion(transform.position);
             }
+            else
+                EFTBallisticsInterface.Instance.Hit(col, hit, 30f);
 
             OnProjectileDone?.Invoke(this);
         }

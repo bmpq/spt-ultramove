@@ -17,7 +17,6 @@ public class AlwaysFaceCamera : MonoBehaviour
             return;
 
         Vector3 toCamera = mainCamera.transform.position - transform.position;
-        toCamera.y = 0;
         Quaternion lookRotation = Quaternion.LookRotation(toCamera.normalized);
         transform.rotation = lookRotation;
     }

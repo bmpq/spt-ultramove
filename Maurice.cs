@@ -85,7 +85,7 @@ namespace ultramove
             Vector3 startPos = transform.position + transform.forward - transform.up * 1.3f;
 
             projectile.enabled = true;
-            projectile.Initialize(startPos, (EFTTargetInterface.GetPlayerPosition() - transform.position).normalized * 40f);
+            projectile.Initialize(startPos, (EFTTargetInterface.GetPlayerPosition() - startPos).normalized * 40f);
 
             projectile.OnProjectileDone = ReturnToPool;
         }

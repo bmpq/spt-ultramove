@@ -28,6 +28,12 @@ namespace ultramove
             return Hit(ballisticCollider, hit, dmg);
         }
 
+        public MaterialType Hit(Collider col, RaycastHit hit, float dmg)
+        {
+            BallisticCollider ballisticCollider = col.gameObject.GetComponent<BallisticCollider>();
+            return Hit(ballisticCollider, hit, dmg);
+        }
+
         public MaterialType Hit(BallisticCollider ballisticCollider, RaycastHit hit, float dmg)
         {
             if (ballisticCollider == null)
