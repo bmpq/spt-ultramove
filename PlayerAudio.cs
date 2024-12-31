@@ -25,7 +25,7 @@ namespace ultramove
 
         AudioClip[] allClips;
 
-        Dictionary<AudioClip, BetterSource> loops = new Dictionary<AudioClip, BetterSource>();
+        BetterSource sourceSlide;
 
         public PlayerAudio(AssetBundle bundle)
         {
@@ -33,6 +33,10 @@ namespace ultramove
             cam = Camera.main.transform;
 
             allClips = bundle.LoadAllAssets<AudioClip>();
+
+            sourceSlide = MonoBehaviourSingleton<BetterAudio>.Instance.GetSource(BetterAudio.AudioSourceGroupType.Environment, true);
+            sourceSlide.Loop = true;
+            sourceSlide.Play(allClips.FirstOrDefault(c => c.name.StartsWith("wallcling")), null, 1f, 1f, false, false);
 
             footstepClips = allClips
                 .Where(clip => clip.name.StartsWith("footstep_heavy"))
@@ -83,8 +87,12 @@ namespace ultramove
             Plugin.Log.LogError($"Could not find audio clip {clip}!");
         }
 
-        public void Sliding(bool sliding)
+        public void Sliding(bool sliding, Vector3 playerPos, Vector3 slideDir)
         {
+            Vector3 point = playerPos + slideDir + new Vector3(0, 0.1f, 0);
+
+            sourceSlide.Position = point;
+            sourceSlide.SetBaseVolume(sliding ? 1f : 0f);
         }
 
         void PlayInTarkov(AudioClip clip, Vector3 pos, float volume = 1f)

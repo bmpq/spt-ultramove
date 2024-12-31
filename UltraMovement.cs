@@ -193,7 +193,7 @@ namespace ultramove
                 EFTBallisticsInterface.Instance.PlaySlide(transform.position, slideDir);
             }
 
-            PlayerAudio.Instance.Sliding(sliding);
+            PlayerAudio.Instance.Sliding(sliding, transform.position, slideDir);
 
             jumpCooldown -= Time.deltaTime;
 
