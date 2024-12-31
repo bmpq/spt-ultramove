@@ -51,6 +51,13 @@ namespace ultramove
             rb = GetComponent<Rigidbody>();
 
             rb.useGravity = false;
+
+            gameObject.transform.GetChild(1).gameObject.AddComponent<BodyPartCollider>().OnHitAction += Hit;
+        }
+
+        void Hit(DamageInfoStruct damageInfo)
+        {
+
         }
 
         void Update()
@@ -99,8 +106,6 @@ namespace ultramove
 
             if (DistanceToFloor() < 5f)
                 targetVel.y = Mathf.Max(targetVel.y, 0);
-
-            Debug.Log(DistanceToFloor());
 
             rb.velocity = targetVel;
         }

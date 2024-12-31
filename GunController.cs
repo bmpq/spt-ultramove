@@ -32,7 +32,8 @@ namespace ultramove
             int layer16 = 1 << 16; // HitCollider (body parts)
             int layer11 = 1 << 11; // Terrain
             int layer15 = 1 << 15; // Loot (Coin)
-            int layerMask = layer12 | layer16 | layer11 | layer15;
+            int layer30 = 1 << 30; // TransparentCollider
+            int layerMask = layer12 | layer16 | layer11 | layer15 | layer30;
 
             if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, layerMask))
             {
