@@ -95,6 +95,8 @@ namespace ultramove
             projectile.Initialize(startPos, (EFTTargetInterface.GetPlayerPosition() - startPos).normalized * 40f);
 
             projectile.OnProjectileDone = ReturnToPool;
+
+            PlayerAudio.Instance.PlayAtPoint("AnimeSlash2xpitch", transform.position);
         }
 
         void FixedUpdate()

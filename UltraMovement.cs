@@ -172,8 +172,6 @@ namespace ultramove
                 if (Input.GetKeyUp(KeyCode.C))
                 {
                     sliding = false;
-                    psSlide.Stop();
-                    psSlide.Clear();
                 }
                 else
                 {
@@ -186,6 +184,8 @@ namespace ultramove
             {
                 psSlide.Stop();
                 psSlide.Clear();
+
+                PlayerAudio.Instance.Play("harpoonStop", 0.2f);
             }
 
             if (sliding)

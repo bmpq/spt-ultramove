@@ -75,7 +75,7 @@ namespace ultramove
                 sequenceRicoshot++;
             else
                 sequenceRicoshot = 0;
-            PlayerAudio.Instance.Play("Ricochet", 1f, 1f + sequenceRicoshot * 0.05f);
+            PlayerAudio.Instance.Play("Ricochet", 1f);
             ParticleEffectManager.Instance.PlayEffectCoinRicochet(transform);
             timeLastRicoshot = Time.time;
 

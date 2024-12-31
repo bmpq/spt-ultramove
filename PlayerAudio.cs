@@ -47,6 +47,8 @@ namespace ultramove
                 .Where(clip => clip.name.StartsWith("Shoot1c"))
                 .OrderBy(clip => ExtractIndex(clip.name))
                 .ToArray();
+
+            Projectile.audioTwirl = allClips.FirstOrDefault(c => c.name.StartsWith("Twirling"));
         }
 
         private int ExtractIndex(string clipName)
@@ -71,20 +73,26 @@ namespace ultramove
             PlayInTarkov(clip, cam.position + cam.forward);
         }
 
-        public void Play(string clip, float volume = 1f, float pitch = 1f)
+        public void PlayAtPoint(string clip, Vector3 pos, float volume = 1f, float pitch = 1f)
+        {
+            var audioClip = allClips.FirstOrDefault(c => c.name.StartsWith(clip));
+            if (audioClip != null)
+            {
+                Singleton<BetterAudio>.Instance.PlayAtPoint(pos, audioClip, CameraClass.Instance.Distance(pos), BetterAudio.AudioSourceGroupType.Environment, 60);
+            }
+            else
+                Plugin.Log.LogError($"Could not find audio clip {clip}!");
+        }
+
+        public void Play(string clip, float volume = 1f)
         {
             Vector3 pos = player.position;
 
-            foreach (var item in allClips)
-            {
-                if (item.name.StartsWith(clip))
-                {
-                    PlayInTarkov(item, pos, volume);
-                    return;
-                }
-            }
-
-            Plugin.Log.LogError($"Could not find audio clip {clip}!");
+            var audioClip = allClips.FirstOrDefault(c => c.name.StartsWith(clip));
+            if (audioClip != null)
+                PlayInTarkov(audioClip, pos, volume);
+            else
+                Plugin.Log.LogError($"Could not find audio clip {clip}!");
         }
 
         public void Sliding(bool sliding, Vector3 playerPos, Vector3 slideDir)
@@ -97,7 +105,7 @@ namespace ultramove
 
         void PlayInTarkov(AudioClip clip, Vector3 pos, float volume = 1f)
         {
-            Singleton<BetterAudio>.Instance.PlayAtPoint(pos, clip, 0, BetterAudio.AudioSourceGroupType.Nonspatial, 1, volume, EOcclusionTest.None, null, false);
+            Singleton<BetterAudio>.Instance.PlayAtPoint(pos, clip, 0, BetterAudio.AudioSourceGroupType.Nonspatial, 5, volume, EOcclusionTest.None, null, false);
         }
     }
 }
