@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿using EFT;
+using EFT.Ballistics;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using ultramove;
 using UnityEngine;
@@ -7,6 +10,51 @@ namespace ultramove
 {
     internal class Maurice : MonoBehaviour
     {
+        public class PlayerBridge : BodyPartCollider.IPlayerBridge
+        {
+            public event Action<DamageInfoStruct> OnHitAction;
+
+            IPlayer BodyPartCollider.IPlayerBridge.iPlayer => null;
+
+            float BodyPartCollider.IPlayerBridge.WorldTime => 0;
+
+            bool BodyPartCollider.IPlayerBridge.UsingSimplifiedSkeleton => false;
+
+            void BodyPartCollider.IPlayerBridge.ApplyDamageInfo(DamageInfoStruct damageInfo, EBodyPart bodyPartType, EBodyPartColliderType bodyPartCollider, float absorbed)
+            {
+                OnHitAction?.Invoke(damageInfo);
+            }
+
+            ShotInfoClass BodyPartCollider.IPlayerBridge.ApplyShot(DamageInfoStruct damageInfo, EBodyPart bodyPart, EBodyPartColliderType bodyPartCollider, EArmorPlateCollider armorPlateCollider, ShotIdStruct shotId)
+            {
+                OnHitAction?.Invoke(damageInfo);
+                ShotInfoClass shot = new ShotInfoClass();
+                shot.Penetrated = true;
+                return shot;
+            }
+
+            bool BodyPartCollider.IPlayerBridge.CheckArmorHitByDirection(BodyPartCollider bodypart, Vector3 hitpoint, Vector3 shotNormal, Vector3 shotDirection)
+            {
+                return true;
+            }
+
+            bool BodyPartCollider.IPlayerBridge.IsShotDeflectedByHeavyArmor(EBodyPartColliderType colliderType, EArmorPlateCollider armorPlateCollider, int shotSeed)
+            {
+                return false;
+            }
+
+            bool BodyPartCollider.IPlayerBridge.SetShotStatus(BodyPartCollider bodypart, EftBulletClass shot, Vector3 hitpoint, Vector3 shotNormal, Vector3 shotDirection)
+            {
+                return false;
+            }
+
+            bool BodyPartCollider.IPlayerBridge.TryGetArmorResistData(BodyPartCollider bodyPart, float penetrationPower, out ArmorResistanceStruct armorResistanceData)
+            {
+                armorResistanceData = new ArmorResistanceStruct();
+                return false;
+            }
+        }
+
         Rigidbody rb;
         GameObject prefabProjectile;
 
@@ -15,6 +63,11 @@ namespace ultramove
         float cooldown;
 
         private readonly Queue<Projectile> projectilePool = new Queue<Projectile>();
+
+        public static HashSet<Maurice> currentAlive = new HashSet<Maurice>();
+
+        private float health;
+        public bool alive => health > 0;
 
         public void SetPrefabProjectile(GameObject prefabProjectile)
         {
@@ -52,16 +105,48 @@ namespace ultramove
 
             rb.useGravity = false;
 
-            gameObject.transform.GetChild(1).gameObject.AddComponent<BodyPartCollider>().OnHitAction += Hit;
+            BodyPartCollider ballistic = gameObject.transform.GetChild(1).gameObject.AddComponent<BodyPartCollider>();
+            PlayerBridge bridge = new PlayerBridge();
+            bridge.OnHitAction += Hit;
+            ballistic.playerBridge = bridge;
+
+            health = 400;
+            currentAlive.Add(this);
         }
 
         void Hit(DamageInfoStruct damageInfo)
         {
+            Plugin.Log.LogInfo(damageInfo.Damage);
 
+            if (!alive)
+                return;
+
+            health -= damageInfo.Damage;
+
+            if (health <= 0)
+                Die();
+        }
+
+        void Die()
+        {
+            health = -1f;
+            rb.useGravity = true;
+            rb.drag = 1f;
+        }
+
+        void OnCollisionEnter(Collision collision)
+        {
+            if (collision.impulse.magnitude > 100f)
+            {
+                EFTBallisticsInterface.Instance.Hit(collision);
+            }
         }
 
         void Update()
         {
+            if (!alive)
+                return;
+
             Vector3 targetDirection = EFTTargetInterface.GetPlayerPosition() - transform.position;
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 100f * Time.deltaTime);
@@ -101,6 +186,9 @@ namespace ultramove
 
         void FixedUpdate()
         {
+            if (!alive)
+                return;
+
             float distToPlayer = Vector3.Distance(EFTTargetInterface.GetPlayerPosition(), transform.position);
             Vector3 targetVel = Vector3.zero;
             if (distToPlayer > 15f)

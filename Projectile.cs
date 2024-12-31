@@ -78,7 +78,7 @@ namespace ultramove
 
         void OnDisable()
         {
-            if (gameObject != null)
+            if (betterSource != null)
                 betterSource.Release();
         }
 
@@ -119,11 +119,12 @@ namespace ultramove
 
             RaycastHit hit = new RaycastHit();
             hit.point = transform.position;
-            hit.normal = Vector3.up;
+            hit.normal = (transform.position - col.transform.position).normalized;
 
             if (primed)
             {
                 primed = false;
+                EFTBallisticsInterface.Instance.Hit(col, hit, 300f);
                 EFTBallisticsInterface.Instance.Explosion(transform.position);
             }
             else

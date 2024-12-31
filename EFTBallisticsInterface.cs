@@ -25,6 +25,24 @@ namespace ultramove
             effectSlide = Singleton<Effects>.Instance.EffectsArray.FirstOrDefault(c => c.Name == "Concrete");
         }
 
+        public MaterialType Hit(Collision collision)
+        {
+            BallisticCollider ballisticCollider = collision.collider.gameObject.GetComponent<BallisticCollider>();
+
+            float damage = collision.impulse.magnitude / 100f;
+
+            MaterialType mat = MaterialType.None;
+            for (int i = 0; i < collision.contactCount; i++)
+            {
+                RaycastHit fakeHit = new RaycastHit();
+                fakeHit.point = collision.contacts[i].point;
+                fakeHit.normal = collision.contacts[i].normal;
+                mat = Hit(ballisticCollider, fakeHit, damage);
+            }
+
+            return mat;
+        }
+
         public MaterialType Hit(RaycastHit hit, float dmg)
         {
             BallisticCollider ballisticCollider = hit.collider.gameObject.GetComponent<BallisticCollider>();
