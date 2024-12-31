@@ -155,18 +155,21 @@ namespace ultramove
 
             if (cooldown < 0)
             {
-                if (projectileShotThisCycle < 6)
+                if (EFTTargetInterface.LineOfSight(transform.position, EFTTargetInterface.GetPlayerPosition(), out RaycastHit hit))
                 {
-                    ShootProjectile();
+                    if (projectileShotThisCycle < 6)
+                    {
+                        ShootProjectile();
 
-                    projectileShotThisCycle++;
+                        projectileShotThisCycle++;
 
-                    cooldown = 0.2f;
-                }
-                else
-                {
-                    cooldown = 1f;
-                    projectileShotThisCycle = 0;
+                        cooldown = 0.2f;
+                    }
+                    else
+                    {
+                        cooldown = 1f;
+                        projectileShotThisCycle = 0;
+                    }
                 }
             }
         }

@@ -79,7 +79,10 @@ namespace ultramove
         void OnDisable()
         {
             if (betterSource != null)
+            {
+                betterSource.SetBaseVolume(0f);
                 betterSource.Release();
+            }
         }
 
         public void Disable()

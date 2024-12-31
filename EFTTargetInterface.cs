@@ -51,7 +51,9 @@ namespace ultramove
                     {
                         closestDist = distance;
                         closestTarget = collider;
-                        closestHit = hit;
+                        closestHit = new RaycastHit();
+                        closestHit.point = headPart.Position;
+                        closestHit.normal = (source.position - headPart.Position).normalized;
                     }
                 }
             }
@@ -61,7 +63,7 @@ namespace ultramove
 
         static RaycastHit[] hits = new RaycastHit[5];
 
-        static bool LineOfSight(Vector3 source, Vector3 target, out RaycastHit hitTarget)
+        public static bool LineOfSight(Vector3 source, Vector3 target, out RaycastHit hitTarget)
         {
             hitTarget = new RaycastHit();
 
@@ -72,9 +74,8 @@ namespace ultramove
             Ray ray = new Ray(source, direction.normalized);
 
             int layer12 = 1 << 12; // HighPolyCollider
-            int layer16 = 1 << 16; // HitCollider (body parts)
             int layer11 = 1 << 11; // Terrain
-            int layerMask = layer12 | layer16 | layer11;
+            int layerMask = layer12 | layer11;
 
             int hitsAmount = Physics.RaycastNonAlloc(source, direction, hits, distance, layerMask);
 
