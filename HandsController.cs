@@ -122,13 +122,16 @@ namespace ultramove
 
             if (Input.GetMouseButtonDown(0))
             {
-                bool shot = gunController.Shoot();
+                Vector3 origin = muzzleManager.MuzzleJets[0].transform.position;
+                Vector3 dir = -muzzleManager.MuzzleJets[0].transform.up;
 
-                if (shot)
+                if (EFTBallisticsInterface.Instance.Shoot(origin, dir, out RaycastHit hit, 20f))
                 {
                     recoilTime = 0f;
                     if (muzzleManager != null)
                         muzzleManager.Shot();
+
+                    TrailRendererManager.Instance.Trail(origin, hit.point, Color.white);
 
                     PlayerAudio.Instance.PlayShoot();
                 }

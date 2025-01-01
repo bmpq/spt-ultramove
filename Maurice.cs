@@ -69,6 +69,11 @@ namespace ultramove
         private float health;
         public bool alive => health > 0;
 
+        bool chargingBeam;
+        float chargingBeamProgress;
+
+        Light lightChargeBeam;
+
         public void SetPrefabProjectile(GameObject prefabProjectile)
         {
             this.prefabProjectile = prefabProjectile;
@@ -110,14 +115,16 @@ namespace ultramove
             bridge.OnHitAction += Hit;
             ballistic.playerBridge = bridge;
 
+            lightChargeBeam = GetComponentInChildren<Light>();
+            lightChargeBeam.intensity = 0;
+            lightChargeBeam.transform.localScale = Vector3.zero;
+
             health = 400;
             currentAlive.Add(this);
         }
 
         void Hit(DamageInfoStruct damageInfo)
         {
-            Plugin.Log.LogInfo(damageInfo.Damage);
-
             if (!alive)
                 return;
 
@@ -157,7 +164,25 @@ namespace ultramove
             {
                 if (EFTTargetInterface.LineOfSight(transform.position, EFTTargetInterface.GetPlayerPosition(), out RaycastHit hit))
                 {
-                    if (projectileShotThisCycle < 6)
+                    if (chargingBeam)
+                    {
+                        chargingBeamProgress += Time.deltaTime;
+                        float t = chargingBeamProgress / 2f;
+                        t = Mathf.Clamp01(t);
+
+                        lightChargeBeam.intensity = Mathf.Lerp(0, 30f, t);
+                        lightChargeBeam.transform.localScale = Vector3.one * Mathf.Lerp(0, 2.5f, t);
+
+                        if (chargingBeamProgress >= 3f)
+                        {
+                            ShootBeam();
+                            lightChargeBeam.intensity = 0f;
+                            lightChargeBeam.transform.localScale = Vector3.zero;
+                            chargingBeam = false;
+                            cooldown = 1f;
+                        }
+                    }
+                    else if (projectileShotThisCycle < 6)
                     {
                         ShootProjectile();
 
@@ -169,8 +194,27 @@ namespace ultramove
                     {
                         cooldown = 1f;
                         projectileShotThisCycle = 0;
+
+                        float distToPlayer = Vector3.Distance(EFTTargetInterface.GetPlayerPosition(), transform.position);
+                        if (distToPlayer < 15f)
+                        {
+                            chargingBeamProgress = 0f;
+                            chargingBeam = true;
+                        }
                     }
                 }
+            }
+        }
+
+        void ShootBeam()
+        {
+            Vector3 origin = lightChargeBeam.transform.position;
+
+            if (EFTBallisticsInterface.Instance.Shoot(origin, transform.forward, out RaycastHit hit, 100f))
+            {
+                TrailRendererManager.Instance.Trail(origin, hit.point, Color.red, 3f, 0.4f);
+
+                EFTBallisticsInterface.Instance.Explosion(hit.point);
             }
         }
 
@@ -199,6 +243,9 @@ namespace ultramove
 
             if (DistanceToFloor() < 5f)
                 targetVel.y = Mathf.Max(targetVel.y, 0);
+
+            if (chargingBeam)
+                targetVel = Vector3.zero;
 
             rb.velocity = targetVel;
         }

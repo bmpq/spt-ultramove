@@ -43,7 +43,7 @@ namespace ultramove
             }
         }
 
-        public void Trail(Vector3 a, Vector3 b, Color color, float lifetime = 1f)
+        public void Trail(Vector3 a, Vector3 b, Color color, float lifetime = 1f, float width = 0.06f)
         {
             TrailRenderer trail = GetTrail(1f);
 
@@ -53,6 +53,8 @@ namespace ultramove
             trail.startColor = color;
             trail.endColor = color;
             trail.time = lifetime;
+            trail.startWidth = width;
+            trail.endWidth = trail.startWidth;
 
             StartCoroutine(WaitOneFrame(trail.transform, b));
         }

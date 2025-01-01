@@ -112,7 +112,12 @@ namespace ultramove
 
                 player.Transform.Original.position += new Vector3(0, 1f, 0);
 
-                player.ReceiveDamage(66f, EBodyPart.LeftLeg, EDamageType.Explosion, 0f, MaterialType.Body);
+                if (player.MainParts.TryGetValue(BodyPartType.leftLeg, out EnemyPart part))
+                {
+                    DamageInfoStruct damage = new DamageInfoStruct();
+                    damage.Damage = 90f;
+                    part.Collider.ApplyHit(damage, ShotIdStruct.EMPTY_SHOT_ID);
+                }
             }
         }
     }

@@ -25,6 +25,51 @@ namespace ultramove
             effectSlide = Singleton<Effects>.Instance.EffectsArray.FirstOrDefault(c => c.Name == "Concrete");
         }
 
+        public bool Shoot(Vector3 origin, Vector3 rayDir, out RaycastHit hitResult, float dmg)
+        {
+            hitResult = new RaycastHit();
+
+            float rayDistance = 500f;
+
+            Ray ray = new Ray(origin, rayDir);
+
+            int layer12 = 1 << 12; // HighPolyCollider
+            int layer16 = 1 << 16; // HitCollider (body parts)
+            int layer11 = 1 << 11; // Terrain
+            int layer15 = 1 << 15; // Loot (Coin)
+            int layer30 = 1 << 30; // TransparentCollider
+            int layerMask = layer12 | layer16 | layer11 | layer15 | layer30;
+
+            if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, layerMask))
+            {
+                MaterialType matHit = MaterialType.None;
+
+                if (hit.transform.tag == "DynamicCollider")
+                {
+                    if (hit.rigidbody.TryGetComponent<Coin>(out Coin coin))
+                    {
+                        if (coin.active)
+                        {
+                            hit.point = coin.transform.position;
+                            coin.Hit(dmg);
+
+                            PlayerAudio.Instance.Play("Ricochet");
+                        }
+                    }
+                }
+                else
+                {
+                    matHit = EFTBallisticsInterface.Instance.Hit(hit, dmg);
+                }
+
+                hitResult = hit;
+
+                return true;
+            }
+
+            return false;
+        }
+
         public MaterialType Hit(Collision collision)
         {
             BallisticCollider ballisticCollider = collision.collider.gameObject.GetComponent<BallisticCollider>();
@@ -108,6 +153,9 @@ namespace ultramove
             }
 
             Effect("big_explosion", pos);
+
+            if (CameraClass.Instance.Distance(pos) < 5f)
+                CameraShaker.Shake(3f);
         }
 
         public bool Parry(RaycastHit hit, Transform source)
