@@ -63,10 +63,13 @@ namespace ultramove
 
                     float t = coin.timeActive - Coin.SPLITWINDOWSTART;
                     t = t /= Coin.SPLITWINDOWSIZE;
+                    coin.lightGlint.intensity = Mathf.Lerp(2f, 0f, t);
 
                     glint.transform.localScale = Vector3.Lerp(Vector3.one * 0.5f, Vector3.zero, t);
                     activeGlintIndex++;
                 }
+                else
+                    coin.lightGlint.intensity = 0f;
             }
 
             // Hide unused glint objects in the pool

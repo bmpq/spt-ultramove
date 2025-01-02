@@ -34,6 +34,8 @@ namespace ultramove
         static float timeLastRicoshot;
         static int sequenceRicoshot;
 
+        public Light lightGlint { get; private set; }
+
         void Init()
         {
             projectile = GetComponent<Projectile>();
@@ -49,6 +51,10 @@ namespace ultramove
                     list.Add(collider);
             }
             colliders = list.ToArray();
+
+            lightGlint = gameObject.GetOrAddComponent<Light>();
+            lightGlint.color = colorTrail;
+            lightGlint.shadows = LightShadows.None;
         }
 
         public void Activate()
@@ -60,6 +66,7 @@ namespace ultramove
             activeCoins.Add(this);
             active = true;
             timeActive = 0f;
+            lightGlint.intensity = 0f;
             trailRenderer.emitting = true;
             trailRenderer.Clear();
         }
@@ -186,6 +193,7 @@ namespace ultramove
             active = false;
             trailRenderer.emitting = false;
             trailRenderer.Clear();
+            lightGlint.intensity = 0f;
 
             if (activeCoins.Contains(this))
                 activeCoins.Remove(this);
