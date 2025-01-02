@@ -27,6 +27,10 @@
     <Reference Include="spt-reflection">
       <HintPath>$(SPTPath)\BepInEx\plugins\spt\spt-reflection.dll</HintPath>
     </Reference>
+
+    <Reference Include="effectlightning">
+      <HintPath>$(SPTPath)\BepInEx\plugins\tarkin\effectlightning.dll</HintPath>
+    </Reference>
     
     <Reference Include="Assembly-CSharp">
       <HintPath>$(SPTPath)\EscapeFromTarkov_Data\Managed\Assembly-CSharp.dll</HintPath>

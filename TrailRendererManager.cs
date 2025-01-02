@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Spektr;
 
 namespace ultramove
 {
@@ -43,7 +44,7 @@ namespace ultramove
             }
         }
 
-        public void Trail(Vector3 a, Vector3 b, Color color, float width = 0.06f)
+        public void Trail(Vector3 a, Vector3 b, Color color, float width = 0.06f, bool lightning = false)
         {
             TrailRenderer trail = GetTrail();
 
@@ -58,6 +59,16 @@ namespace ultramove
             trail.endWidth = trail.startWidth;
 
             StartCoroutine(WaitOneFrame(trail.transform, b));
+
+            if (lightning)
+            {
+                LightningSettings lightningSettings = new LightningSettings();
+                lightningSettings.source = a;
+                lightningSettings.hit = b;
+                lightningSettings.color = color;
+                lightningSettings.noiseAmplitude = width * 2f;
+                Lightning.Strike(lightningSettings);
+            }
         }
 
         IEnumerator WaitOneFrame(Transform tr, Vector3 point)

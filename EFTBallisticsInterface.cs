@@ -155,9 +155,9 @@ namespace ultramove
             Effect("big_explosion", pos);
 
 
-            float maxDistance = 5f; 
+            float maxDistance = 10f; 
             float minDistance = 1f;
-            float maxShakeIntensity = 3f;
+            float maxShakeIntensity = 4f;
             float distance = CameraClass.Instance.Distance(pos);
             if (distance < maxDistance)
             {
