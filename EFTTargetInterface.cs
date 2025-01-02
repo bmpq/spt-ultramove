@@ -26,7 +26,7 @@ namespace ultramove
             float distLimit = 500f;
             float closestDist = Mathf.Infinity;
             BallisticCollider closestTarget = null;
-            RaycastHit closestHit = new RaycastHit();
+            RaycastHit closestHit  = new RaycastHit();
 
             foreach (Player player in Singleton<GameWorld>.Instance.AllAlivePlayersList)
             {
@@ -127,13 +127,25 @@ namespace ultramove
                 if (Vector3.Distance(player.Position, pos) > maxDist)
                     continue;
 
-                player.Transform.Original.position += new Vector3(0, 1f, 0);
+                player.Jump();
 
                 if (player.MainParts.TryGetValue(BodyPartType.leftLeg, out EnemyPart part))
                 {
-                    DamageInfoStruct damage = new DamageInfoStruct();
-                    damage.Damage = 90f;
-                    part.Collider.ApplyHit(damage, ShotIdStruct.EMPTY_SHOT_ID);
+                    int layerMask = 1 << 16;
+                    RaycastHit[] hits = Physics.RaycastAll(pos, (part.Position - pos).normalized, maxDist, layerMask);
+
+                    foreach (var hit in hits)
+                    {
+                        if (hit.collider.TryGetComponent<BodyPartCollider>(out BodyPartCollider bodyPartCollider))
+                        {
+                            if (bodyPartCollider.Player == Singleton<GameWorld>.Instance.MainPlayer)
+                                continue;
+
+                            EFTBallisticsInterface.Instance.Hit(bodyPartCollider, hit, 90f);
+
+                            break;
+                        }
+                    }
                 }
             }
         }
