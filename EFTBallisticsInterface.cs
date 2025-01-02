@@ -154,8 +154,17 @@ namespace ultramove
 
             Effect("big_explosion", pos);
 
-            if (CameraClass.Instance.Distance(pos) < 5f)
-                CameraShaker.Shake(3f);
+
+            float maxDistance = 5f; 
+            float minDistance = 1f;
+            float maxShakeIntensity = 3f;
+            float distance = CameraClass.Instance.Distance(pos);
+            if (distance < maxDistance)
+            {
+                float normalizedDistance = Mathf.Clamp01((maxDistance - distance) / (maxDistance - minDistance));
+                float shakeIntensity = Mathf.Lerp(0f, maxShakeIntensity, normalizedDistance);
+                CameraShaker.Shake(shakeIntensity);
+            }
         }
 
         public bool Parry(RaycastHit hit, Transform source)

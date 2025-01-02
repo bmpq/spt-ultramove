@@ -110,13 +110,13 @@ namespace ultramove
                     if (Raycast(transform, out RaycastHit hit))
                     {
                         EFTBallisticsInterface.Instance.Hit(hit, dmg);
-                        TrailRendererManager.Instance.Trail(transform.position, hit.point, colorTrail, 2f);
+                        TrailRendererManager.Instance.Trail(transform.position, hit.point, colorTrail, 0.1f);
                     }
                 }
                 else
                 {
                     MaterialType matHit = EFTBallisticsInterface.Instance.Hit(target.Item1, target.Item2, dmg);
-                    TrailRendererManager.Instance.Trail(transform.position, target.Item2.point, colorTrail, 2f);
+                    TrailRendererManager.Instance.Trail(transform.position, target.Item2.point, colorTrail, 0.1f);
 
                     alreadyHit = target.Item1;
                 }
@@ -127,7 +127,7 @@ namespace ultramove
         {
             yield return new WaitForSeconds(0.1f);
             hitCoin.Hit(dmg, split);
-            TrailRendererManager.Instance.Trail(transform.position, hitCoin.transform.position, colorTrail, 2f);
+            TrailRendererManager.Instance.Trail(transform.position, hitCoin.transform.position, colorTrail, 0.1f);
         }
 
         bool Raycast(Transform transform, out RaycastHit hit)

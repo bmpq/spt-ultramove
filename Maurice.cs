@@ -237,7 +237,7 @@ namespace ultramove
 
             if (EFTBallisticsInterface.Instance.Shoot(origin, transform.forward, out RaycastHit hit, 100f))
             {
-                TrailRendererManager.Instance.Trail(origin, hit.point, Color.red, 3f, 0.4f);
+                TrailRendererManager.Instance.Trail(origin, hit.point, new Color(1f, 0.4f, 0), 0.5f);
 
                 EFTBallisticsInterface.Instance.Explosion(hit.point);
             }

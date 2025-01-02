@@ -72,7 +72,7 @@ namespace ultramove
             if (Time.time < nextStepTime) return;
 
             AudioClip clip = footstepClips[random.Next(footstepClips.Length)];
-            PlayInTarkov(clip, player.position, 1f);
+            PlayInTarkov(clip, player.position, 0.5f);
 
             nextStepTime = Time.time + walkCooldown;
         }
@@ -115,7 +115,7 @@ namespace ultramove
 
         void PlayInTarkov(AudioClip clip, Vector3 pos, float volume = 1f)
         {
-            Singleton<BetterAudio>.Instance.PlayAtPoint(pos, clip, 0, BetterAudio.AudioSourceGroupType.Nonspatial, 5, volume, EOcclusionTest.None, null, false);
+            Singleton<BetterAudio>.Instance.PlayAtPoint(pos, clip, 0, BetterAudio.AudioSourceGroupType.Nonspatial, 50, volume, EOcclusionTest.None, null, false);
         }
     }
 }
