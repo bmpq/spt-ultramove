@@ -23,7 +23,7 @@ namespace ultramove
 
         public static (BallisticCollider, RaycastHit) GetCoinTarget(Transform source, BallisticCollider exclude)
         {
-            float distLimit = 100f;
+            float distLimit = 500f;
             float closestDist = Mathf.Infinity;
             BallisticCollider closestTarget = null;
             RaycastHit closestHit = new RaycastHit();
@@ -52,9 +52,26 @@ namespace ultramove
                         closestDist = distance;
                         closestTarget = collider;
                         closestHit = new RaycastHit();
-                        closestHit.point = headPart.Position;
+                        closestHit.point = headPart.Collider.Collider.ClosestPoint(source.position);
                         closestHit.normal = (source.position - headPart.Position).normalized;
                     }
+                }
+            }
+
+            foreach (Maurice maurice in Maurice.currentAlive)
+            {
+                if (!LineOfSight(source.position, maurice.transform.position, out RaycastHit hit))
+                    continue;
+
+                float distance = Vector3.Distance(source.position, maurice.transform.position);
+
+                if (distance < closestDist)
+                {
+                    closestDist = distance;
+                    closestTarget = maurice.BallisticCollider;
+                    closestHit = new RaycastHit();
+                    closestHit.point = maurice.BallisticCollider.Collider.ClosestPoint(source.position);
+                    closestHit.normal = (source.position - maurice.transform.position).normalized;
                 }
             }
 

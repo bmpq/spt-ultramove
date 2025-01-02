@@ -77,6 +77,8 @@ namespace ultramove
         BetterSource audioBeam;
         AudioClip clipBeamCharge;
 
+        public BodyPartCollider BallisticCollider { get; private set; }
+
         public void SetPrefabProjectile(GameObject prefabProjectile)
         {
             this.prefabProjectile = prefabProjectile;
@@ -113,10 +115,11 @@ namespace ultramove
 
             rb.useGravity = false;
 
-            BodyPartCollider ballistic = gameObject.transform.GetChild(1).gameObject.AddComponent<BodyPartCollider>();
+            BallisticCollider = gameObject.transform.GetChild(1).gameObject.AddComponent<BodyPartCollider>();
             PlayerBridge bridge = new PlayerBridge();
             bridge.OnHitAction += Hit;
-            ballistic.playerBridge = bridge;
+            BallisticCollider.playerBridge = bridge;
+            BallisticCollider.Collider = BallisticCollider.GetComponent<Collider>();
 
             lightChargeBeam = GetComponentInChildren<Light>();
             lightChargeBeam.intensity = 0;
@@ -149,6 +152,8 @@ namespace ultramove
             audioBeam.SetBaseVolume(0f);
             audioBeam.Release();
             lightChargeBeam.gameObject.SetActive(false);
+
+            currentAlive.Remove(this);
         }
 
         void OnCollisionEnter(Collision collision)
