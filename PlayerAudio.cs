@@ -51,6 +51,16 @@ namespace ultramove
             Projectile.audioTwirl = allClips.FirstOrDefault(c => c.name.StartsWith("Twirling"));
         }
 
+        public AudioClip GetClip(string clip)
+        {
+            return allClips.FirstOrDefault(c => c.name.StartsWith(clip));
+        }
+
+        public BetterSource GetSource()
+        {
+            return Singleton<BetterAudio>.Instance.GetSource(BetterAudio.AudioSourceGroupType.Character, true);
+        }
+
         private int ExtractIndex(string clipName)
         {
             string numericPart = new string(clipName.SkipWhile(c => !char.IsDigit(c)).ToArray());

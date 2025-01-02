@@ -74,6 +74,9 @@ namespace ultramove
 
         Light lightChargeBeam;
 
+        BetterSource audioBeam;
+        AudioClip clipBeamCharge;
+
         public void SetPrefabProjectile(GameObject prefabProjectile)
         {
             this.prefabProjectile = prefabProjectile;
@@ -121,6 +124,9 @@ namespace ultramove
 
             health = 400;
             currentAlive.Add(this);
+
+            audioBeam = PlayerAudio.Instance.GetSource();
+            clipBeamCharge = PlayerAudio.Instance.GetClip("Throat Drone High Frequency2");
         }
 
         void Hit(DamageInfoStruct damageInfo)
@@ -139,6 +145,10 @@ namespace ultramove
             health = -1f;
             rb.useGravity = true;
             rb.drag = 1f;
+
+            audioBeam.SetBaseVolume(0f);
+            audioBeam.Release();
+            lightChargeBeam.gameObject.SetActive(false);
         }
 
         void OnCollisionEnter(Collision collision)
@@ -160,29 +170,33 @@ namespace ultramove
 
             cooldown -= Time.deltaTime;
 
-            if (cooldown < 0)
+            if (chargingBeam)
+            {
+                chargingBeamProgress += Time.deltaTime;
+                float t = chargingBeamProgress / 2f;
+                t = Mathf.Clamp01(t);
+
+                lightChargeBeam.intensity = Mathf.Lerp(0, 30f, t);
+                lightChargeBeam.transform.localScale = Vector3.one * Mathf.Lerp(0, 2.5f, t);
+
+                if (chargingBeamProgress >= 3f)
+                {
+                    ShootBeam();
+                    lightChargeBeam.intensity = 0f;
+                    lightChargeBeam.transform.localScale = Vector3.zero;
+                    chargingBeam = false;
+                    cooldown = 1f;
+                }
+                else
+                {
+                    audioBeam.SetPitch(Mathf.Lerp(0.8f, 2.5f, t));
+                }
+            }
+            else if (cooldown < 0)
             {
                 if (EFTTargetInterface.LineOfSight(transform.position, EFTTargetInterface.GetPlayerPosition(), out RaycastHit hit))
                 {
-                    if (chargingBeam)
-                    {
-                        chargingBeamProgress += Time.deltaTime;
-                        float t = chargingBeamProgress / 2f;
-                        t = Mathf.Clamp01(t);
-
-                        lightChargeBeam.intensity = Mathf.Lerp(0, 30f, t);
-                        lightChargeBeam.transform.localScale = Vector3.one * Mathf.Lerp(0, 2.5f, t);
-
-                        if (chargingBeamProgress >= 3f)
-                        {
-                            ShootBeam();
-                            lightChargeBeam.intensity = 0f;
-                            lightChargeBeam.transform.localScale = Vector3.zero;
-                            chargingBeam = false;
-                            cooldown = 1f;
-                        }
-                    }
-                    else if (projectileShotThisCycle < 6)
+                    if (projectileShotThisCycle < 6)
                     {
                         ShootProjectile();
 
@@ -200,10 +214,16 @@ namespace ultramove
                         {
                             chargingBeamProgress = 0f;
                             chargingBeam = true;
+
+                            audioBeam.SetBaseVolume(1f);
+                            audioBeam.Play(clipBeamCharge, null, 1f);
                         }
                     }
                 }
             }
+
+            if (!chargingBeam && audioBeam.PlayBackState == BetterSource.EPlayBackState.Playing)
+                audioBeam.SetBaseVolume(0f);
         }
 
         void ShootBeam()
