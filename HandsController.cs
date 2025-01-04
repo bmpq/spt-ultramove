@@ -21,18 +21,16 @@ namespace ultramove
 
         float parryPause;
 
-        GunController gunController;
+        List<(GameObject, Weapon)> equippedWeapons;
         MuzzleManager muzzleManager;
 
         CoinTosser coinTosser;
 
         Camera cam;
 
-        void SetWeaponHandPosition()
+        void SetWeaponHandPosition(Weapon weaponClass)
         {
             float blendPalmDist = 0;
-
-            Weapon weaponClass = gameObject.GetComponent<Player.FirearmController>().Item;
 
             if (!(weaponClass is RevolverItemClass) &&
                 !(weaponClass is PistolItemClass) &&
@@ -43,35 +41,58 @@ namespace ultramove
             animator.SetFloat("BlendPalmDist", blendPalmDist);
         }
 
-        public void SetWeapon(GameObject weapon)
+        void SwapWeapon(int index)
         {
-            Destroy(weapon.GetComponentInChildren<Animator>());
+            if (index >= equippedWeapons.Count)
+                return;
 
-            SetWeaponHandPosition();
+            SetWeaponHandPosition(equippedWeapons[index].Item2);
 
-            muzzleManager = weapon.GetComponent<MuzzleManager>();
+            muzzleManager = equippedWeapons[index].Item1.GetComponent<MuzzleManager>();
 
-            Transform container = weapon.transform.FindInChildrenExact("weapon");
-            container.SetParent(null);
-            container.position = Vector3.zero;
-            container.rotation = Quaternion.identity;
+            for (int i = 0; i < equippedWeapons.Count; i++)
+            {
+                equippedWeapons[i].Item1.SetActive(i == index);
+            }
+        }
 
-            Transform handMarker = container.transform.FindInChildrenExact("weapon_R_hand_marker");
+        public void SetWeapons(List<(GameObject, Weapon)> weapons)
+        {
+            equippedWeapons = weapons;
 
             Transform palm = GetComponentInChildren<PlayerBody>().SkeletonRootJoint.Bones["Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1/Base HumanRForearm2/Base HumanRForearm3/Base HumanRPalm"];
 
-            Vector3 offset = handMarker.position;
-            for (int i = 0; i < container.childCount; i++)
+            foreach (var item in weapons)
             {
-                container.GetChild(i).position -= offset;
+                Plugin.Log.LogInfo(item.Item1 + "  " + item.Item2);
+
+                GameObject weapon = item.Item1;
+
+                Destroy(weapon.GetComponentInChildren<Animator>());
+
+                Transform container = weapon.transform.FindInChildrenExact("weapon");
+                container.SetParent(null);
+                container.position = Vector3.zero;
+                container.rotation = Quaternion.identity;
+
+                Transform handMarker = container.transform.FindInChildrenExact("weapon_R_hand_marker");
+
+                Vector3 offset = handMarker.position;
+                for (int i = 0; i < container.childCount; i++)
+                {
+                    container.GetChild(i).position -= offset;
+                }
+
+                container.SetParent(palm, true);
+                container.localPosition = new Vector3(0, -0.025f, -0.01f);
+                container.localEulerAngles = new Vector3(0, 180, 90f);
+
+                weapon.transform.SetParent(palm, false);
+                weapon.transform.localPosition = Vector3.zero;
+                container.SetParent(weapon.transform, true);
             }
 
-            container.SetParent(palm, true);
-            container.localPosition = new Vector3(0, -0.025f, -0.01f);
-            container.localEulerAngles = new Vector3(0, 180, 90f);
-
-            weapon.transform.SetParent(palm, false);
-            weapon.transform.localPosition = Vector3.zero;
+            SwapWeapon(0);
         }
 
         void Start()
@@ -80,7 +101,6 @@ namespace ultramove
 
             GetComponentInChildren<PlayerBody>().SkeletonRootJoint.Bones["Root_Joint"].localPosition = Vector3.zero;
 
-            gunController = gameObject.GetComponent<GunController>();
             coinTosser = gameObject.GetOrAddComponent<CoinTosser>();
 
 
@@ -136,6 +156,13 @@ namespace ultramove
                     PlayerAudio.Instance.PlayShoot();
                 }
             }
+
+            if (Input.GetKey(KeyCode.Alpha1))
+                SwapWeapon(0);
+            if (Input.GetKey(KeyCode.Alpha2))
+                SwapWeapon(1);
+            if (Input.GetKey(KeyCode.Alpha3))
+                SwapWeapon(2);
 
             recoilTime += Time.deltaTime;
 

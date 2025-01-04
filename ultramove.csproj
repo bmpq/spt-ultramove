@@ -90,6 +90,9 @@
     <Reference Include="UnityEngine.AnimationModule">
       <HintPath>$(SPTPath)\EscapeFromTarkov_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
     </Reference>
+    <Reference Include="DissonanceVoip">
+      <HintPath>$(SPTPath)\EscapeFromTarkov_Data\Managed\DissonanceVoip.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <Target Name="CopyDllAfterBuild" AfterTargets="Build">
