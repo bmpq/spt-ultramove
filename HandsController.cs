@@ -1,6 +1,7 @@
 ﻿using EFT;
 using EFT.Ballistics;
 using EFT.InventoryLogic;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,7 +18,6 @@ namespace ultramove
         Quaternion recoilHighRot;
         Quaternion recoilPivotOriginalLocalQuaternion;
         Vector3 recoilPivotOriginalLocalPosition;
-        float recoilTime;
 
         float parryPause;
 
@@ -27,6 +27,8 @@ namespace ultramove
         CoinTosser coinTosser;
 
         Camera cam;
+
+        SpringSimulation recoil = new SpringSimulation(0, 0);
 
         void SetWeaponHandPosition(Weapon weaponClass)
         {
@@ -54,6 +56,8 @@ namespace ultramove
             {
                 equippedWeapons[i].Item1.SetActive(i == index);
             }
+
+            recoil.OverrideCurrent(-0.8f);
         }
 
         public void SetWeapons(List<(GameObject, Weapon)> weapons)
@@ -147,7 +151,8 @@ namespace ultramove
 
                 if (EFTBallisticsInterface.Instance.Shoot(origin, dir, out RaycastHit hit, 20f))
                 {
-                    recoilTime = 0f;
+                    this.recoil.AddForce(15f);
+
                     if (muzzleManager != null)
                         muzzleManager.Shot();
 
@@ -157,31 +162,18 @@ namespace ultramove
                 }
             }
 
-            if (Input.GetKey(KeyCode.Alpha1))
+            if (Input.GetKeyDown(KeyCode.Alpha1))
                 SwapWeapon(0);
-            if (Input.GetKey(KeyCode.Alpha2))
+            if (Input.GetKeyDown(KeyCode.Alpha2))
                 SwapWeapon(1);
-            if (Input.GetKey(KeyCode.Alpha3))
+            if (Input.GetKeyDown(KeyCode.Alpha3))
                 SwapWeapon(2);
 
-            recoilTime += Time.deltaTime;
+            this.recoil.Tick(Time.deltaTime);
+            float recoil = this.recoil.Position;
 
-            float recoil = CalculateRecoil(recoilTime, 0.9f, 40f, 5f);
-            recoilPivot.localRotation = Quaternion.Lerp(recoilPivotOriginalLocalQuaternion, recoilHighRot, recoil);
-            recoilPivot.localPosition = Vector3.Lerp(recoilPivotOriginalLocalPosition, recoilHighPos, recoil);
-        }
-
-        float CalculateRecoil(float time, float intensity, float riseSpeed, float recoveryRate)
-        {
-            riseSpeed = Mathf.Max(0.01f, riseSpeed); // Prevent division issues.
-            recoveryRate = Mathf.Max(0.01f, recoveryRate);
-
-            float rise = 1f - Mathf.Exp(-riseSpeed * time);
-            float fall = Mathf.Exp(-recoveryRate * time);
-
-            float recoil = intensity * rise * fall;
-
-            return Mathf.Max(0f, recoil);
+            recoilPivot.localRotation = Quaternion.LerpUnclamped(recoilPivotOriginalLocalQuaternion, recoilHighRot, recoil);
+            recoilPivot.localPosition = Vector3.LerpUnclamped(recoilPivotOriginalLocalPosition, recoilHighPos, recoil);
         }
 
         void Coin()

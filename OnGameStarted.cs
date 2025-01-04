@@ -42,12 +42,12 @@ namespace ultramove
             goPlayer.GetComponent<SimpleCharacterController>().enabled = false;
             goPlayer.GetComponent<CharacterControllerSpawner>().enabled = false;
 
-            var firearm = goPlayer.GetComponent<Player.FirearmController>();
-            GameObject weapon = firearm.ControllerGameObject;
-            weapon.SetActive(false);
-            firearm.enabled = false;
             Player player = goPlayer.GetComponent<Player>();
             player.enabled = false;
+            goPlayer.AddComponent<HandsController>().SetWeapons(GetEquippedWeapons(player));
+
+            var firearm = goPlayer.GetComponent<Player.FirearmController>();
+            firearm.enabled = false;
 
             AssetBundle bundleUltrakill = BundleLoader.LoadAssetBundle(BundleLoader.GetDefaultModAssetBundlePath("ultrakill"));
             goPlayer.GetComponentInChildren<Animator>().runtimeAnimatorController = bundleUltrakill.LoadAsset<RuntimeAnimatorController>("UltraFPS");
@@ -79,7 +79,6 @@ namespace ultramove
 
             goPlayer.AddComponent<UltraMovement>();
             goPlayer.AddComponent<DoorOpener>();
-            goPlayer.AddComponent<HandsController>().SetWeapons(GetEquippedWeapons(player));
             goPlayer.AddComponent<HandsInertia>();
             goPlayer.AddComponent<CoinTosser>().SetPrefab(
                 bundleUltrakill.LoadAsset<GameObject>("bitcoin"), 
@@ -98,15 +97,20 @@ namespace ultramove
             Player.FirearmController controller = player.GetComponent<Player.FirearmController>();
 
             List<(GameObject, Weapon)> result = new List<(GameObject, Weapon)>();
+            HashSet<Weapon> added = new HashSet<Weapon>();
+
+            if (controller != null && controller.Item != null)
+            {
+                result.Add((controller.ControllerGameObject, controller.Item));
+                added.Add(controller.Item);
+            }
 
             List<EquipmentSlot> slotsToGet = new List<EquipmentSlot>
             {
-                EquipmentSlot.FirstPrimaryWeapon,
                 EquipmentSlot.SecondPrimaryWeapon,
                 EquipmentSlot.Holster
             };
 
-            HashSet<Weapon> added = new HashSet<Weapon>();
             foreach (Item item in player.Inventory.GetItemsInSlots(slotsToGet))
             {
                 if (added.Contains(item))
