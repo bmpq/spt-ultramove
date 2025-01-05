@@ -22,6 +22,7 @@ namespace ultramove
 
         List<(GameObject, Weapon)> equippedWeapons;
         MuzzleManager muzzleManager;
+        Weapon currentWeapon;
 
         CoinTosser coinTosser;
 
@@ -46,6 +47,11 @@ namespace ultramove
         {
             if (index >= equippedWeapons.Count)
                 return;
+
+            if (equippedWeapons[index].Item2 == currentWeapon)
+                return;
+
+            currentWeapon = equippedWeapons[index].Item2;
 
             SetWeaponHandPosition(equippedWeapons[index].Item2);
 
@@ -134,16 +140,31 @@ namespace ultramove
                 Vector3 origin = muzzleManager.MuzzleJets[0].transform.position;
                 Vector3 dir = -muzzleManager.MuzzleJets[0].transform.up;
 
-                if (EFTBallisticsInterface.Instance.Shoot(origin, dir, out RaycastHit hit, 20f))
+                float dmg = 20f;
+
+                bool rail = (currentWeapon is SniperRifleItemClass);
+                if (rail)
+                    dmg = 60f;
+
+                RaycastHit[] hits = EFTBallisticsInterface.Instance.Shoot(origin, dir, dmg, rail);
+                if (hits.Length > 0)
                 {
-                    this.recoil.AddForce(15f);
+                    if (rail)
+                    {
+                        TrailRendererManager.Instance.Trail(origin, hits[hits.Length - 1].point, new Color(0.3f, 0.7f, 1f), 0.2f, true);
+                        PlayerAudio.Instance.PlayShootRail();
+                        CameraShaker.Shake(0.2f);
+                    }
+                    else
+                    {
+                        TrailRendererManager.Instance.Trail(origin, hits[0].point, Color.white);
+                        PlayerAudio.Instance.PlayShoot();
+                    }
+
+                    this.recoil.AddForce(40f);
 
                     if (muzzleManager != null)
                         muzzleManager.Shot();
-
-                    TrailRendererManager.Instance.Trail(origin, hit.point, Color.white);
-
-                    PlayerAudio.Instance.PlayShoot();
                 }
             }
 
@@ -159,10 +180,15 @@ namespace ultramove
 
             recoilPivot.localRotation = Quaternion.LerpUnclamped(recoilPivotOriginalLocalQuaternion, recoilHighRot, recoil);
             recoilPivot.localPosition = Vector3.LerpUnclamped(recoilPivotOriginalLocalPosition, recoilHighPos, recoil);
+
+            PlayerAudio.Instance.PlayRailIdleCharged((currentWeapon is SniperRifleItemClass) ? 1f : 0);
         }
 
         void Coin()
         {
+            if (!(currentWeapon is RevolverItemClass))
+                return;
+
             coinCooldown = 0.05f;
 
             animator.SetTrigger("Coin");

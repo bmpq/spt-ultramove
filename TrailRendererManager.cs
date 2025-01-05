@@ -67,6 +67,7 @@ namespace ultramove
                 lightningSettings.hit = b;
                 lightningSettings.color = color;
                 lightningSettings.noiseAmplitude = width * 2f;
+                lightningSettings.fadeSpeed = 1f;
                 Lightning.Strike(lightningSettings);
             }
         }

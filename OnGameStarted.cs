@@ -99,16 +99,10 @@ namespace ultramove
             List<(GameObject, Weapon)> result = new List<(GameObject, Weapon)>();
             HashSet<Weapon> added = new HashSet<Weapon>();
 
-            if (controller != null && controller.Item != null)
-            {
-                result.Add((controller.ControllerGameObject, controller.Item));
-                added.Add(controller.Item);
-            }
-
             List<EquipmentSlot> slotsToGet = new List<EquipmentSlot>
             {
-                EquipmentSlot.SecondPrimaryWeapon,
-                EquipmentSlot.Holster
+                EquipmentSlot.Holster,
+                EquipmentSlot.SecondPrimaryWeapon
             };
 
             foreach (Item item in player.Inventory.GetItemsInSlots(slotsToGet))
@@ -123,6 +117,11 @@ namespace ultramove
                 GameObject spawnedWeapon = Singleton<PoolManager>.Instance.CreateItem(item, true);
                 result.Add((spawnedWeapon, weapon));
                 added.Add(weapon);
+            }
+
+            if (controller != null && controller.Item != null && !added.Contains(controller.Item))
+            {
+                result.Add((controller.ControllerGameObject, controller.Item));
             }
 
             return result;

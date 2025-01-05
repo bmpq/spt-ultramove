@@ -25,10 +25,8 @@ namespace ultramove
             effectSlide = Singleton<Effects>.Instance.EffectsArray.FirstOrDefault(c => c.Name == "Concrete");
         }
 
-        public bool Shoot(Vector3 origin, Vector3 rayDir, out RaycastHit hitResult, float dmg)
+        public RaycastHit[] Shoot(Vector3 origin, Vector3 rayDir, float dmg, bool piercing = false)
         {
-            hitResult = new RaycastHit();
-
             float rayDistance = 500f;
 
             Ray ray = new Ray(origin, rayDir);
@@ -40,8 +38,12 @@ namespace ultramove
             int layer30 = 1 << 30; // TransparentCollider
             int layerMask = layer12 | layer16 | layer11 | layer15 | layer30;
 
-            if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, layerMask))
+            RaycastHit[] hits = Physics.RaycastAll(ray, rayDistance, layerMask);
+            hits = hits.OrderBy(hit => Vector3.Distance(ray.origin, hit.point)).ToArray();
+            for (int i = 0; i < hits.Length; i++)
             {
+                RaycastHit hit = hits[i];
+
                 MaterialType matHit = MaterialType.None;
 
                 if (hit.transform.tag == "DynamicCollider")
@@ -62,12 +64,11 @@ namespace ultramove
                     matHit = EFTBallisticsInterface.Instance.Hit(hit, dmg);
                 }
 
-                hitResult = hit;
-
-                return true;
+                if (!piercing)
+                    break;
             }
 
-            return false;
+            return hits;
         }
 
         public MaterialType Hit(Collision collision)

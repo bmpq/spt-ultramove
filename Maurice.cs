@@ -235,8 +235,11 @@ namespace ultramove
         {
             Vector3 origin = lightChargeBeam.transform.position;
 
-            if (EFTBallisticsInterface.Instance.Shoot(origin, transform.forward, out RaycastHit hit, 100f))
+            RaycastHit[] hits = EFTBallisticsInterface.Instance.Shoot(origin, transform.forward, 100f);
+            if (hits.Length > 0)
             {
+                RaycastHit hit = hits[0];
+
                 TrailRendererManager.Instance.Trail(origin, hit.point, new Color(1f, 0.4f, 0), 0.5f, true);
 
                 EFTBallisticsInterface.Instance.Explosion(hit.point);
