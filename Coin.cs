@@ -1,4 +1,5 @@
-﻿using EFT.Ballistics;
+﻿using Comfort.Common;
+using EFT.Ballistics;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -128,6 +129,8 @@ namespace ultramove
             yield return new WaitForSeconds(0.1f);
             hitCoin.Hit(dmg, split);
             TrailRendererManager.Instance.Trail(transform.position, hitCoin.transform.position, colorTrail, 0.1f);
+
+            Singleton<UltraTime>.Instance.Freeze(0.05f, 0.2f);
         }
 
         bool Raycast(Transform transform, out RaycastHit hit)

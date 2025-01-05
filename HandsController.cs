@@ -1,4 +1,5 @@
-﻿using EFT;
+﻿using Comfort.Common;
+using EFT;
 using EFT.Ballistics;
 using EFT.InventoryLogic;
 using System.Collections;
@@ -18,8 +19,6 @@ namespace ultramove
         Quaternion recoilHighRot;
         Quaternion recoilPivotOriginalLocalQuaternion;
         Vector3 recoilPivotOriginalLocalPosition;
-
-        float parryPause;
 
         List<(GameObject, Weapon)> equippedWeapons;
         MuzzleManager muzzleManager;
@@ -118,20 +117,6 @@ namespace ultramove
 
         private void Update()
         {
-            if (parryPause > 0f)
-            {
-                parryPause -= Time.unscaledDeltaTime;
-
-                if (parryPause < 0.25f)
-                {
-                    Time.timeScale = 0;
-                }
-            }
-            else
-            {
-                Time.timeScale = 1f;
-            }
-
             coinCooldown -= Time.deltaTime;
             if (Input.GetMouseButtonDown(1))
             {
@@ -208,7 +193,8 @@ namespace ultramove
             if (parried)
             {
                 animator.SetTrigger("Parry");
-                parryPause = 0.3f;
+
+                Singleton<UltraTime>.Instance.Freeze(0.05f, 0.25f);
 
                 CameraShaker.Shake(1f);
                 PlayerAudio.Instance.Play("Ricochet");
