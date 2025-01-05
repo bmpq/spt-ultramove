@@ -55,7 +55,11 @@ namespace ultramove
                             hit.point = coin.transform.position;
                             coin.Hit(dmg, false, piercing);
 
+                            hits[0].point = coin.transform.position;
+
                             PlayerAudio.Instance.Play("Ricochet");
+
+                            return hits;
                         }
                     }
                 }
