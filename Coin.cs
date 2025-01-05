@@ -63,6 +63,7 @@ namespace ultramove
             if (!init)
                 Init();
 
+            rb.isKinematic = false;
             projectile.enabled = false;
             activeCoins.Add(this);
             active = true;
@@ -70,6 +71,13 @@ namespace ultramove
             lightGlint.intensity = 0f;
             trailRenderer.emitting = true;
             trailRenderer.Clear();
+        }
+
+        public void Freeze()
+        {
+            rb.isKinematic = true;
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
 
         public void Hit(float dmg, bool split = false, bool rail = false)
@@ -137,6 +145,8 @@ namespace ultramove
 
         private IEnumerator DelayHit(Coin hitCoin, float dmg, bool split, bool rail)
         {
+            hitCoin.Freeze();
+
             yield return new WaitForSeconds(0.1f);
             hitCoin.Hit(dmg, split, rail);
 
