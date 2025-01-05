@@ -44,6 +44,14 @@ namespace ultramove
             }
         }
 
+        public void Trail(Vector3 a, Vector3 b, bool rail)
+        {
+            if (rail)
+                Trail(a, b, new Color(0.3f, 0.7f, 1f), 0.2f, true);
+            else
+                Trail(a, b, Color.white);
+        }
+
         public void Trail(Vector3 a, Vector3 b, Color color, float width = 0.06f, bool lightning = false)
         {
             TrailRenderer trail = GetTrail();

@@ -72,7 +72,7 @@ namespace ultramove
             trailRenderer.Clear();
         }
 
-        public void Hit(float dmg, bool split = false)
+        public void Hit(float dmg, bool split = false, bool rail = false)
         {
             dmg *= 2f;
 
@@ -89,10 +89,13 @@ namespace ultramove
 
             Disable();
 
+            if (rail)
+                Singleton<UltraTime>.Instance.Freeze(0, 0.1f);
+
             if (activeCoins.Count > 0)
             {
-                Coin hitCoin = activeCoins.FirstOrDefault();
-                StartCoroutine(DelayHit(hitCoin, dmg, split));
+                Coin hitCoin = activeCoins.OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).FirstOrDefault();
+                StartCoroutine(DelayHit(hitCoin, dmg, split, rail));
 
                 if (!split)
                     return;
@@ -108,32 +111,41 @@ namespace ultramove
 
                 if (target.Item1 == null)
                 {
-                    if (Raycast(transform, out RaycastHit hit))
+                    if (RaycastInRandomDir(transform, out RaycastHit hit))
                     {
                         EFTBallisticsInterface.Instance.Hit(hit, dmg);
-                        TrailRendererManager.Instance.Trail(transform.position, hit.point, colorTrail, 0.1f);
+                        Trail(transform.position, hit.point, rail);
                     }
                 }
                 else
                 {
                     MaterialType matHit = EFTBallisticsInterface.Instance.Hit(target.Item1, target.Item2, dmg);
-                    TrailRendererManager.Instance.Trail(transform.position, target.Item2.point, colorTrail, 0.1f);
+                    Trail(transform.position, target.Item2.point, rail);
 
                     alreadyHit = target.Item1;
                 }
             }
         }
 
-        private IEnumerator DelayHit(Coin hitCoin, float dmg, bool split)
+        private void Trail(Vector3 a, Vector3 b, bool rail)
+        {
+            if (rail)
+                TrailRendererManager.Instance.Trail(a, b, true);
+            else
+                TrailRendererManager.Instance.Trail(a, b, colorTrail, 0.1f);
+        }
+
+        private IEnumerator DelayHit(Coin hitCoin, float dmg, bool split, bool rail)
         {
             yield return new WaitForSeconds(0.1f);
-            hitCoin.Hit(dmg, split);
-            TrailRendererManager.Instance.Trail(transform.position, hitCoin.transform.position, colorTrail, 0.1f);
+            hitCoin.Hit(dmg, split, rail);
+
+            Trail(transform.position, hitCoin.transform.position, rail);
 
             Singleton<UltraTime>.Instance.Freeze(0.05f, 0.2f);
         }
 
-        bool Raycast(Transform transform, out RaycastHit hit)
+        bool RaycastInRandomDir(Transform transform, out RaycastHit hit)
         {
             float rayDistance = 500f;
 

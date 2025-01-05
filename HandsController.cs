@@ -151,13 +151,13 @@ namespace ultramove
                 {
                     if (rail)
                     {
-                        TrailRendererManager.Instance.Trail(origin, hits[hits.Length - 1].point, new Color(0.3f, 0.7f, 1f), 0.2f, true);
+                        TrailRendererManager.Instance.Trail(origin, hits[hits.Length - 1].point, true);
                         PlayerAudio.Instance.PlayShootRail();
-                        CameraShaker.Shake(0.2f);
+                        CameraShaker.Shake(1f);
                     }
                     else
                     {
-                        TrailRendererManager.Instance.Trail(origin, hits[0].point, Color.white);
+                        TrailRendererManager.Instance.Trail(origin, hits[0].point, false);
                         PlayerAudio.Instance.PlayShoot();
                     }
 
