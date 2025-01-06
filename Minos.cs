@@ -13,11 +13,30 @@ internal class Minos : UltraEnemy
     public bool alive => health > 0;
     protected override float GetStartingHealth() => 1000f;
 
+    VolumetricLight[] eyeLights;
+
     protected override void Start()
     {
         base.Start();
         animator = GetComponent<Animator>();
         health = 1000f;
+
+        Light[] lights = GetComponentsInChildren<Light>();
+        eyeLights = new VolumetricLight[lights.Length];
+        for (int i = 0; i < lights.Length; i++)
+        {
+            eyeLights[i] = lights[i].gameObject.GetOrAddComponent<VolumetricLight>();
+        }
+        LightEyes(true);
+    }
+
+    void LightEyes(bool on)
+    {
+        for (int i = 0; i < eyeLights[i].MaxRayLength; i++)
+        {
+            eyeLights[i].Light.intensity = on ? 0.4f : 0;
+            eyeLights[i].CheckIntensity();
+        }
     }
 
     void Update()
@@ -37,6 +56,7 @@ internal class Minos : UltraEnemy
     {
         base.Die();
         animator.SetBool("Dead", true);
+        LightEyes(false);
     }
 
     public bool Parry()
