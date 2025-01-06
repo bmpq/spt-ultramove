@@ -95,8 +95,12 @@ namespace ultramove
 
         public MaterialType Hit(RaycastHit hit, float dmg)
         {
-            BallisticCollider ballisticCollider = hit.collider.gameObject.GetComponent<BallisticCollider>();
-            return Hit(ballisticCollider, hit, dmg);
+            BaseBallistic baseBallistic = hit.collider.gameObject.GetComponent<BaseBallistic>();
+
+            if (baseBallistic is TerrainBallistic terrainBallistic)
+                return Hit(terrainBallistic.Get(hit.point), hit, dmg);
+
+            return Hit(baseBallistic as BallisticCollider, hit, dmg);
         }
 
         public MaterialType Hit(Collider col, RaycastHit hit, float dmg)
