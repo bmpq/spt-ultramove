@@ -180,6 +180,11 @@ namespace ultramove
                 return true;
             }
 
+            if (hit.rigidbody.TryGetComponent<Minos>(out Minos minos))
+            {
+                return minos.Parry();
+            }
+
             BodyPartCollider bodyPartCollider = hit.transform.GetComponent<BodyPartCollider>();
 
             if (bodyPartCollider == null)

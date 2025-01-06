@@ -90,6 +90,10 @@ namespace ultramove
             GameObject prefabMaurice = bundleUltrakill.LoadAsset<GameObject>("Maurice");
             GameObject newMaurice = GameObject.Instantiate(prefabMaurice, new Vector3(-10, 5, -10), Quaternion.identity);
             newMaurice.AddComponent<Maurice>().SetPrefabProjectile(bundleUltrakill.LoadAsset<GameObject>("Projectile"));
+
+            GameObject prefabMinos = bundleUltrakill.LoadAsset<GameObject>("MinosPrefab");
+            GameObject newMinos = GameObject.Instantiate(prefabMinos, new Vector3(0, 0, 0), prefabMinos.transform.rotation);
+            newMinos.AddComponent<Minos>();
         }
 
         static List<(GameObject, Weapon)> GetEquippedWeapons(Player player)

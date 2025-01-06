@@ -95,6 +95,8 @@ namespace ultramove
             ParticleEffectManager.Instance.PlayEffectCoinRicochet(transform);
             timeLastRicoshot = Time.time;
 
+            rb.isKinematic = false;
+
             Disable();
 
             if (rail)
@@ -152,7 +154,7 @@ namespace ultramove
 
             Trail(transform.position, hitCoin.transform.position, rail);
 
-            Singleton<UltraTime>.Instance.Freeze(0.05f, 0.2f);
+            Singleton<UltraTime>.Instance.Freeze(0.05f, 0.1f);
         }
 
         bool RaycastInRandomDir(Transform transform, out RaycastHit hit)
