@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using ultramove;
 using UnityEngine;
 
-public class Minos : MonoBehaviour
+internal class Minos : UltraEnemy
 {
     Animator animator;
 
@@ -10,9 +11,11 @@ public class Minos : MonoBehaviour
 
     float health;
     public bool alive => health > 0;
+    protected override float GetStartingHealth() => 1000f;
 
-    void Start()
+    protected override void Start()
     {
+        base.Start();
         animator = GetComponent<Animator>();
         health = 1000f;
     }
@@ -30,19 +33,9 @@ public class Minos : MonoBehaviour
         }
     }
 
-    void Hit(float dmg)
+    protected override void Die()
     {
-        if (!alive)
-            return;
-
-        health -= dmg;
-
-        if (!alive)
-            Die();
-    }
-
-    void Die()
-    {
+        base.Die();
         animator.SetBool("Dead", true);
     }
 
@@ -50,7 +43,9 @@ public class Minos : MonoBehaviour
     {
         animator.SetTrigger("Parry");
 
-        Hit(500);
+        DamageInfoStruct dmg = new DamageInfoStruct();
+        dmg.Damage = 500f;
+        Hit(dmg);
 
         return true;
     }

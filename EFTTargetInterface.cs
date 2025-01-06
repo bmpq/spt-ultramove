@@ -3,6 +3,7 @@ using EFT;
 using EFT.Ballistics;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ultramove
@@ -23,7 +24,6 @@ namespace ultramove
 
         public static (BallisticCollider, RaycastHit) GetCoinTarget(Transform source, BallisticCollider exclude)
         {
-            float distLimit = 500f;
             float closestDist = Mathf.Infinity;
             BallisticCollider closestTarget = null;
             RaycastHit closestHit  = new RaycastHit();
@@ -34,8 +34,6 @@ namespace ultramove
                     continue;
 
                 float distance = Vector3.Distance(source.position, player.Position);
-                if (distance > distLimit)
-                    continue;
 
                 if (player.MainParts.TryGetValue(BodyPartType.head, out var headPart))
                 {
@@ -58,20 +56,28 @@ namespace ultramove
                 }
             }
 
-            foreach (Maurice maurice in Maurice.currentAlive)
+            foreach (UltraEnemy enemy in UltraEnemy.currentAlive.OrderBy(x => Vector3.Distance(source.position, x.transform.position)))
             {
-                if (!LineOfSight(source.position, maurice.transform.position, out RaycastHit hit))
-                    continue;
-
-                float distance = Vector3.Distance(source.position, maurice.transform.position);
-
-                if (distance < closestDist)
+                foreach (BodyPartCollider bodyPart in enemy.ballisticColliders)
                 {
-                    closestDist = distance;
-                    closestTarget = maurice.BallisticCollider;
-                    closestHit = new RaycastHit();
-                    closestHit.point = maurice.BallisticCollider.Collider.ClosestPoint(source.position);
-                    closestHit.normal = (source.position - maurice.transform.position).normalized;
+                    Vector3 hitPoint = bodyPart.Collider.ClosestPoint(source.position);
+
+                    if (!LineOfSight(source.position, hitPoint, out RaycastHit hit))
+                        continue;
+
+                    float distance = Vector3.Distance(source.position, hitPoint);
+
+                    if (distance < closestDist)
+                    {
+                        closestDist = distance;
+                        closestTarget = bodyPart;
+                        closestHit = new RaycastHit();
+                        closestHit.point = hitPoint;
+                        closestHit.normal = (source.position - hitPoint).normalized;
+                    }
+
+                    if (bodyPart.gameObject.tag == "AimPoint")
+                        return (closestTarget, closestHit);
                 }
             }
 

@@ -8,53 +8,8 @@ using UnityEngine;
 
 namespace ultramove
 {
-    internal class Maurice : MonoBehaviour
+    internal class Maurice : UltraEnemy
     {
-        public class PlayerBridge : BodyPartCollider.IPlayerBridge
-        {
-            public event Action<DamageInfoStruct> OnHitAction;
-
-            IPlayer BodyPartCollider.IPlayerBridge.iPlayer => null;
-
-            float BodyPartCollider.IPlayerBridge.WorldTime => 0;
-
-            bool BodyPartCollider.IPlayerBridge.UsingSimplifiedSkeleton => false;
-
-            void BodyPartCollider.IPlayerBridge.ApplyDamageInfo(DamageInfoStruct damageInfo, EBodyPart bodyPartType, EBodyPartColliderType bodyPartCollider, float absorbed)
-            {
-                OnHitAction?.Invoke(damageInfo);
-            }
-
-            ShotInfoClass BodyPartCollider.IPlayerBridge.ApplyShot(DamageInfoStruct damageInfo, EBodyPart bodyPart, EBodyPartColliderType bodyPartCollider, EArmorPlateCollider armorPlateCollider, ShotIdStruct shotId)
-            {
-                OnHitAction?.Invoke(damageInfo);
-                ShotInfoClass shot = new ShotInfoClass();
-                shot.Penetrated = true;
-                return shot;
-            }
-
-            bool BodyPartCollider.IPlayerBridge.CheckArmorHitByDirection(BodyPartCollider bodypart, Vector3 hitpoint, Vector3 shotNormal, Vector3 shotDirection)
-            {
-                return true;
-            }
-
-            bool BodyPartCollider.IPlayerBridge.IsShotDeflectedByHeavyArmor(EBodyPartColliderType colliderType, EArmorPlateCollider armorPlateCollider, int shotSeed)
-            {
-                return false;
-            }
-
-            bool BodyPartCollider.IPlayerBridge.SetShotStatus(BodyPartCollider bodypart, EftBulletClass shot, Vector3 hitpoint, Vector3 shotNormal, Vector3 shotDirection)
-            {
-                return false;
-            }
-
-            bool BodyPartCollider.IPlayerBridge.TryGetArmorResistData(BodyPartCollider bodyPart, float penetrationPower, out ArmorResistanceStruct armorResistanceData)
-            {
-                armorResistanceData = new ArmorResistanceStruct();
-                return false;
-            }
-        }
-
         Rigidbody rb;
         GameObject prefabProjectile;
 
@@ -64,11 +19,6 @@ namespace ultramove
 
         private readonly Queue<Projectile> projectilePool = new Queue<Projectile>();
 
-        public static HashSet<Maurice> currentAlive = new HashSet<Maurice>();
-
-        private float health;
-        public bool alive => health > 0;
-
         bool chargingBeam;
         float chargingBeamProgress;
 
@@ -76,8 +26,7 @@ namespace ultramove
 
         BetterSource audioBeam;
         AudioClip clipBeamCharge;
-
-        public BodyPartCollider BallisticCollider { get; private set; }
+        protected override float GetStartingHealth() => 400f;
 
         public void SetPrefabProjectile(GameObject prefabProjectile)
         {
@@ -109,51 +58,20 @@ namespace ultramove
             projectilePool.Enqueue(projectile);
         }
 
-        void Start()
+        protected override void Start()
         {
+            base.Start();
+
             rb = GetComponent<Rigidbody>();
 
             rb.useGravity = false;
-
-            BallisticCollider = gameObject.transform.GetChild(1).gameObject.AddComponent<BodyPartCollider>();
-            PlayerBridge bridge = new PlayerBridge();
-            bridge.OnHitAction += Hit;
-            BallisticCollider.playerBridge = bridge;
-            BallisticCollider.Collider = BallisticCollider.GetComponent<Collider>();
 
             lightChargeBeam = GetComponentInChildren<Light>();
             lightChargeBeam.intensity = 0;
             lightChargeBeam.transform.localScale = Vector3.zero;
 
-            health = 400;
-            currentAlive.Add(this);
-
             audioBeam = PlayerAudio.Instance.GetSource();
             clipBeamCharge = PlayerAudio.Instance.GetClip("Throat Drone High Frequency2");
-        }
-
-        void Hit(DamageInfoStruct damageInfo)
-        {
-            if (!alive)
-                return;
-
-            health -= damageInfo.Damage;
-
-            if (health <= 0)
-                Die();
-        }
-
-        void Die()
-        {
-            health = -1f;
-            rb.useGravity = true;
-            rb.drag = 1f;
-
-            audioBeam.SetBaseVolume(0f);
-            audioBeam.Release();
-            lightChargeBeam.gameObject.SetActive(false);
-
-            currentAlive.Remove(this);
         }
 
         void OnCollisionEnter(Collision collision)
@@ -162,6 +80,18 @@ namespace ultramove
             {
                 EFTBallisticsInterface.Instance.Hit(collision);
             }
+        }
+
+        protected override void Die()
+        {
+            base.Die();
+
+            rb.useGravity = true;
+            rb.drag = 1f;
+
+            audioBeam.SetBaseVolume(0f);
+            audioBeam.Release();
+            lightChargeBeam.gameObject.SetActive(false);
         }
 
         void Update()
