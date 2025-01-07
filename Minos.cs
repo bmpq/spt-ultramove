@@ -87,7 +87,23 @@ internal class Minos : UltraEnemy
 
         CameraShaker.ShakeAfterDelay(3f, 2.6f);
         CameraShaker.ShakeAfterDelay(3f, 3.13f);
+
+        SetStorm();
     }
+
+    void SetStorm()
+    {
+        IWeatherCurve curve = WeatherController.Instance.WeatherCurve;
+
+        float cloudDensity = curve.Cloudiness;
+        float fog = curve.Fog;
+        float rain = curve.Rain;
+        float lightningThunderProb = curve.LightningThunderProbability;
+        float temperature = curve.Temperature;
+        float windMagnitude = 100f;
+        int windDirection = 1;
+
+        WeatherControl.SetWeather(cloudDensity, fog, rain, lightningThunderProb, temperature, windMagnitude, windDirection, windDirection);
     }
 
     public bool Parry()
