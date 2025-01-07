@@ -42,7 +42,7 @@ internal class Minos : UltraEnemy
     {
         timeIdle += Time.deltaTime;
 
-        if (timeIdle > 4f)
+        if (timeIdle > 2f)
         {
             timeIdle = 0f;
 
@@ -61,7 +61,7 @@ internal class Minos : UltraEnemy
 
         if (!alive)
         {
-            transform.position = Vector3.Lerp(transform.position, new Vector3(-146.4899f, -56.2939f, -210.2503f), Time.deltaTime * 10f);
+            transform.position = Vector3.Lerp(transform.position, new Vector3(-151.4899f, -56.2939f, -210.2503f), Time.deltaTime * 3f);
             //transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(345.2719f, 242.4667f, 0), Time.deltaTime * 10f);
         }
     }
@@ -76,6 +76,9 @@ internal class Minos : UltraEnemy
         LightEyes(true);
         animator.SetBool("Dead", false);
         animator.Play("Idle", 0);
+
+        TODControl.SetTime(6, 0);
+        WeatherEffect(1f);
     }
 
     protected override void Die()
@@ -88,19 +91,34 @@ internal class Minos : UltraEnemy
         CameraShaker.ShakeAfterDelay(3f, 2.6f);
         CameraShaker.ShakeAfterDelay(3f, 3.13f);
 
-        SetStorm();
+        StartCoroutine(AnimDie());
     }
 
-    void SetStorm()
+    IEnumerator AnimDie()
+    {
+        yield return new WaitForSecondsRealtime(2.6f);
+
+        float t = 0f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime * 0.15f;
+            float e = Mathf.Sin((t * Mathf.PI) / 2);
+            WeatherEffect(e);
+            yield return null;
+        }
+    }
+
+    void WeatherEffect(float t)
     {
         IWeatherCurve curve = WeatherController.Instance.WeatherCurve;
 
-        float cloudDensity = curve.Cloudiness;
+        float cloudDensity = -1f;
         float fog = curve.Fog;
         float rain = curve.Rain;
         float lightningThunderProb = curve.LightningThunderProbability;
         float temperature = curve.Temperature;
-        float windMagnitude = 100f;
+        float windMagnitude = Mathf.Lerp(1f, 0.01f, t);
         int windDirection = 1;
 
         WeatherControl.SetWeather(cloudDensity, fog, rain, lightningThunderProb, temperature, windMagnitude, windDirection, windDirection);

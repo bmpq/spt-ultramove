@@ -92,7 +92,7 @@ namespace ultramove
             newMaurice.AddComponent<Maurice>().SetPrefabProjectile(bundleUltrakill.LoadAsset<GameObject>("Projectile"));
 
             GameObject prefabMinos = bundleUltrakill.LoadAsset<GameObject>("MinosPrefab");
-            GameObject newMinos = GameObject.Instantiate(prefabMinos, new Vector3(44.1f, -114.8f, -47.6f), Quaternion.Euler(0, -90f, 0));
+            GameObject newMinos = GameObject.Instantiate(prefabMinos, new Vector3(-135.4775f, -55.7413f, -218.6555f), Quaternion.Euler(345.2719f, 242.4667f, 0));
             newMinos.AddComponent<Minos>();
         }
 
