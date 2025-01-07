@@ -58,10 +58,8 @@ namespace ultramove
             projectilePool.Enqueue(projectile);
         }
 
-        protected override void Start()
+        void Awake()
         {
-            base.Start();
-
             rb = GetComponent<Rigidbody>();
 
             rb.useGravity = false;
@@ -76,10 +74,7 @@ namespace ultramove
 
         void OnCollisionEnter(Collision collision)
         {
-            if (collision.impulse.magnitude > 100f)
-            {
-                EFTBallisticsInterface.Instance.Hit(collision);
-            }
+            EFTBallisticsInterface.Instance.Hit(collision);
         }
 
         protected override void Die()

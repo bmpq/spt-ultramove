@@ -58,12 +58,13 @@ namespace ultramove
     {
         public BodyPartCollider[] ballisticColliders { get; private set; }
 
-        public static HashSet<UltraEnemy> currentAlive = new HashSet<UltraEnemy>();
+        public static UltraEnemy[] currentAlive => _currentAlive.ToArray();
+        private static HashSet<UltraEnemy> _currentAlive = new HashSet<UltraEnemy>();
 
         private float health;
         public bool alive => health > 0;
 
-        protected virtual void Start()
+        private void Start()
         {
             PlayerBridge bridge = new PlayerBridge();
             bridge.OnHitAction += Hit;
@@ -88,8 +89,7 @@ namespace ultramove
             // weak points are tagged with 'AimPoint', and they are sorted first in the array
             ballisticColliders = bpcsToAdd.OrderByDescending(x => x.gameObject.tag == "AimPoint").ToArray();
 
-            health = GetStartingHealth();
-            currentAlive.Add(this);
+            Revive();
         }
 
         protected abstract float GetStartingHealth();
@@ -105,11 +105,16 @@ namespace ultramove
                 Die();
         }
 
+        protected virtual void Revive()
+        {
+            health = GetStartingHealth();
+            _currentAlive.Add(this);
+        }
+
         protected virtual void Die()
         {
             health = -1f;
-
-            currentAlive.Remove(this);
+            _currentAlive.Remove(this);
         }
     }
 }
