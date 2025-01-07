@@ -130,10 +130,33 @@ namespace ultramove
                 else
                 {
                     MaterialType matHit = EFTBallisticsInterface.Instance.Hit(target.Item1, target.Item2, dmg);
+
+                    CheckIfKilled(target.Item1);
+
                     Trail(transform.position, target.Item2.point, rail);
 
                     alreadyHit = target.Item1;
                 }
+            }
+        }
+
+        void CheckIfKilled(BallisticCollider ballisticCollider)
+        {
+            if (ballisticCollider is BodyPartCollider bpc)
+            {
+                bool kill = false;
+                if (bpc.playerBridge is UltraPlayerBridge upb)
+                {
+                    if (!upb.UltraEnemy.alive)
+                        kill = true;
+                }
+                else if (!bpc.playerBridge.iPlayer.HealthController.IsAlive)
+                {
+                    kill = true;
+                }
+
+                if (kill)
+                    Singleton<UltraTime>.Instance.Freeze(0.1f, 0.2f);
             }
         }
 
@@ -153,8 +176,6 @@ namespace ultramove
             hitCoin.Hit(dmg, split, rail);
 
             Trail(transform.position, hitCoin.transform.position, rail);
-
-            Singleton<UltraTime>.Instance.Freeze(0.05f, 0.1f);
         }
 
         bool RaycastInRandomDir(Transform transform, out RaycastHit hit)

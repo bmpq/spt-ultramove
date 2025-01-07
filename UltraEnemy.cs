@@ -9,9 +9,11 @@ using UnityEngine;
 
 namespace ultramove
 {
-    public class PlayerBridge : BodyPartCollider.IPlayerBridge
+    internal class UltraPlayerBridge : BodyPartCollider.IPlayerBridge
     {
         public event Action<DamageInfoStruct> OnHitAction;
+
+        public UltraEnemy UltraEnemy;
 
         IPlayer BodyPartCollider.IPlayerBridge.iPlayer => null;
 
@@ -66,8 +68,9 @@ namespace ultramove
 
         private void Start()
         {
-            PlayerBridge bridge = new PlayerBridge();
+            UltraPlayerBridge bridge = new UltraPlayerBridge();
             bridge.OnHitAction += Hit;
+            bridge.UltraEnemy = this;
 
             Collider[] cols = GetComponentsInChildren<Collider>();
             List<BodyPartCollider> bpcsToAdd = new List<BodyPartCollider>();
