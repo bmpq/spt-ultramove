@@ -116,5 +116,10 @@ namespace ultramove
             health = -1f;
             _currentAlive.Remove(this);
         }
+
+        void OnCollisionEnter(Collision collision)
+        {
+            EFTBallisticsInterface.Instance.Hit(collision);
+        }
     }
 }

@@ -72,11 +72,6 @@ namespace ultramove
             clipBeamCharge = PlayerAudio.Instance.GetClip("Throat Drone High Frequency2");
         }
 
-        void OnCollisionEnter(Collision collision)
-        {
-            EFTBallisticsInterface.Instance.Hit(collision);
-        }
-
         protected override void Die()
         {
             base.Die();

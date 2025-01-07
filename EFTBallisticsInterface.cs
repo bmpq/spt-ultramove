@@ -77,9 +77,9 @@ namespace ultramove
 
         public MaterialType Hit(Collision collision)
         {
-            BallisticCollider ballisticCollider = collision.collider.gameObject.GetComponent<BallisticCollider>();
+            BaseBallistic baseBallistic = collision.transform.parent.GetComponentInChildren<BaseBallistic>();
 
-            float damage = collision.impulse.magnitude / 100f;
+            float dmg = collision.impulse.magnitude / 100f;
 
             MaterialType mat = MaterialType.None;
             for (int i = 0; i < collision.contactCount; i++)
@@ -87,7 +87,11 @@ namespace ultramove
                 RaycastHit fakeHit = new RaycastHit();
                 fakeHit.point = collision.contacts[i].point;
                 fakeHit.normal = collision.contacts[i].normal;
-                mat = Hit(ballisticCollider, fakeHit, damage);
+
+                if (baseBallistic is TerrainBallistic terrainBallistic)
+                    Hit(terrainBallistic.Get(fakeHit.point), fakeHit, dmg);
+                else
+                    Hit(baseBallistic as BallisticCollider, fakeHit, dmg);
             }
 
             return mat;
