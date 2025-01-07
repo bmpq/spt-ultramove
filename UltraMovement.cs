@@ -48,6 +48,8 @@ namespace ultramove
 
         const float jumpPower = 520f * 90f * 2.6f;
 
+        Light lightSliding;
+
         void Start()
         {
             cam = Camera.main;
@@ -113,6 +115,10 @@ namespace ultramove
             var emission = psSlide.emission;
             emission.rateOverTime = 70;
             psSlide.Stop();
+            lightSliding = new GameObject("LightSliding").AddComponent<Light>();
+            lightSliding.color = main.startColor.color;
+            lightSliding.type = LightType.Point;
+            lightSliding.shadows = LightShadows.None;
         }
 
         void Update()
@@ -192,6 +198,9 @@ namespace ultramove
             {
                 EFTBallisticsInterface.Instance.PlaySlide(transform.position, slideDir);
             }
+
+            lightSliding.intensity = sliding ? Random.value * 0.3f : 0f;
+            lightSliding.transform.position = psSlide.gameObject.transform.position;
 
             PlayerAudio.Instance.Sliding(sliding, transform.position, slideDir);
 
