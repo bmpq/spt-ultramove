@@ -11,6 +11,11 @@ namespace ultramove
 
         Vector3 inertia;
 
+        Vector3 prevVelocity;
+        Vector3 velocityDelta;
+
+        Vector3 inertiaSmoothed;
+
         private void Start()
         {
             cam = Camera.main;
@@ -23,10 +28,18 @@ namespace ultramove
 
         private void LateUpdate()
         {
-            inertia = Vector3.Lerp(inertia, -rb.velocity * Time.fixedDeltaTime * 0.2f, Time.deltaTime * 6f);
+            inertia = Vector3.Lerp(inertia, Vector3.zero, Time.deltaTime * 5f);
+            inertiaSmoothed = Vector3.Lerp(inertiaSmoothed, inertia, Time.deltaTime * 10f);
 
-            ribcage.position = cam.transform.TransformPoint(new Vector3(0, -0.1f, 0)) + inertia;
+            ribcage.position = cam.transform.TransformPoint(new Vector3(0, -0.1f, 0)) + inertiaSmoothed * 0.01f;
             ribcage.rotation = cam.transform.rotation;
+        }
+
+        void FixedUpdate()
+        {
+            velocityDelta = rb.velocity - prevVelocity;
+            inertia -= velocityDelta;
+            prevVelocity = rb.velocity;
         }
     }
 }
