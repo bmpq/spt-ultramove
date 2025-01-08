@@ -29,6 +29,7 @@ namespace ultramove
         BetterSource sourceSlide;
         BetterSource sourceGunIdle;
 
+        BetterSource sourceWalk;
         BetterSource sourceWaterSkip;
 
         public PlayerAudio(AssetBundle bundle)
@@ -81,8 +82,16 @@ namespace ultramove
         {
             if (Time.time < nextStepTime) return;
 
+            if (sourceWalk == null)
+            {
+                sourceWalk = Singleton<BetterAudio>.Instance.GetSource(BetterAudio.AudioSourceGroupType.Collisions, true);
+                sourceWalk.Loop = false;
+            }
+            sourceWalk.Position = player.position;
+
             AudioClip clip = footstepClips[random.Next(footstepClips.Length)];
-            PlayInTarkov(clip, player.position, 0.5f);
+            sourceWalk.SetPitch(UnityEngine.Random.Range(0.9f, 1.1f));
+            sourceWalk.Play(clip, null, 1f, 0.5f, false, true);
 
             nextStepTime = Time.time + walkCooldown;
         }
@@ -160,7 +169,7 @@ namespace ultramove
             }
 
             sourceWaterSkip.Position = pos;
-            sourceWaterSkip.SetPitch(random.Range(0.9f, 1.1f));
+            sourceWaterSkip.SetPitch(UnityEngine.Random.Range(0.9f, 1.1f));
             sourceWaterSkip.Play(allClips.FirstOrDefault(c => c.name.StartsWith("WaterSmallSplash")), null, 1f, 1f, false, false);
         }
 
