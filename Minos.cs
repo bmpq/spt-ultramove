@@ -9,11 +9,11 @@ using UnityEngine;
 internal class Minos : UltraEnemy
 {
     Animator animator;
-
-    float timeIdle;
     protected override float GetStartingHealth() => 1000f;
 
     VolumetricLight[] eyeLights;
+
+    int attackId = 0;
 
     void Awake()
     {
@@ -38,18 +38,20 @@ internal class Minos : UltraEnemy
         }
     }
 
+    void FixedUpdate()
+    {
+        if (!animator.IsInTransition(0) && animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
+        {
+            string[] attacks = { "SlamLeft", "SlamMiddle" };
+            animator.SetTrigger(attacks[attackId]);
+
+            attackId = (attackId == 0) ? 1 : 0;
+            animator.ResetTrigger(attacks[attackId]);
+        }
+    }
+
     void Update()
     {
-        timeIdle += Time.deltaTime;
-
-        if (timeIdle > 2f)
-        {
-            timeIdle = 0f;
-
-            string[] attacks = { "SlamLeft", "SlamMiddle" };
-            animator.SetTrigger(attacks[Random.Range(0, attacks.Length)]);
-        }
-
         if (Input.GetKeyDown(KeyCode.L))
         {
             Revive();
@@ -61,7 +63,7 @@ internal class Minos : UltraEnemy
 
         if (!alive)
         {
-            transform.position = Vector3.Lerp(transform.position, new Vector3(-151.4899f, -56.2939f, -210.2503f), Time.deltaTime * 3f);
+            transform.position = new Vector3(-151.4899f, -56.2939f, -210.2503f);
             //transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(345.2719f, 242.4667f, 0), Time.deltaTime * 10f);
         }
     }
@@ -70,7 +72,7 @@ internal class Minos : UltraEnemy
     {
         base.Revive();
 
-        transform.position = new Vector3(-142.2445f, -64.9049f, -197.0192f);
+        transform.position = new Vector3(-142.2445f, -62.9049f, -197.0192f);
         transform.rotation = Quaternion.Euler(345.2719f, 199.993f, 0);
 
         LightEyes(true);
@@ -115,7 +117,7 @@ internal class Minos : UltraEnemy
 
         float cloudDensity = -1f;
         float fog = curve.Fog;
-        float rain = curve.Rain;
+        float rain = 0f;
         float lightningThunderProb = curve.LightningThunderProbability;
         float temperature = curve.Temperature;
         float windMagnitude = Mathf.Lerp(1f, 0.01f, t);
