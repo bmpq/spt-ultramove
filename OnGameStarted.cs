@@ -87,15 +87,17 @@ namespace ultramove
 
             Camera.main.gameObject.AddComponent<CameraShaker>();
 
-            GameObject prefabMaurice = bundleUltrakill.LoadAsset<GameObject>("Maurice");
-            GameObject newMaurice = GameObject.Instantiate(prefabMaurice, new Vector3(-10, 5, -10), Quaternion.identity);
-            newMaurice.AddComponent<Maurice>().SetPrefabProjectile(bundleUltrakill.LoadAsset<GameObject>("Projectile"));
-
             if (__instance.MainPlayer.Location.ToLower() == "woods")
             {
                 GameObject prefabMinos = bundleUltrakill.LoadAsset<GameObject>("MinosPrefab");
                 GameObject newMinos = GameObject.Instantiate(prefabMinos, new Vector3(-135.4775f, -55.7413f, -218.6555f), Quaternion.Euler(345.2719f, 242.4667f, 0));
                 newMinos.AddComponent<Minos>();
+            }
+            else
+            {
+                GameObject prefabMaurice = bundleUltrakill.LoadAsset<GameObject>("Maurice");
+                GameObject newMaurice = GameObject.Instantiate(prefabMaurice, new Vector3(-10, 5, -10), Quaternion.identity);
+                newMaurice.AddComponent<Maurice>().SetPrefabProjectile(bundleUltrakill.LoadAsset<GameObject>("Projectile"));
             }
         }
 

@@ -15,6 +15,10 @@ internal class Minos : UltraEnemy
 
     int attackId = 0;
 
+    SkinnedMeshRenderer minosRenderer;
+    Material matBodyAlive;
+    Material matBodyDead;
+
     void Awake()
     {
         animator = GetComponent<Animator>();
@@ -26,7 +30,12 @@ internal class Minos : UltraEnemy
             eyeLights[i] = lights[i].gameObject.GetOrAddComponent<VolumetricLight>();
         }
 
+        minosRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+
         Singleton<GameWorld>.Instance.MainPlayer.Transform.position = transform.position + new Vector3(0, 200, 0);
+
+        matBodyAlive = minosRenderer.materials[0];
+        matBodyDead = AssetBundleLoader.BundleLoader.LoadAssetBundle(AssetBundleLoader.BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<Material>("MinosDead");
     }
 
     void LightEyes(bool on)
@@ -76,6 +85,14 @@ internal class Minos : UltraEnemy
         transform.rotation = Quaternion.Euler(345.2719f, 199.993f, 0);
 
         LightEyes(true);
+        Material[] mats = new Material[minosRenderer.materials.Length];
+        mats[0] = matBodyAlive;
+        for (int i = 1; i < minosRenderer.materials.Length; i++)
+        {
+            mats[i] = minosRenderer.materials[i];
+        }
+        minosRenderer.materials = mats;
+
         animator.SetBool("Dead", false);
         animator.Play("Idle", 0);
 
@@ -89,6 +106,13 @@ internal class Minos : UltraEnemy
 
         animator.SetBool("Dead", true);
         LightEyes(false);
+        Material[] mats = new Material[minosRenderer.materials.Length];
+        mats[0] = matBodyDead;
+        for (int i = 1; i < minosRenderer.materials.Length; i++)
+        {
+            mats[i] = minosRenderer.materials[i];
+        }
+        minosRenderer.materials = mats;
 
         CameraShaker.ShakeAfterDelay(3f, 2.6f);
         CameraShaker.ShakeAfterDelay(3f, 3.13f);
