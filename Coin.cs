@@ -129,7 +129,7 @@ namespace ultramove
                 }
                 else
                 {
-                    MaterialType matHit = EFTBallisticsInterface.Instance.Hit(target.Item1, target.Item2, dmg);
+                    EFTBallisticsInterface.Instance.Hit(target.Item1, target.Item2, dmg);
 
                     CheckIfKilled(target.Item1);
 

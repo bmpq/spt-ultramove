@@ -65,7 +65,7 @@ namespace ultramove
                 }
                 else
                 {
-                    matHit = EFTBallisticsInterface.Instance.Hit(hit, dmg);
+                    Hit(hit, dmg);
                 }
 
                 if (!piercing)
@@ -75,8 +75,11 @@ namespace ultramove
             return hits;
         }
 
-        public MaterialType Hit(Collision collision)
+        public void Hit(Collision collision)
         {
+            if (collision.transform.parent == null)
+                return;
+
             BaseBallistic baseBallistic = collision.transform.parent.GetComponentInChildren<BaseBallistic>();
 
             float dmg = collision.impulse.magnitude / 100f;
@@ -93,30 +96,31 @@ namespace ultramove
                 else
                     Hit(baseBallistic as BallisticCollider, fakeHit, dmg);
             }
-
-            return mat;
         }
 
-        public MaterialType Hit(RaycastHit hit, float dmg)
+        public void Hit(RaycastHit hit, float dmg)
         {
             BaseBallistic baseBallistic = hit.collider.gameObject.GetComponent<BaseBallistic>();
 
             if (baseBallistic is TerrainBallistic terrainBallistic)
-                return Hit(terrainBallistic.Get(hit.point), hit, dmg);
+            {
+                Hit(terrainBallistic.Get(hit.point), hit, dmg);
+                return;
+            }
 
-            return Hit(baseBallistic as BallisticCollider, hit, dmg);
+            Hit(baseBallistic as BallisticCollider, hit, dmg);
         }
 
-        public MaterialType Hit(Collider col, RaycastHit hit, float dmg)
+        public void Hit(Collider col, RaycastHit hit, float dmg)
         {
             BallisticCollider ballisticCollider = col.gameObject.GetComponent<BallisticCollider>();
-            return Hit(ballisticCollider, hit, dmg);
+            Hit(ballisticCollider, hit, dmg);
         }
 
-        public MaterialType Hit(BallisticCollider ballisticCollider, RaycastHit hit, float dmg)
+        public void Hit(BallisticCollider ballisticCollider, RaycastHit hit, float dmg)
         {
             if (ballisticCollider == null)
-                return MaterialType.None;
+                return;
 
             DamageInfoStruct damageInfo = new DamageInfoStruct
             {
@@ -136,8 +140,6 @@ namespace ultramove
             ballisticCollider.ApplyHit(damageInfo, ShotIdStruct.EMPTY_SHOT_ID);
 
             Singleton<Effects>.Instance.Emit(ballisticCollider.TypeOfMaterial, ballisticCollider, hit.point, hit.normal, 1f);
-
-            return ballisticCollider.TypeOfMaterial;
         }
 
         public void Explosion(Vector3 pos)
