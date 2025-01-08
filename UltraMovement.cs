@@ -33,7 +33,7 @@ namespace ultramove
 
         bool groundedPrevTick = false;
 
-        bool sliding;
+        public bool sliding { get; private set; }
         Vector3 slideDir;
         ParticleSystem psSlide;
 
