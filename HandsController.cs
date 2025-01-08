@@ -30,6 +30,10 @@ namespace ultramove
 
         SpringSimulation recoil = new SpringSimulation(0, 0);
 
+        MeshRenderer muzzleFlash;
+
+        Coroutine animMuzzleFlash;
+
         void SetWeaponHandPosition(Weapon weaponClass)
         {
             float blendPalmDist = 0;
@@ -119,6 +123,9 @@ namespace ultramove
 
             recoilHighRot = recoilPivotOriginalLocalQuaternion * Quaternion.Euler(40f, 0, 0f);
             recoilHighPos = recoilPivotOriginalLocalPosition - new Vector3(0.1f, 0, 0.5f);
+
+            muzzleFlash = Instantiate(AssetBundleLoader.BundleLoader.LoadAssetBundle(AssetBundleLoader.BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("glint")).GetComponentInChildren<MeshRenderer>();
+            muzzleFlash.material = new Material(Shader.Find("Sprites/Default"));
         }
 
         private void Update()
@@ -165,6 +172,12 @@ namespace ultramove
 
                     if (muzzleManager != null)
                         muzzleManager.Shot();
+
+                    muzzleFlash.transform.position = origin;
+                    muzzleFlash.material.color = rail ? Color.cyan : Color.white;
+                    if (animMuzzleFlash != null)
+                        StopCoroutine(animMuzzleFlash);
+                    animMuzzleFlash = StartCoroutine(AnimMuzzleFlash());
                 }
             }
 
@@ -184,12 +197,30 @@ namespace ultramove
             PlayerAudio.Instance.PlayRailIdleCharged((currentWeapon is SniperRifleItemClass) ? 1f : 0);
         }
 
+        IEnumerator AnimMuzzleFlash()
+        {
+            float t = 0f;
+
+            muzzleFlash.transform.rotation = Random.rotation;
+
+            while (t < 1f)
+            {
+                t += Time.deltaTime * 5f;
+
+                float e = 1f - Mathf.Pow(1f - t, 3f);
+
+                muzzleFlash.transform.localScale = Vector3.Lerp(Vector3.one * 0.05f, Vector3.zero, e);
+
+                yield return null;
+            }
+        }
+
         void Coin()
         {
             if (!(currentWeapon is RevolverItemClass))
                 return;
 
-            coinCooldown = 0.05f;
+            //coinCooldown = 0.05f;
 
             animator.SetTrigger("Coin");
 
