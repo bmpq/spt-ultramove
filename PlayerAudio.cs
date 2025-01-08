@@ -36,10 +36,6 @@ namespace ultramove
 
             allClips = bundle.LoadAllAssets<AudioClip>();
 
-            sourceSlide = MonoBehaviourSingleton<BetterAudio>.Instance.GetSource(BetterAudio.AudioSourceGroupType.Environment, true);
-            sourceSlide.Loop = true;
-            sourceSlide.Play(allClips.FirstOrDefault(c => c.name.StartsWith("wallcling")), null, 1f, 1f, false, false);
-
             footstepClips = allClips
                 .Where(clip => clip.name.StartsWith("footstep_heavy"))
                 .OrderBy(clip => ExtractIndex(clip.name))
@@ -131,10 +127,26 @@ namespace ultramove
 
         public void Sliding(bool sliding, Vector3 playerPos, Vector3 slideDir)
         {
-            Vector3 point = playerPos + slideDir + new Vector3(0, 0.1f, 0);
+            if (sliding)
+            {
+                if (sourceSlide == null)
+                {
+                    sourceSlide = Singleton<BetterAudio>.Instance.GetSource(BetterAudio.AudioSourceGroupType.Collisions, true);
+                    sourceSlide.Loop = true;
+                    sourceSlide.Play(allClips.FirstOrDefault(c => c.name.StartsWith("wallcling")), null, 1f, 1f, false, false);
+                }
 
-            sourceSlide.Position = point;
-            sourceSlide.SetBaseVolume(sliding ? 1f : 0f);
+                Vector3 point = playerPos + slideDir + new Vector3(0, 0.1f, 0);
+                sourceSlide.Position = point;
+            }
+            else
+            {
+                if (sourceSlide != null)
+                {
+                    sourceSlide.Release();
+                    sourceSlide = null;
+                }
+            }
         }
 
         void PlayInTarkov(AudioClip clip, Vector3 pos, float volume = 1f)
