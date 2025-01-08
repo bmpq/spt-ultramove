@@ -177,7 +177,7 @@ namespace ultramove
                     muzzleFlash.material.color = rail ? Color.cyan : Color.white;
                     if (animMuzzleFlash != null)
                         StopCoroutine(animMuzzleFlash);
-                    animMuzzleFlash = StartCoroutine(AnimMuzzleFlash());
+                    animMuzzleFlash = StartCoroutine(AnimMuzzleFlash(rail));
                 }
             }
 
@@ -197,7 +197,7 @@ namespace ultramove
             PlayerAudio.Instance.PlayRailIdleCharged((currentWeapon is SniperRifleItemClass) ? 1f : 0);
         }
 
-        IEnumerator AnimMuzzleFlash()
+        IEnumerator AnimMuzzleFlash(bool rail)
         {
             float t = 0f;
 
@@ -205,11 +205,11 @@ namespace ultramove
 
             while (t < 1f)
             {
-                t += Time.deltaTime * 5f;
+                t += Time.deltaTime * (rail ? 2f : 5f);
 
                 float e = 1f - Mathf.Pow(1f - t, 3f);
 
-                muzzleFlash.transform.localScale = Vector3.Lerp(Vector3.one * 0.05f, Vector3.zero, e);
+                muzzleFlash.transform.localScale = Vector3.Lerp(Vector3.one * (rail ? 0.1f : 0.05f), Vector3.zero, e);
 
                 yield return null;
             }
