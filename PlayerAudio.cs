@@ -29,6 +29,8 @@ namespace ultramove
         BetterSource sourceSlide;
         BetterSource sourceGunIdle;
 
+        BetterSource sourceWaterSkip;
+
         public PlayerAudio(AssetBundle bundle)
         {
             player = Singleton<GameWorld>.Instance.MainPlayer.Transform.Original;
@@ -147,6 +149,19 @@ namespace ultramove
                     sourceSlide = null;
                 }
             }
+        }
+
+        public void PlayWaterSkip(Vector3 pos)
+        {
+            if (sourceWaterSkip == null)
+            {
+                sourceWaterSkip = Singleton<BetterAudio>.Instance.GetSource(BetterAudio.AudioSourceGroupType.Collisions, true);
+                sourceWaterSkip.Loop = false;
+            }
+
+            sourceWaterSkip.Position = pos;
+            sourceWaterSkip.SetPitch(random.Range(0.9f, 1.1f));
+            sourceWaterSkip.Play(allClips.FirstOrDefault(c => c.name.StartsWith("WaterSmallSplash")), null, 1f, 1f, false, false);
         }
 
         void PlayInTarkov(AudioClip clip, Vector3 pos, float volume = 1f)

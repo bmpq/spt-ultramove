@@ -80,7 +80,6 @@ namespace ultramove
         {
             if (betterSource != null)
             {
-                betterSource.SetBaseVolume(0f);
                 betterSource.Release();
             }
         }

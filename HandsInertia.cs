@@ -40,7 +40,11 @@ namespace ultramove
         private void LateUpdate()
         {
             if (groundCheck == null || ultraMovement == null)
+            {
                 GetRefs();
+                if (groundCheck == null || ultraMovement == null)
+                    return;
+            }
 
             inertia = Vector3.Lerp(inertia, Vector3.zero, Time.deltaTime * 5f);
             inertiaSmoothed = Vector3.Lerp(inertiaSmoothed, inertia, Time.deltaTime * 10f);

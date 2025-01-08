@@ -1,3 +1,5 @@
+using Comfort.Common;
+using EFT;
 using EFT.Ballistics;
 using UnityEngine;
 
@@ -36,6 +38,7 @@ namespace ultramove
         public bool sliding { get; private set; }
         Vector3 slideDir;
         ParticleSystem psSlide;
+        bool waterSkipping;
 
         bool toSlam;
         bool slamming;
@@ -183,6 +186,9 @@ namespace ultramove
                 {
                     psSlide.gameObject.transform.position = transform.position + slideDir + new Vector3(0, 0.1f, 0);
                     psSlide.gameObject.transform.rotation = Quaternion.LookRotation(-slideDir);
+
+                    if (!groundCheck.isGrounded)
+                        psSlide.gameObject.transform.position = new Vector3(0, -999f, 0);
                 }
             }
 
@@ -194,7 +200,7 @@ namespace ultramove
                 PlayerAudio.Instance.Play("harpoonStop", 0.2f);
             }
 
-            if (sliding)
+            if (sliding && !waterSkipping && groundCheck.isGrounded)
             {
                 EFTBallisticsInterface.Instance.PlaySlide(transform.position, slideDir);
             }
@@ -202,7 +208,7 @@ namespace ultramove
             lightSliding.intensity = sliding ? Random.value * 0.3f : 0f;
             lightSliding.transform.position = psSlide.gameObject.transform.position;
 
-            PlayerAudio.Instance.Sliding(sliding, transform.position, slideDir);
+            PlayerAudio.Instance.Sliding(sliding && groundCheck.isGrounded, transform.position, slideDir);
 
             jumpCooldown -= Time.deltaTime;
 
@@ -348,6 +354,23 @@ namespace ultramove
 
                 if (grounded)
                     rb.velocity = slideVel;
+
+                float waterThreshold = -16.5f;
+                waterSkipping = (rb.position.y < waterThreshold && Singleton<GameWorld>.Instance.MainPlayer.Location == "Woods");
+
+                if (waterSkipping)
+                {
+                    Vector3 pos = rb.position;
+                    pos.y = waterThreshold;
+                    rb.position = pos;
+
+                    Vector3 vel = rb.velocity;
+                    vel.y = Mathf.Max(Mathf.Abs(vel.y), 6f);
+                    rb.velocity = vel;
+
+                    PlayerAudio.Instance.PlayWaterSkip(transform.position);
+                    EFTBallisticsInterface.Instance.Effect("Water", transform.position);
+                }
             }
             else
             {
