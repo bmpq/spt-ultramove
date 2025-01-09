@@ -24,6 +24,8 @@ namespace ultramove
         MuzzleManager muzzleManager;
         Weapon currentWeapon;
 
+        float weaponSwapAnimationTime;
+
         CoinTosser coinTosser;
 
         Camera cam;
@@ -56,6 +58,9 @@ namespace ultramove
             if (equippedWeapons[index].Item2 == currentWeapon)
                 return;
 
+            if (equippedWeapons[index].Item2 == null)
+                return;
+
             currentWeapon = equippedWeapons[index].Item2;
 
             SetWeaponHandPosition(equippedWeapons[index].Item2);
@@ -68,6 +73,7 @@ namespace ultramove
             }
 
             recoil.OverrideCurrent(-0.8f);
+            weaponSwapAnimationTime = 0f;
         }
 
         public void SetWeapons(List<(GameObject, Weapon)> weapons)
@@ -122,7 +128,7 @@ namespace ultramove
             recoilPivotOriginalLocalQuaternion = recoilPivot.localRotation;
             recoilPivotOriginalLocalPosition = recoilPivot.localPosition;
 
-            recoilHighRot = recoilPivotOriginalLocalQuaternion * Quaternion.Euler(40f, 0, 0f);
+            recoilHighRot = recoilPivotOriginalLocalQuaternion * Quaternion.Euler(40f, -10f, 0f);
             recoilHighPos = recoilPivotOriginalLocalPosition - new Vector3(0.1f, 0, 0.5f);
 
             muzzleFlash = Instantiate(AssetBundleLoader.BundleLoader.LoadAssetBundle(AssetBundleLoader.BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("glint")).GetComponentInChildren<MeshRenderer>();
@@ -196,7 +202,14 @@ namespace ultramove
             float recoil = this.recoil.Position;
 
             recoilPivot.localRotation = Quaternion.LerpUnclamped(recoilPivotOriginalLocalQuaternion, recoilHighRot, recoil);
+
             recoilPivot.localPosition = Vector3.LerpUnclamped(recoilPivotOriginalLocalPosition, recoilHighPos, recoil);
+
+            if (weaponSwapAnimationTime < 1f)
+            {
+                weaponSwapAnimationTime = Mathf.Clamp01(weaponSwapAnimationTime + Time.deltaTime * 3f);
+                recoilPivot.localPosition -= new Vector3(0, Mathf.Pow(1 - weaponSwapAnimationTime, 3), 0) * 0.2f;
+            }
 
             PlayerAudio.Instance.PlayRailIdleCharged((currentWeapon is SniperRifleItemClass) ? 1f : 0);
         }
