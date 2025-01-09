@@ -31,6 +31,7 @@ namespace ultramove
         SpringSimulation recoil = new SpringSimulation(0, 0);
 
         MeshRenderer muzzleFlash;
+        VolumetricLight muzzleFlashLight;
 
         Coroutine animMuzzleFlash;
 
@@ -126,6 +127,9 @@ namespace ultramove
 
             muzzleFlash = Instantiate(AssetBundleLoader.BundleLoader.LoadAssetBundle(AssetBundleLoader.BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("glint")).GetComponentInChildren<MeshRenderer>();
             muzzleFlash.material = new Material(Shader.Find("Sprites/Default"));
+            muzzleFlash.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            muzzleFlashLight = new GameObject("LightMuzzleFlash", typeof(Light)).AddComponent<VolumetricLight>();
+            muzzleFlashLight.transform.position = new Vector3(0f, -200f, 0f);
         }
 
         private void Update()
@@ -203,6 +207,11 @@ namespace ultramove
 
             muzzleFlash.transform.rotation = Random.rotation;
 
+            muzzleFlashLight.transform.position = muzzleFlash.transform.position;
+            muzzleFlashLight.Light.shadows = LightShadows.None;
+            muzzleFlashLight.Light.range = 1f;
+            muzzleFlashLight.Light.color = muzzleFlash.material.color;
+
             while (t < 1f)
             {
                 t += Time.deltaTime * (rail ? 2f : 5f);
@@ -210,6 +219,9 @@ namespace ultramove
                 float e = 1f - Mathf.Pow(1f - t, 3f);
 
                 muzzleFlash.transform.localScale = Vector3.Lerp(Vector3.one * (rail ? 0.1f : 0.05f), Vector3.zero, e);
+
+                muzzleFlashLight.Light.intensity = Mathf.Lerp(2f, 0f, e);
+                muzzleFlashLight.CheckIntensity();
 
                 yield return null;
             }
