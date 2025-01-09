@@ -117,7 +117,19 @@ internal class Minos : UltraEnemy
         CameraShaker.ShakeAfterDelay(3f, 2.6f);
         CameraShaker.ShakeAfterDelay(3f, 3.13f);
 
+        StartCoroutine(AnimTime());
         StartCoroutine(AnimDie());
+    }
+
+    IEnumerator AnimTime()
+    {
+        float t = 0f;
+        while (t < 2f)
+        {
+            t += Time.deltaTime;
+            TODControl.AddSeconds(t * 30f);
+            yield return null;
+        }
     }
 
     IEnumerator AnimDie()

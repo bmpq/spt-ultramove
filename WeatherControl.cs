@@ -50,7 +50,6 @@ namespace ultramove
 
             // Update the Weather Debugger
             UpdateWeatherDebug();
-            Debug.Log($"[TWChanger]: Weather set - Cloud:{cloudDensity}, Fog:{fog}, Rain:{rain}, Thunder:{lightningThunderProb}, Temp:{temperature}, WindMag:{windMagnitude} WindDir:{windDirection} TopWindDir:{topWindDirection}");
         }
 
         private static void UpdateWeatherDebug()
