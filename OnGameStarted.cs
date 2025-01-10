@@ -93,6 +93,12 @@ namespace ultramove
                 GameObject newMinos = GameObject.Instantiate(prefabMinos, new Vector3(-135.4775f, -55.7413f, -218.6555f), Quaternion.Euler(345.2719f, 242.4667f, 0));
                 newMinos.AddComponent<Minos>();
             }
+            else if (__instance.MainPlayer.Location.ToLower() == "interchange")
+            {
+                GameObject prefabV2 = bundleUltrakill.LoadAsset<GameObject>("v2prefab");
+                GameObject newV2 = GameObject.Instantiate(prefabV2);
+                newV2.AddComponent<V2>();
+            }
             else
             {
                 GameObject prefabMaurice = bundleUltrakill.LoadAsset<GameObject>("Maurice");

@@ -133,6 +133,7 @@ namespace ultramove
                 EFTBallisticsInterface.Instance.Hit(col, hit, 30f);
 
             OnProjectileDone?.Invoke(this);
+            gameObject.SetActive(false);
         }
     }
 }
