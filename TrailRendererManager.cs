@@ -31,9 +31,13 @@ namespace ultramove
 
         Material mat;
 
+        Camera cam;
+
         public void Init()
         {
             mat = new Material(Shader.Find("Sprites/Default"));
+
+            cam = Camera.main;
 
             availableTrails = new Queue<TrailRenderer>();
             activeTrails = new HashSet<TrailRenderer>();
@@ -77,6 +81,9 @@ namespace ultramove
                 lightningSettings.noiseAmplitude = width * 2f;
                 lightningSettings.fadeSpeed = 1f;
                 Lightning.Strike(lightningSettings);
+
+                Trail(a, Vector3.LerpUnclamped(b, cam.transform.position, 0.001f), Color.white, width / 2f, false);
+                Trail(a, Vector3.LerpUnclamped(b, cam.transform.position, -0.001f), Color.white, width / 2f, false);
             }
         }
 
