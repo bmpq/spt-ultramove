@@ -75,14 +75,14 @@ namespace ultramove
             return hits;
         }
 
-        public void Hit(Collision collision)
+        public void Hit(Collision collision, float damage = 1f)
         {
             if (collision.transform.parent == null)
                 return;
 
             BaseBallistic baseBallistic = collision.transform.parent.GetComponentInChildren<BaseBallistic>();
 
-            float dmg = collision.impulse.magnitude / 100f;
+            float dmg = collision.impulse.magnitude / 100f * damage;
 
             MaterialType mat = MaterialType.None;
             for (int i = 0; i < collision.contactCount; i++)
@@ -113,8 +113,15 @@ namespace ultramove
 
         public void Hit(Collider col, RaycastHit hit, float dmg)
         {
-            BallisticCollider ballisticCollider = col.gameObject.GetComponent<BallisticCollider>();
-            Hit(ballisticCollider, hit, dmg);
+            BaseBallistic baseBallistic = col.gameObject.GetComponent<BaseBallistic>();
+
+            if (baseBallistic is TerrainBallistic terrainBallistic)
+            {
+                Hit(terrainBallistic.Get(hit.point), hit, dmg);
+                return;
+            }
+
+            Hit(baseBallistic as BallisticCollider, hit, dmg);
         }
 
         public void Hit(BallisticCollider ballisticCollider, RaycastHit hit, float dmg)

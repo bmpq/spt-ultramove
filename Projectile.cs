@@ -55,9 +55,9 @@ namespace ultramove
         {
             rb.useGravity = false;
 
-            rb.isKinematic = false;
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             col.enabled = true;
-            col.isTrigger = true;
+            col.isTrigger = false;
 
             transform.position = position;
             rb.position = position;
@@ -87,7 +87,6 @@ namespace ultramove
         public void Disable()
         {
             trail.emitting = false;
-            rb.isKinematic = true;
             col.enabled = false;
             this.enabled = false;
         }
@@ -114,23 +113,19 @@ namespace ultramove
             primed = true;
         }
 
-        void OnTriggerEnter(Collider col)
+        void OnCollisionEnter(Collision col)
         {
             if (!enabled)
                 return;
 
-            RaycastHit hit = new RaycastHit();
-            hit.point = transform.position;
-            hit.normal = (transform.position - col.transform.position).normalized;
-
             if (primed)
             {
                 primed = false;
-                EFTBallisticsInterface.Instance.Hit(col, hit, 300f);
+                EFTBallisticsInterface.Instance.Hit(col, 300f);
                 EFTBallisticsInterface.Instance.Explosion(transform.position);
             }
             else
-                EFTBallisticsInterface.Instance.Hit(col, hit, 30f);
+                EFTBallisticsInterface.Instance.Hit(col, 30f);
 
             OnProjectileDone?.Invoke(this);
             gameObject.SetActive(false);

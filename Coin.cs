@@ -12,9 +12,6 @@ namespace ultramove
         Rigidbody rb;
 
         TrailRenderer trailRenderer;
-
-        Projectile projectile;
-
         Collider[] colliders;
 
         public float timeActive { get; private set; }
@@ -39,8 +36,6 @@ namespace ultramove
 
         void Init()
         {
-            projectile = GetComponent<Projectile>();
-
             rb = GetComponent<Rigidbody>();
             init = true;
             trailRenderer = GetComponent<TrailRenderer>();
@@ -64,7 +59,6 @@ namespace ultramove
                 Init();
 
             rb.isKinematic = false;
-            projectile.enabled = false;
             activeCoins.Add(this);
             active = true;
             timeActive = 0f;

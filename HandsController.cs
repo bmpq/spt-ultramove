@@ -29,6 +29,7 @@ namespace ultramove
         CoinTosser coinTosser;
 
         Camera cam;
+        Rigidbody rb;
 
         SpringSimulation recoil = new SpringSimulation(0, 0);
 
@@ -117,6 +118,7 @@ namespace ultramove
 
         void Start()
         {
+            rb = GetComponent<Rigidbody>();
             cam = Camera.main;
 
             GetComponentInChildren<PlayerBody>().SkeletonRootJoint.Bones["Root_Joint"].localPosition = Vector3.zero;
@@ -154,41 +156,7 @@ namespace ultramove
 
             if (Input.GetMouseButtonDown(0))
             {
-                Vector3 origin = muzzleManager.MuzzleJets[0].transform.position;
-                Vector3 dir = -muzzleManager.MuzzleJets[0].transform.up;
-
-                float dmg = 20f;
-
-                bool rail = (currentWeapon is SniperRifleItemClass);
-                if (rail)
-                    dmg = 60f;
-
-                RaycastHit[] hits = EFTBallisticsInterface.Instance.Shoot(origin, dir, dmg, rail);
-                if (hits.Length > 0)
-                {
-                    if (rail)
-                    {
-                        TrailRendererManager.Instance.Trail(origin, hits[hits.Length - 1].point, true);
-                        PlayerAudio.Instance.PlayShootRail();
-                        CameraShaker.Shake(1f);
-                    }
-                    else
-                    {
-                        TrailRendererManager.Instance.Trail(origin, hits[0].point, false);
-                        PlayerAudio.Instance.PlayShoot();
-                    }
-
-                    this.recoil.AddForce(40f);
-
-                    if (muzzleManager != null)
-                        muzzleManager.Shot();
-
-                    muzzleFlash.transform.position = origin;
-                    muzzleFlash.material.color = rail ? Color.cyan : Color.white;
-                    if (animMuzzleFlash != null)
-                        StopCoroutine(animMuzzleFlash);
-                    animMuzzleFlash = StartCoroutine(AnimMuzzleFlash(rail));
-                }
+                Shoot();
             }
 
             if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -212,6 +180,62 @@ namespace ultramove
             }
 
             PlayerAudio.Instance.PlayRailIdleCharged((currentWeapon is SniperRifleItemClass) ? 1f : 0);
+        }
+
+        void Shoot()
+        {
+            Vector3 origin = muzzleManager.MuzzleJets[0].transform.position - muzzleManager.MuzzleJets[0].transform.up * 0.2f;
+            Vector3 dir = -muzzleManager.MuzzleJets[0].transform.up;
+
+            float dmg = 20f;
+
+            bool rail = (currentWeapon is SniperRifleItemClass);
+            if (rail)
+                dmg = 60f;
+
+            bool shot = false;
+
+            bool shotgun = (currentWeapon is ShotgunItemClass);
+
+            if (shotgun)
+            {
+                Shotgun.ShootProjectiles(origin, dir, rb.velocity);
+
+                shot = true;
+            }
+            else
+            {
+                RaycastHit[] hits = EFTBallisticsInterface.Instance.Shoot(origin, dir, dmg, rail);
+                if (hits.Length > 0)
+                {
+                    if (rail)
+                    {
+                        TrailRendererManager.Instance.Trail(origin, hits[hits.Length - 1].point, true);
+                        PlayerAudio.Instance.PlayShootRail();
+                        CameraShaker.Shake(1f);
+                    }
+                    else
+                    {
+                        TrailRendererManager.Instance.Trail(origin, hits[0].point, false);
+                        PlayerAudio.Instance.PlayShoot();
+                    }
+                    shot = true;
+                }
+            }
+
+            if (shot)
+            {
+                this.recoil.AddForce(rail ? 70f : 40f);
+
+                if (muzzleManager != null)
+                    muzzleManager.Shot();
+
+                muzzleFlash.transform.position = origin;
+                muzzleFlash.material.color = rail ? Color.cyan : Color.white;
+                if (animMuzzleFlash != null)
+                    StopCoroutine(animMuzzleFlash);
+                animMuzzleFlash = StartCoroutine(AnimMuzzleFlash(rail));
+            }
         }
 
         IEnumerator AnimMuzzleFlash(bool rail)

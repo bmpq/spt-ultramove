@@ -114,8 +114,6 @@ namespace ultramove
             newCoin.GetComponent<TrailRenderer>().material = trailMat;
             newCoin.transform.localScale = Vector3.one * 3f;
 
-            newCoin.AddComponent<Projectile>();
-
             coinPool.Add(newCoin.GetOrAddComponent<Coin>());
 
             return coinPool[coinPool.Count - 1];
