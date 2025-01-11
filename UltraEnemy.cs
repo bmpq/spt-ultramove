@@ -68,6 +68,8 @@ namespace ultramove
 
         private void Start()
         {
+            bool rb = TryGetComponent<Rigidbody>(out Rigidbody rigidbody);
+
             UltraPlayerBridge bridge = new UltraPlayerBridge();
             bridge.OnHitAction += Hit;
             bridge.UltraEnemy = this;
@@ -76,9 +78,6 @@ namespace ultramove
             List<BodyPartCollider> bpcsToAdd = new List<BodyPartCollider>();
             foreach (Collider col in cols)
             {
-                if (col.gameObject.layer != 16)
-                    continue;
-
                 if (!col.gameObject.name.StartsWith("BodyPartCollider"))
                     continue;
 
@@ -87,6 +86,9 @@ namespace ultramove
                 bodyPartCollider.Collider = col;
 
                 bpcsToAdd.Add(bodyPartCollider);
+
+                if (rb)
+                    bodyPartCollider.gameObject.AddComponent<BodyPartColliderParentLink>();
             }
 
             // weak points are tagged with 'AimPoint', and they are sorted first in the array

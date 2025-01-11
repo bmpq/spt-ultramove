@@ -51,6 +51,11 @@ namespace ultramove
 
         public static AudioClip audioTwirl;
 
+        void Start()
+        {
+            gameObject.layer = 13;
+        }
+
         public void Initialize(Vector3 position, Vector3 velocity)
         {
             rb.useGravity = false;

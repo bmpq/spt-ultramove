@@ -169,7 +169,7 @@ namespace ultramove
         void ShootProjectile()
         {
             Projectile projectile = GetFromPool();
-            Vector3 startPos = transform.position + transform.forward - transform.up * 1.3f;
+            Vector3 startPos = transform.position + (transform.forward * 2f) - transform.up * 1.3f;
 
             projectile.enabled = true;
             projectile.Initialize(startPos, (EFTTargetInterface.GetPlayerPosition() - startPos).normalized * 40f);

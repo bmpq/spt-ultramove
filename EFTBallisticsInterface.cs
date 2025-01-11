@@ -77,10 +77,15 @@ namespace ultramove
 
         public void Hit(Collision collision, float damage = 1f)
         {
-            if (collision.transform.parent == null)
-                return;
+            BaseBallistic baseBallistic = collision.transform.GetComponent<BaseBallistic>();
 
-            BaseBallistic baseBallistic = collision.transform.parent.GetComponentInChildren<BaseBallistic>();
+            if (baseBallistic == null)
+            {
+                if (collision.transform.parent == null)
+                    return;
+
+                baseBallistic = collision.transform.parent.GetComponentInChildren<BaseBallistic>();
+            }
 
             float dmg = collision.impulse.magnitude / 100f * damage;
 
