@@ -33,6 +33,9 @@ namespace ultramove
 
         Camera cam;
 
+        Light[] railLights;
+        Coroutine animStripLights;
+
         public void Init()
         {
             mat = new Material(Shader.Find("Sprites/Default"));
@@ -45,6 +48,13 @@ namespace ultramove
             for (int i = 0; i < initialPoolSize; i++)
             {
                 CreateNewTrailRenderer();
+            }
+
+            railLights = new Light[16];
+            for (int i = 0; i < railLights.Length; i++)
+            {
+                railLights[i] = new GameObject("RailLight").AddComponent<Light>();
+                railLights[i].intensity = 0f;
             }
         }
 
@@ -84,6 +94,39 @@ namespace ultramove
 
                 Trail(a, Vector3.LerpUnclamped(b, cam.transform.position, 0.001f), Color.white, width / 2f, false);
                 Trail(a, Vector3.LerpUnclamped(b, cam.transform.position, -0.001f), Color.white, width / 2f, false);
+
+                if (animStripLights != null)
+                    StopCoroutine(animStripLights);
+                animStripLights = StartCoroutine(LightStrip(a, b, color));
+            }
+        }
+
+        IEnumerator LightStrip(Vector3 a, Vector3 b, Color color)
+        {
+            float t = 0f;
+
+            Vector3 dir = (b - a).normalized;
+            float spacing = 2f;
+
+            for (int i = 0; i < railLights.Length; i++)
+            {
+                railLights[i].transform.position = a + (i * dir * spacing);
+
+                railLights[i].color = color;
+                railLights[i].range = 6f;
+                railLights[i].shadows = LightShadows.None;
+            }
+
+            while (t < 1f)
+            {
+                t = Mathf.Clamp01(t + Time.deltaTime * 1.5f);
+
+                for (int i = 0; i < railLights.Length; i++)
+                {
+                    railLights[i].intensity = Mathf.Lerp(2f, 0, t);
+                }
+
+                yield return null;
             }
         }
 

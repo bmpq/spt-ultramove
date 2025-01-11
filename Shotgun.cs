@@ -82,7 +82,7 @@ namespace ultramove
             Quaternion randomRotation = Quaternion.Euler(
                 UnityEngine.Random.Range(-maxAngle, maxAngle),
                 UnityEngine.Random.Range(-maxAngle, maxAngle),
-                0
+                UnityEngine.Random.Range(-maxAngle, maxAngle)
             );
 
             return randomRotation * baseDirection;
