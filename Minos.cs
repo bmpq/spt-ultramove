@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using ultramove;
 using UnityEngine;
 
-internal class Minos : UltraEnemy
+internal class Minos : UltraEnemy, IParryable
 {
     Animator animator;
     protected override float GetStartingHealth() => 1000f;
@@ -162,17 +162,15 @@ internal class Minos : UltraEnemy
         WeatherControl.SetWeather(cloudDensity, fog, rain, lightningThunderProb, temperature, windMagnitude, windDirection, windDirection);
     }
 
-    public bool Parry()
+    public void Parry(Transform source)
     {
         if (!alive)
-            return false;
+            return;
 
         animator.SetTrigger("Parry");
 
         DamageInfoStruct dmg = new DamageInfoStruct();
         dmg.Damage = 500f;
         Hit(dmg);
-
-        return true;
     }
 }

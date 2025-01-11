@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ultramove
 {
-    internal class Projectile : MonoBehaviour
+    internal class Projectile : MonoBehaviour, IParryable
     {
         public Rigidbody rb
         {
@@ -108,8 +108,7 @@ namespace ultramove
         {
             this.enabled = true;
 
-            Initialize(transform.position, source.forward * 100f);
-            rb.useGravity = true;
+            rb.velocity = source.forward * 100f;
             primed = true;
         }
 

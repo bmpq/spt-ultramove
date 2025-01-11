@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace ultramove
 {
-    public class Coin : MonoBehaviour
+    public class Coin : MonoBehaviour, IParryable
     {
         Rigidbody rb;
 
@@ -33,6 +33,8 @@ namespace ultramove
         static int sequenceRicoshot;
 
         public Light lightGlint { get; private set; }
+
+        bool parried;
 
         void Init()
         {
@@ -65,6 +67,7 @@ namespace ultramove
             lightGlint.intensity = 0f;
             trailRenderer.emitting = true;
             trailRenderer.Clear();
+            parried = false;
         }
 
         public void Freeze()
@@ -222,8 +225,22 @@ namespace ultramove
             return timeActive > SPLITWINDOWSTART && timeActive < SPLITWINDOWSTART + SPLITWINDOWSIZE;
         }
 
+        public void Parry(Transform source)
+        {
+            rb.velocity = source.forward * 100f;
+            parried = true;
+        }
+
         private void OnCollisionEnter(Collision collision)
         {
+            if (parried)
+            {
+                EFTBallisticsInterface.Instance.Hit(collision, 300f);
+                EFTBallisticsInterface.Instance.Explosion(transform.position);
+                parried = false;
+                Disable();
+            }
+
             if (timeActive < 0.2f)
                 return;
 
