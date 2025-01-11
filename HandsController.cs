@@ -201,6 +201,9 @@ namespace ultramove
             {
                 Shotgun.ShootProjectiles(origin, dir, rb.velocity);
 
+                PlayerAudio.Instance.PlayShootShotgun();
+                CameraShaker.Shake(0.5f);
+
                 shot = true;
             }
             else
@@ -212,7 +215,7 @@ namespace ultramove
                     {
                         TrailRendererManager.Instance.Trail(origin, hits[hits.Length - 1].point, true);
                         PlayerAudio.Instance.PlayShootRail();
-                        CameraShaker.Shake(1f);
+                        CameraShaker.Shake(1.5f);
                     }
                     else
                     {

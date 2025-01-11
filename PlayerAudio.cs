@@ -18,6 +18,7 @@ namespace ultramove
         private AudioClip[] footstepClips;
         private AudioClip[] shootClips;
         private AudioClip[] shootClipsRail;
+        private AudioClip[] shootClipsShotgun;
 
         private float walkCooldown = 0.33f;
         private float nextStepTime;
@@ -51,6 +52,11 @@ namespace ultramove
 
             shootClipsRail = allClips
                 .Where(clip => clip.name.StartsWith("RailcannonFire"))
+                .OrderBy(clip => ExtractIndex(clip.name))
+                .ToArray();
+
+            shootClipsShotgun = allClips
+                .Where(clip => clip.name.StartsWith("Steampunk Weapons - Shotgun 2 - Shot"))
                 .OrderBy(clip => ExtractIndex(clip.name))
                 .ToArray();
 
@@ -105,6 +111,12 @@ namespace ultramove
         public void PlayShootRail()
         {
             AudioClip clip = shootClipsRail[random.Next(shootClipsRail.Length)];
+            PlayInTarkov(clip, cam.position + cam.forward * 0.2f);
+        }
+
+        public void PlayShootShotgun()
+        {
+            AudioClip clip = shootClipsShotgun[random.Next(shootClipsShotgun.Length)];
             PlayInTarkov(clip, cam.position + cam.forward * 0.2f);
         }
 
