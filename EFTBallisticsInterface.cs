@@ -87,7 +87,7 @@ namespace ultramove
                 baseBallistic = collision.transform.parent.GetComponentInChildren<BaseBallistic>();
             }
 
-            float dmg = collision.impulse.magnitude / 100f * damage;
+            float dmg = collision.impulse.magnitude / 10f * damage;
 
             MaterialType mat = MaterialType.None;
             for (int i = 0; i < collision.contactCount; i++)

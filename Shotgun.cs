@@ -31,12 +31,12 @@ namespace ultramove
             TrailRenderer trail = newProjectile.AddComponent<TrailRenderer>();
             trail.emitting = false;
             trail.sharedMaterial = matTrail;
-            trail.time = 0.15f;
+            trail.time = 0.1f;
             trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             trail.startWidth = 0.08f;
             trail.endWidth = trail.startWidth;
-            trail.startColor = new Color(1, 1, 1, 0.31f);
-            trail.endColor = new Color(1, 1, 1, 0);
+            trail.startColor = new Color(1, 1, 0, 0.31f);
+            trail.endColor = new Color(1, 1, 0, 0);
             Projectile projectile = newProjectile.AddComponent<Projectile>();
             projectilePool.Enqueue(projectile);
         }

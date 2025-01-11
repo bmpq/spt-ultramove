@@ -32,6 +32,8 @@ namespace ultramove
         Rigidbody rb;
 
         SpringSimulation recoil = new SpringSimulation(0, 0);
+        float reloadingTime = 0f;
+        Transform mod_barrel;
 
         MeshRenderer muzzleFlash;
         VolumetricLight muzzleFlashLight;
@@ -46,6 +48,9 @@ namespace ultramove
                 !(weaponClass is PistolItemClass) &&
                 !(weaponClass is SmgItemClass))
                 blendPalmDist = 1f;
+
+            if (weaponClass is ShotgunItemClass)
+                blendPalmDist = 0.5f;
 
             animator = GetComponentInChildren<Animator>();
             animator.SetFloat("BlendPalmDist", blendPalmDist);
@@ -111,6 +116,12 @@ namespace ultramove
                 weapon.transform.SetParent(palm, false);
                 weapon.transform.localPosition = Vector3.zero;
                 container.SetParent(weapon.transform, true);
+
+                if (item.Item2.StringTemplateId == "64748cb8de82c85eaf0a273a") // sawed-off
+                {
+                    weapon.transform.localPosition = new Vector3(0.0484f, 0, 0.092f);
+                    mod_barrel = weapon.transform.FindInChildrenExact("mod_barrel");
+                }
             }
 
             SwapWeapon(0);
@@ -180,6 +191,24 @@ namespace ultramove
             }
 
             PlayerAudio.Instance.PlayRailIdleCharged((currentWeapon is SniperRifleItemClass) ? 1f : 0);
+
+            if (reloadingTime < 1f && currentWeapon.TemplateId == "64748cb8de82c85eaf0a273a")
+            {
+                reloadingTime = Mathf.Clamp01(reloadingTime + Time.deltaTime * 2f);
+
+                if (reloadingTime < 0.5f)
+                {
+                    float t = reloadingTime * 2f;
+                    t = 1f - Mathf.Pow(1 - t, 3);
+                    mod_barrel.localRotation = Quaternion.Lerp(Quaternion.Euler(0, 0, 0), Quaternion.Euler(60, 0, 0), t);
+                }
+                else
+                {
+                    float t = (reloadingTime - 0.5f) * 2f;
+                    t = t * t * t;
+                    mod_barrel.localRotation = Quaternion.Lerp(Quaternion.Euler(60, 0, 0), Quaternion.Euler(0, 0, 0), t);
+                }
+            }
         }
 
         void Shoot()
@@ -228,16 +257,32 @@ namespace ultramove
 
             if (shot)
             {
-                this.recoil.AddForce(rail ? 70f : 40f);
+                float recoilForce = 40f;
+                Color colorMuzzle = Color.white;
+                if (rail)
+                {
+                    recoilForce = 70f;
+                    colorMuzzle = Color.cyan;
+                }
+                else if (shotgun)
+                {
+                    recoilForce = 60f;
+                    colorMuzzle = Color.yellow;
+                }
+
+                this.recoil.AddForce(recoilForce);
 
                 if (muzzleManager != null)
                     muzzleManager.Shot();
 
                 muzzleFlash.transform.position = origin;
-                muzzleFlash.material.color = rail ? Color.cyan : Color.white;
+
+                muzzleFlash.material.color = colorMuzzle;
                 if (animMuzzleFlash != null)
                     StopCoroutine(animMuzzleFlash);
                 animMuzzleFlash = StartCoroutine(AnimMuzzleFlash(rail));
+
+                reloadingTime = 0f;
             }
         }
 
