@@ -40,9 +40,13 @@ namespace ultramove
 
         Coroutine animMuzzleFlash;
 
-
-        bool whiplashThrowing;
-        bool whiplashPulling;
+        enum WhiplashState
+        {
+            Idle,
+            Throwing,
+            Pulling
+        }
+        WhiplashState whiplashState;
         Transform whiplashPullingObject;
         Vector3 whiplashGrabPointOffset;
         RopeVisual ropeVisual;
@@ -183,24 +187,21 @@ namespace ultramove
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.R) && !whiplashPulling)
+            if (whiplashState == WhiplashState.Idle && Input.GetKeyDown(KeyCode.R))
             {
-                whiplashThrowing = true;
+                whiplashState = WhiplashState.Throwing;
                 whiplashThrowVelocity = rb.velocity + (cam.transform.forward * whiplashStartSpeed);
                 currentWhiplashEnd = cam.transform.position + (cam.transform.forward * 0.8f) - (cam.transform.up * 0.2f);
                 whiplashPullingObject = null;
 
                 ropeVisual.RopeShoot();
             }
-            else if (Input.GetKeyUp(KeyCode.R))
+            else if (whiplashState == WhiplashState.Throwing && Input.GetKeyUp(KeyCode.R))
             {
-                if (whiplashThrowing)
-                    whiplashPulling = true;
-
-                whiplashThrowing = false;
+                whiplashState = WhiplashState.Pulling;
             }
 
-            if (whiplashThrowing || whiplashPulling)
+            if (whiplashState != WhiplashState.Idle)
             {
                 ropeVisual.RopeUpdate(palmL.transform.position, currentWhiplashEnd);
             }
@@ -209,8 +210,8 @@ namespace ultramove
                 ropeVisual.RopeRelease();
             }
 
-            animator.SetBool("WhiplashThrowing", whiplashThrowing);
-            animator.SetBool("WhiplashPulling", whiplashPulling);
+            animator.SetBool("WhiplashThrowing", whiplashState == WhiplashState.Throwing);
+            animator.SetBool("WhiplashPulling", whiplashState == WhiplashState.Pulling);
 
 
             coinCooldown -= Time.deltaTime;
@@ -264,13 +265,12 @@ namespace ultramove
         {
             this.recoil.Tick(Time.fixedDeltaTime);
 
-            if (whiplashThrowing)
+            if (whiplashState == WhiplashState.Throwing)
             {
                 LayerMask layerMask = 1 << 18 | 1 << 16;
                 if (Physics.Raycast(currentWhiplashEnd, whiplashThrowVelocity.normalized, out RaycastHit hit, whiplashThrowVelocity.magnitude * Time.fixedDeltaTime, layerMask))
                 {
-                    whiplashThrowing = false;
-                    whiplashPulling = true;
+                    whiplashState = WhiplashState.Pulling;
                     currentWhiplashEnd = hit.point;
 
                     if (hit.collider.TryGetComponent<BodyPartCollider>(out BodyPartCollider bpc))
@@ -280,12 +280,12 @@ namespace ultramove
                     }
                 }
 
-                if (whiplashThrowing)
+                if (whiplashState == WhiplashState.Throwing)
                 {
                     currentWhiplashEnd += whiplashThrowVelocity * Time.fixedDeltaTime;
                 }
             }
-            else if (whiplashPulling)
+            else if (whiplashState == WhiplashState.Pulling)
             {
                 float reelSpeed = whiplashStartSpeed;
 
@@ -298,7 +298,7 @@ namespace ultramove
                 currentWhiplashEnd += (cam.transform.position - currentWhiplashEnd).normalized * reelSpeed * Time.fixedDeltaTime;
 
                 if (Vector3.Distance(cam.transform.position, currentWhiplashEnd) < 1f)
-                    whiplashPulling = false;
+                    whiplashState = WhiplashState.Idle;
             }
         }
 
