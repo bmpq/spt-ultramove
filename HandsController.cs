@@ -32,8 +32,8 @@ namespace ultramove
         Rigidbody rb;
 
         SpringSimulation recoil = new SpringSimulation(0, 0);
-        float reloadingTime = 0f;
-        Transform mod_barrel;
+        Dictionary<Weapon, ReloadingAnimation> reloadingAnimations;
+        float reloadingTime;
 
         MeshRenderer muzzleFlash;
         VolumetricLight muzzleFlashLight;
@@ -86,6 +86,8 @@ namespace ultramove
         {
             equippedWeapons = weapons;
 
+            reloadingAnimations = new Dictionary<Weapon, ReloadingAnimation>();
+
             Transform palm = GetComponentInChildren<PlayerBody>().SkeletonRootJoint.Bones["Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base HumanRibcage/Base HumanRCollarbone/Base HumanRUpperarm/Base HumanRForearm1/Base HumanRForearm2/Base HumanRForearm3/Base HumanRPalm"];
 
             foreach (var item in weapons)
@@ -120,7 +122,7 @@ namespace ultramove
                 if (item.Item2.StringTemplateId == "64748cb8de82c85eaf0a273a") // sawed-off
                 {
                     weapon.transform.localPosition = new Vector3(0.0484f, 0, 0.092f);
-                    mod_barrel = weapon.transform.FindInChildrenExact("mod_barrel");
+                    reloadingAnimations.Add(item.Item2, new ReloadingAnimation(weapon));
                 }
             }
 
@@ -143,6 +145,11 @@ namespace ultramove
 
             recoilHighRot = recoilPivotOriginalLocalQuaternion * Quaternion.Euler(40f, -10f, 0f);
             recoilHighPos = recoilPivotOriginalLocalPosition - new Vector3(0.1f, 0, 0.5f);
+
+            foreach (var kvp in reloadingAnimations)
+            {
+                kvp.Value.SetRecoilPivotTransform(recoilPivot);
+            }
 
             muzzleFlash = Instantiate(AssetBundleLoader.BundleLoader.LoadAssetBundle(AssetBundleLoader.BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("glint")).GetComponentInChildren<MeshRenderer>();
             muzzleFlash.material = new Material(Shader.Find("Sprites/Default"));
@@ -171,13 +178,12 @@ namespace ultramove
             }
 
             if (Input.GetKeyDown(KeyCode.Alpha1))
-                SwapWeapon(0);
-            if (Input.GetKeyDown(KeyCode.Alpha2))
-                SwapWeapon(1);
-            if (Input.GetKeyDown(KeyCode.Alpha3))
                 SwapWeapon(2);
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+                SwapWeapon(0);
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+                SwapWeapon(1);
 
-            this.recoil.Tick(Time.deltaTime);
             float recoil = this.recoil.Position;
 
             recoilPivot.localRotation = Quaternion.LerpUnclamped(recoilPivotOriginalLocalQuaternion, recoilHighRot, recoil);
@@ -190,25 +196,20 @@ namespace ultramove
                 recoilPivot.localPosition -= new Vector3(0, Mathf.Pow(1 - weaponSwapAnimationTime, 3), 0) * 0.2f;
             }
 
-            PlayerAudio.Instance.PlayRailIdleCharged((currentWeapon is SniperRifleItemClass) ? 1f : 0);
-
-            if (reloadingTime < 1f && currentWeapon.TemplateId == "64748cb8de82c85eaf0a273a")
+            if (reloadingTime < 1f)
             {
-                reloadingTime = Mathf.Clamp01(reloadingTime + Time.deltaTime * 2f);
+                reloadingTime = Mathf.Clamp01(reloadingTime + Time.deltaTime);
 
-                if (reloadingTime < 0.5f)
+                if (reloadingAnimations.ContainsKey(currentWeapon))
                 {
-                    float t = reloadingTime * 2f;
-                    t = 1f - Mathf.Pow(1 - t, 3);
-                    mod_barrel.localRotation = Quaternion.Lerp(Quaternion.Euler(0, 0, 0), Quaternion.Euler(60, 0, 0), t);
-                }
-                else
-                {
-                    float t = (reloadingTime - 0.5f) * 2f;
-                    t = t * t * t;
-                    mod_barrel.localRotation = Quaternion.Lerp(Quaternion.Euler(60, 0, 0), Quaternion.Euler(0, 0, 0), t);
+                    reloadingAnimations[currentWeapon].Evaluate(reloadingTime);
                 }
             }
+        }
+
+        void FixedUpdate()
+        {
+            this.recoil.Tick(Time.fixedDeltaTime);
         }
 
         void Shoot()
@@ -352,6 +353,71 @@ namespace ultramove
 
                 CameraShaker.Shake(1f);
                 PlayerAudio.Instance.Play("Ricochet");
+            }
+        }
+
+        public class ReloadingAnimation
+        {
+            Transform mod_barrel;
+            Transform weapon_switch;
+            Transform patron_in_weapon_000;
+            Transform patron_in_weapon_001;
+
+            Transform recoilPivot;
+
+            public ReloadingAnimation(GameObject weapon)
+            {
+                mod_barrel = weapon.transform.FindInChildrenExact("mod_barrel");
+                weapon_switch = weapon.transform.FindInChildrenExact("weapon_switch");
+                patron_in_weapon_000 = weapon.transform.FindInChildrenExact("patron_in_weapon_000");
+                patron_in_weapon_001 = weapon.transform.FindInChildrenExact("patron_in_weapon_001");
+            }
+
+            public void SetRecoilPivotTransform(Transform recoilPivot)
+            {
+                this.recoilPivot = recoilPivot;
+            }
+
+            public void Evaluate(float t)
+            {
+                if (t > 0.25f && t < 0.6f)
+                {
+                    float e = EasingFunction.Remap(t, 0.25f, 0.6f);
+                    e = EasingFunction.EaseInCubic(e);
+
+                    recoilPivot.localRotation *= Quaternion.Euler(Mathf.Lerp(0, -90, e), 0, 0);
+                }
+                else if (t > 0.6f && t < 0.95f)
+                {
+                    float e = EasingFunction.Remap(t, 0.6f, 0.95f);
+                    e = EasingFunction.EaseOutCubic(e);
+
+                    recoilPivot.localRotation *= Quaternion.Euler(Mathf.Lerp(-90, 5f, e), 0, 0);
+                }
+                else if (t > 0.95f)
+                {
+                    float e = EasingFunction.Remap(t, 0.95f, 1f);
+                    e = EasingFunction.EaseOutCubic(e);
+
+                    recoilPivot.localRotation *= Quaternion.Euler(Mathf.Lerp(5f, 0, e), 0, 0);
+                }
+
+                if (t > 0.2f && t < 0.5f)
+                {
+                    float e = EasingFunction.Remap(t, 0.2f, 0.5f);
+                    e = EasingFunction.EaseOutCubic(e);
+
+                    mod_barrel.localRotation = Quaternion.Lerp(Quaternion.Euler(0, 0, 0), Quaternion.Euler(60, 0, 0), e);
+                }
+                else if (t > 0.5f)
+                {
+                    float e = EasingFunction.Remap(t, 0.5f, 0.95f);
+                    e = EasingFunction.EaseInCubic(e);
+
+                    mod_barrel.localRotation = Quaternion.Lerp(Quaternion.Euler(60, 0, 0), Quaternion.Euler(0, 0, 0), e);
+                }
+
+                weapon_switch.localRotation = Quaternion.Lerp(Quaternion.Euler(0, 0, 0), Quaternion.Euler(0, 0, 90), t);
             }
         }
     }
