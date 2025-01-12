@@ -365,12 +365,24 @@ namespace ultramove
 
             Transform recoilPivot;
 
+            GameObject shell0;
+            GameObject shell1;
+
             public ReloadingAnimation(GameObject weapon)
             {
                 mod_barrel = weapon.transform.FindInChildrenExact("mod_barrel");
                 weapon_switch = weapon.transform.FindInChildrenExact("weapon_switch");
                 patron_in_weapon_000 = weapon.transform.FindInChildrenExact("patron_in_weapon_000");
                 patron_in_weapon_001 = weapon.transform.FindInChildrenExact("patron_in_weapon_001");
+
+                shell0 = Singleton<PoolManager>.Instance.CreateItem(Singleton<ItemFactoryClass>.Instance.CreateItem(MongoID.Generate(false), "560d5e524bdc2d25448b4571", null), true);
+                shell1 = Singleton<PoolManager>.Instance.CreateItem(Singleton<ItemFactoryClass>.Instance.CreateItem(MongoID.Generate(false), "560d5e524bdc2d25448b4571", null), true);
+
+                shell0.SetActive(true);
+                shell1.SetActive(true);
+
+                shell0.transform.SetParent(patron_in_weapon_000, false);
+                shell1.transform.SetParent(patron_in_weapon_001, false);
             }
 
             public void SetRecoilPivotTransform(Transform recoilPivot)
@@ -387,20 +399,50 @@ namespace ultramove
 
                     recoilPivot.localRotation *= Quaternion.Euler(Mathf.Lerp(0, -90, e), 0, 0);
                 }
-                else if (t > 0.6f && t < 0.95f)
+                else if (t > 0.6f && t < 0.9f)
                 {
-                    float e = EasingFunction.Remap(t, 0.6f, 0.95f);
+                    float e = EasingFunction.Remap(t, 0.6f, 0.9f);
                     e = EasingFunction.EaseOutCubic(e);
 
                     recoilPivot.localRotation *= Quaternion.Euler(Mathf.Lerp(-90, 5f, e), 0, 0);
                 }
-                else if (t > 0.95f)
+                else if (t > 0.9f)
                 {
-                    float e = EasingFunction.Remap(t, 0.95f, 1f);
+                    float e = EasingFunction.Remap(t, 0.9f, 1f);
                     e = EasingFunction.EaseOutCubic(e);
 
                     recoilPivot.localRotation *= Quaternion.Euler(Mathf.Lerp(5f, 0, e), 0, 0);
                 }
+
+                if (t > 0.3f && t < 0.35f)
+                {
+                    float e = EasingFunction.Remap(t, 0.3f, 0.35f);
+
+                    shell0.transform.localRotation = Quaternion.Euler(90, 0, 0);
+                    shell1.transform.localRotation = Quaternion.Euler(90, 0, 0);
+
+                    shell0.transform.localPosition = Vector3.Lerp(new Vector3(0, 0, 0), new Vector3(0, 0.2f, 0), e);
+                    shell1.transform.localPosition = Vector3.Lerp(new Vector3(0, 0, 0), new Vector3(0, 0.2f, 0), e);
+                }
+                else if (t > 0.35f && t < 0.6f)
+                {
+                    float e = EasingFunction.Remap(t, 0.35f, 0.6f);
+
+                    shell0.transform.localPosition = Vector3.Lerp(new Vector3(0, 0.2f, 0), new Vector3(0, 0.8f, -0.4f), e);
+                    shell1.transform.localPosition = Vector3.Lerp(new Vector3(0, 0.2f, 0), new Vector3(0, 0.8f, -0.4f), e);
+
+                    shell0.transform.localRotation = Quaternion.Lerp(Quaternion.Euler(90, 0, 0), Quaternion.Euler(-90f, 0, 0), e);
+                    shell1.transform.localRotation = Quaternion.Lerp(Quaternion.Euler(90, 0, 0), Quaternion.Euler(-90f, 0, 0), e);
+                }
+                else if (t > 0.6f)
+                {
+                    shell0.transform.localPosition = Vector3.zero;
+                    shell1.transform.localPosition = Vector3.zero;
+
+                    shell0.transform.localRotation = Quaternion.Euler(90, 0, 0);
+                    shell1.transform.localRotation = Quaternion.Euler(90, 0, 0);
+                }
+
 
                 if (t > 0.2f && t < 0.5f)
                 {
@@ -417,7 +459,20 @@ namespace ultramove
                     mod_barrel.localRotation = Quaternion.Lerp(Quaternion.Euler(60, 0, 0), Quaternion.Euler(0, 0, 0), e);
                 }
 
-                weapon_switch.localRotation = Quaternion.Lerp(Quaternion.Euler(0, 0, 0), Quaternion.Euler(0, 0, 90), t);
+                if (t > 0.8f && t < 0.85f)
+                {
+                    float e = EasingFunction.Remap(t, 0.8f, 0.85f);
+                    e = EasingFunction.EaseInCubic(e);
+
+                    weapon_switch.localRotation = Quaternion.Lerp(Quaternion.Euler(0, 0, 0), Quaternion.Euler(0, 0, -20f), e);
+                }
+                else if (t > 0.85f && t < 0.9f)
+                {
+                    float e = EasingFunction.Remap(t, 0.85f, 0.9f);
+                    e = EasingFunction.EaseOutCubic(e);
+
+                    weapon_switch.localRotation = Quaternion.Lerp(Quaternion.Euler(0, 0, -20f), Quaternion.Euler(0, 0, 0), e);
+                }
             }
         }
     }

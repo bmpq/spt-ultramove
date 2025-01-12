@@ -35,8 +35,8 @@ namespace ultramove
             trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             trail.startWidth = 0.08f;
             trail.endWidth = trail.startWidth;
-            trail.startColor = new Color(1, 1, 0, 0.31f);
-            trail.endColor = new Color(1, 1, 0, 0);
+            trail.startColor = new Color(1, 0.8f, 0, 0.5f);
+            trail.endColor = new Color(1, 0.8f, 0, 0);
             Projectile projectile = newProjectile.AddComponent<Projectile>();
             projectilePool.Enqueue(projectile);
         }
