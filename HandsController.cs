@@ -139,6 +139,10 @@ namespace ultramove
                 {
                     reloadingAnimations.Add(item.Item2, new ReloadingAnimation.Revolver(weapon));
                 }
+                else if (item.Item2.StringTemplateId == "55801eed4bdc2d89578b4588") // sv98
+                {
+                    reloadingAnimations.Add(item.Item2, new ReloadingAnimation.Sniper(weapon));
+                }
             }
 
             SwapWeapon(0);
@@ -608,6 +612,36 @@ namespace ultramove
                         e = EasingFunction.EaseOutBounce(0, 1f, e);
 
                         mod_hammer.localRotation = Quaternion.Euler(Mathf.Lerp(0, -40f, e), 0, 0);
+                    }
+                }
+            }
+
+            public class Sniper : ReloadingAnimation
+            {
+                Transform mod_scope;
+                Vector3 mod_scope_localPositionOriginal;
+
+                public Sniper(GameObject weapon) : base(weapon)
+                {
+                    mod_scope = weapon.transform.FindInChildrenExact("mod_scope");
+                    mod_scope_localPositionOriginal = mod_scope.localPosition;
+                }
+
+                public override void Evaluate(float t)
+                {
+                    if (t > 0f && t < 0.4f)
+                    {
+                        float e = EasingFunction.Remap(t, 0, 0.4f);
+                        e = EasingFunction.EaseOutCubic(e);
+
+                        mod_scope.localPosition = Vector3.Lerp(mod_scope_localPositionOriginal, mod_scope_localPositionOriginal + new Vector3(0, 0.07f, 0), e);
+                    }
+                    else if (t > 0.4f && t < 0.8f)
+                    {
+                        float e = EasingFunction.Remap(t, 0.4f, 0.8f);
+                        e = EasingFunction.EaseInCubic(e);
+
+                        mod_scope.localPosition = Vector3.Lerp(mod_scope_localPositionOriginal + new Vector3(0, 0.07f, 0), mod_scope_localPositionOriginal, e);
                     }
                 }
             }
