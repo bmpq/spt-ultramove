@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using Comfort.Common;
 using EFT;
@@ -9,6 +10,8 @@ using UnityEngine;
 public class Plugin : BaseUnityPlugin
 {
     internal static new ManualLogSource Log;
+
+    internal static ConfigEntry<bool> Enabled;
 
     private void Start()
     {
@@ -26,5 +29,6 @@ public class Plugin : BaseUnityPlugin
 
     private void InitConfiguration()
     {
+        Enabled = Config.Bind("General", "Enabled", true, "");
     }
 }

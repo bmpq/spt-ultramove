@@ -24,6 +24,9 @@ namespace ultramove
         [PatchPostfix]
         public static void PatchPostfix(GameWorld __instance)
         {
+            if (!Plugin.Enabled.Value)
+                return;
+
             Physics.autoSimulation = true;
 
             EFTBallisticsInterface.Instance = new EFTBallisticsInterface(__instance);
