@@ -409,19 +409,32 @@ namespace ultramove
 
                         recoilPivot.localRotation *= Quaternion.Euler(Mathf.Lerp(0, -90, e), 0, 0);
                     }
-                    else if (t > 0.6f && t < 0.9f)
+                    else if (t > 0.6f && t < 0.75f)
                     {
-                        float e = EasingFunction.Remap(t, 0.6f, 0.9f);
-                        e = EasingFunction.EaseOutCubic(e);
+                        float e = EasingFunction.Remap(t, 0.6f, 0.75f);
 
-                        recoilPivot.localRotation *= Quaternion.Euler(Mathf.Lerp(-90, 5f, e), 0, 0);
+                        recoilPivot.localRotation *= Quaternion.Euler(Mathf.Lerp(-90, 0f, e), 0, 0);
                     }
-                    else if (t > 0.9f)
+                    else if (t > 0.75f && t < 0.85f)
                     {
-                        float e = EasingFunction.Remap(t, 0.9f, 1f);
+                        float e = EasingFunction.Remap(t, 0.75f, 0.85f);
                         e = EasingFunction.EaseOutCubic(e);
 
-                        recoilPivot.localRotation *= Quaternion.Euler(Mathf.Lerp(5f, 0, e), 0, 0);
+                        recoilPivot.localRotation *= Quaternion.Lerp(Quaternion.Euler(0, 0, 0), Quaternion.Euler(20, -10, 0), e);
+                    }
+                    else if (t > 0.85f && t < 0.92f)
+                    {
+                        float e = EasingFunction.Remap(t, 0.85f, 0.92f);
+                        e = EasingFunction.EaseInCubic(e);
+
+                        recoilPivot.localRotation *= Quaternion.Lerp(Quaternion.Euler(20, -10, 0), Quaternion.Euler(10, 2, 0), e);
+                    }
+                    else if (t > 0.92f)
+                    {
+                        float e = EasingFunction.Remap(t, 0.92f, 1f);
+                        e = EasingFunction.EaseOutCubic(e);
+
+                        recoilPivot.localRotation *= Quaternion.Lerp(Quaternion.Euler(10, 2, 0), Quaternion.Euler(0, 0, 0), e);
                     }
 
                     if (t > 0.3f && t < 0.35f)
@@ -504,7 +517,7 @@ namespace ultramove
                         float e = EasingFunction.Remap(t, 0, 0.7f);
                         e = EasingFunction.EaseOutCubic(e);
 
-                        mod_magazine.localRotation = Quaternion.Euler(0, Mathf.Lerp(-(360f / 5f * 3f), 0, e), 0);
+                        mod_magazine.localRotation = Quaternion.Euler(0, Mathf.Lerp(-(360f / 5f * 4f), 0, e), 0);
                     }
 
                     if (t > 0f && t < 0.5f)
