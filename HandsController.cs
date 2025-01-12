@@ -43,6 +43,8 @@ namespace ultramove
 
         bool whiplashThrowing;
         bool whiplashPulling;
+        Transform whiplashPullingObject;
+        Vector3 whiplashGrabPointOffset;
         RopeVisual ropeVisual;
         Transform palmL;
         Vector3 currentWhiplashEnd;
@@ -177,16 +179,22 @@ namespace ultramove
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.R))
+            if (Input.GetKeyDown(KeyCode.R) && !whiplashPulling)
             {
                 whiplashThrowing = true;
                 whiplashThrowVelocity = rb.velocity + (cam.transform.forward * whiplashStartSpeed);
                 currentWhiplashEnd = cam.transform.position + (cam.transform.forward * 0.8f) - (cam.transform.up * 0.2f);
+                whiplashPullingObject = null;
 
                 ropeVisual.RopeShoot();
             }
             else if (Input.GetKeyUp(KeyCode.R))
+            {
+                if (whiplashThrowing)
+                    whiplashPulling = true;
+
                 whiplashThrowing = false;
+            }
 
             if (whiplashThrowing || whiplashPulling)
             {
@@ -254,16 +262,39 @@ namespace ultramove
 
             if (whiplashThrowing)
             {
-                LayerMask layerMask = 1 << 18;
+                LayerMask layerMask = 1 << 18 | 1 << 16;
                 if (Physics.Raycast(currentWhiplashEnd, whiplashThrowVelocity.normalized, out RaycastHit hit, whiplashThrowVelocity.magnitude * Time.fixedDeltaTime, layerMask))
                 {
-                    // todo
+                    whiplashThrowing = false;
+                    whiplashPulling = true;
+                    currentWhiplashEnd = hit.point;
+
+                    if (hit.collider.TryGetComponent<BodyPartCollider>(out BodyPartCollider bpc))
+                    {
+                        whiplashPullingObject = bpc.Player.Transform.Original;
+                        whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(hit.point);
+                    }
                 }
 
                 if (whiplashThrowing)
                 {
                     currentWhiplashEnd += whiplashThrowVelocity * Time.fixedDeltaTime;
                 }
+            }
+            else if (whiplashPulling)
+            {
+                float reelSpeed = whiplashStartSpeed;
+
+                if (whiplashPullingObject != null)
+                {
+                    whiplashPullingObject.position = currentWhiplashEnd - whiplashGrabPointOffset;
+                    reelSpeed = whiplashStartSpeed / 4f;
+                }
+
+                currentWhiplashEnd += (cam.transform.position - currentWhiplashEnd).normalized * reelSpeed * Time.fixedDeltaTime;
+
+                if (Vector3.Distance(cam.transform.position, currentWhiplashEnd) < 1f)
+                    whiplashPulling = false;
             }
         }
 

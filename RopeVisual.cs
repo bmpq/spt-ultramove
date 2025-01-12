@@ -25,7 +25,7 @@ public class RopeVisual : MonoBehaviour
         timeSinceStart += Time.deltaTime;
 
         int numPoints = 16;
-        float amp = Mathf.Lerp(1f, 0, timeSinceStart * 5f);
+        float amp = Mathf.Lerp(1f, 0, timeSinceStart * 3f);
         float freq = Mathf.Lerp(10f, 2f, timeSinceStart * 5f);
         List<Vector3> points = GenerateSineWavePoints(a, b, numPoints, amp, freq);
 
