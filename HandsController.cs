@@ -40,6 +40,15 @@ namespace ultramove
 
         Coroutine animMuzzleFlash;
 
+
+        bool whiplashThrowing;
+        bool whiplashPulling;
+        RopeVisual ropeVisual;
+        Transform palmL;
+        Vector3 currentWhiplashEnd;
+        Vector3 whiplashThrowVelocity;
+        float whiplashStartSpeed = 100f;
+
         void SetWeaponHandPosition(Weapon weaponClass)
         {
             float blendPalmDist = 0;
@@ -140,6 +149,8 @@ namespace ultramove
 
             GetComponentInChildren<PlayerBody>().SkeletonRootJoint.Bones["Root_Joint"].localPosition = Vector3.zero;
 
+            palmL = GetComponentInChildren<PlayerBody>().SkeletonRootJoint.Bones["Root_Joint/Base HumanPelvis/Base HumanSpine1/Base HumanSpine2/Base HumanSpine3/Base HumanRibcage/Base HumanLCollarbone/Base HumanLUpperarm/Base HumanLForearm1/Base HumanLForearm2/Base HumanLForearm3/Base HumanLPalm"];
+
             coinTosser = gameObject.GetOrAddComponent<CoinTosser>();
 
 
@@ -160,10 +171,36 @@ namespace ultramove
             muzzleFlash.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             muzzleFlashLight = new GameObject("LightMuzzleFlash", typeof(Light)).AddComponent<VolumetricLight>();
             muzzleFlashLight.transform.position = new Vector3(0f, -200f, 0f);
+
+            ropeVisual = gameObject.AddComponent<RopeVisual>();
         }
 
         private void Update()
         {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                whiplashThrowing = true;
+                whiplashThrowVelocity = rb.velocity + (cam.transform.forward * whiplashStartSpeed);
+                currentWhiplashEnd = cam.transform.position + (cam.transform.forward * 0.8f) - (cam.transform.up * 0.2f);
+
+                ropeVisual.RopeShoot();
+            }
+            else if (Input.GetKeyUp(KeyCode.R))
+                whiplashThrowing = false;
+
+            if (whiplashThrowing || whiplashPulling)
+            {
+                ropeVisual.RopeUpdate(palmL.transform.position, currentWhiplashEnd);
+            }
+            else
+            {
+                ropeVisual.RopeRelease();
+            }
+
+            animator.SetBool("WhiplashThrowing", whiplashThrowing);
+            animator.SetBool("WhiplashPulling", whiplashPulling);
+
+
             coinCooldown -= Time.deltaTime;
             if (Input.GetMouseButtonDown(1))
             {
@@ -214,6 +251,20 @@ namespace ultramove
         void FixedUpdate()
         {
             this.recoil.Tick(Time.fixedDeltaTime);
+
+            if (whiplashThrowing)
+            {
+                LayerMask layerMask = 1 << 18;
+                if (Physics.Raycast(currentWhiplashEnd, whiplashThrowVelocity.normalized, out RaycastHit hit, whiplashThrowVelocity.magnitude * Time.fixedDeltaTime, layerMask))
+                {
+                    // todo
+                }
+
+                if (whiplashThrowing)
+                {
+                    currentWhiplashEnd += whiplashThrowVelocity * Time.fixedDeltaTime;
+                }
+            }
         }
 
         void Shoot()
