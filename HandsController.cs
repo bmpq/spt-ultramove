@@ -495,6 +495,24 @@ namespace ultramove
                     break;
             }
 
+            if (!parried && whiplashState == WhiplashState.Pulling && Vector3.Distance(cam.transform.position, currentWhiplashEnd) < 3f)
+            {
+                if (whiplashPullingObject != null && whiplashPullingObject.gameObject.TryGetComponentInParent<ObservedLootItem>(out ObservedLootItem lootItem))
+                {
+                    lootItem.RigidBody.isKinematic = false;
+
+                    Rigidbody itemrb = lootItem.RigidBody;
+                    itemrb.useGravity = true;
+                    itemrb.velocity = rb.velocity + (cam.transform.forward * 30f) + (Vector3.up * 24f);
+                    itemrb.angularVelocity = Random.onUnitSphere * 60f;
+
+                    whiplashState = WhiplashState.Idle;
+                    whiplashPullingObject = null;
+
+                    parried = true;
+                }
+            }
+
             if (parried)
             {
                 animator.SetTrigger("Parry");

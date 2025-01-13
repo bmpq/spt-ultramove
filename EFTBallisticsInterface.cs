@@ -203,16 +203,6 @@ namespace ultramove
                 return true;
             }
 
-            if (hit.transform.TryGetComponent<ObservedLootItem>(out ObservedLootItem lootItem))
-            {
-                Rigidbody itemrb = lootItem.GetOrAddComponent<Rigidbody>();
-                itemrb.mass = lootItem.Item.Weight;
-                itemrb.isKinematic = false;
-                itemrb.useGravity = true;
-                itemrb.velocity = source.forward * 5f + source.up;
-                return true;
-            }
-
             BodyPartCollider bodyPartCollider = hit.transform.GetComponent<BodyPartCollider>();
 
             if (bodyPartCollider == null)
