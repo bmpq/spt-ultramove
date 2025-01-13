@@ -200,6 +200,7 @@ namespace ultramove
 
                 ropeVisual.RopeShoot();
                 spearhead.SetActive(true);
+                spearhead.transform.SetParent(null);
                 PlayerAudio.Instance.Play("Whiplash Throw Start");
             }
             else if (whiplashState == WhiplashState.Throwing && Input.GetKeyUp(KeyCode.R))
@@ -212,6 +213,7 @@ namespace ultramove
                 ropeVisual.RopeUpdate(palmL.transform.position, currentWhiplashEnd);
                 spearhead.transform.position = currentWhiplashEnd;
                 spearhead.transform.rotation = Quaternion.LookRotation(whiplashThrowVelocity.normalized);
+                spearhead.transform.localScale = Vector3.one * 1.4f;
             }
             else
             {
@@ -219,6 +221,7 @@ namespace ultramove
                 spearhead.transform.SetParent(palmL, false);
                 spearhead.transform.localPosition = new Vector3(-0.029f, -0.0383f, -0.0106f);
                 spearhead.transform.localRotation = Quaternion.Euler(0f, 270f, 80f);
+                spearhead.transform.localScale = Vector3.one;
             }
 
             animator.SetBool("WhiplashThrowing", whiplashState == WhiplashState.Throwing);

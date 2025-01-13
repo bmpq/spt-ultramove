@@ -10,8 +10,11 @@ public class RopeVisual : MonoBehaviour
     {
         line = new GameObject("ROPEVISUAL").AddComponent<LineRenderer>();
         line.widthMultiplier = 0.06f;
-        line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+        line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.TwoSided;
         line.material = new Material(Shader.Find("Standard"));
+        line.material.color = new Color(0.7f, 0.7f, 0.7f, 1f);
+        line.generateLightingData = true;
+        line.numCapVertices = 2;
     }
 
     public void RopeShoot()
@@ -25,8 +28,8 @@ public class RopeVisual : MonoBehaviour
         timeSinceStart += Time.deltaTime;
 
         int numPoints = 16;
-        float amp = Mathf.Lerp(1f, 0, timeSinceStart * 3f);
-        float freq = Mathf.Lerp(10f, 2f, timeSinceStart * 5f);
+        float amp = Mathf.Lerp(0.66f, 0, timeSinceStart * 3f);
+        float freq = Mathf.Lerp(8f, 2f, timeSinceStart * 5f);
         List<Vector3> points = GenerateSineWavePoints(a, b, numPoints, amp, freq);
 
         if (line.positionCount != numPoints)
