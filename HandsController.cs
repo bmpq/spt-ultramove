@@ -1,6 +1,7 @@
 ﻿using Comfort.Common;
 using EFT;
 using EFT.Ballistics;
+using EFT.Interactive;
 using EFT.InventoryLogic;
 using System.Collections;
 using System.Collections.Generic;
@@ -54,6 +55,7 @@ namespace ultramove
         Vector3 currentWhiplashEnd;
         Vector3 whiplashThrowVelocity;
         float whiplashStartSpeed = 100f;
+        GameObject spearhead;
 
         void SetWeaponHandPosition(Weapon weaponClass)
         {
@@ -183,6 +185,7 @@ namespace ultramove
             muzzleFlashLight.transform.position = new Vector3(0f, -200f, 0f);
 
             ropeVisual = gameObject.AddComponent<RopeVisual>();
+            spearhead = Instantiate(AssetBundleLoader.BundleLoader.LoadAssetBundle(AssetBundleLoader.BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("SpearheadPrefab"));
         }
 
         private void Update()
@@ -195,6 +198,8 @@ namespace ultramove
                 whiplashPullingObject = null;
 
                 ropeVisual.RopeShoot();
+                spearhead.SetActive(true);
+                PlayerAudio.Instance.Play("Whiplash Throw Start");
             }
             else if (whiplashState == WhiplashState.Throwing && Input.GetKeyUp(KeyCode.R))
             {
@@ -204,10 +209,15 @@ namespace ultramove
             if (whiplashState != WhiplashState.Idle)
             {
                 ropeVisual.RopeUpdate(palmL.transform.position, currentWhiplashEnd);
+                spearhead.transform.position = currentWhiplashEnd;
+                spearhead.transform.rotation = Quaternion.LookRotation(whiplashThrowVelocity.normalized);
             }
             else
             {
                 ropeVisual.RopeRelease();
+                spearhead.transform.SetParent(palmL, false);
+                spearhead.transform.localPosition = Vector3.zero;
+                spearhead.transform.localRotation = Quaternion.Euler(90, 0, 0);
             }
 
             animator.SetBool("WhiplashThrowing", whiplashState == WhiplashState.Throwing);
@@ -217,7 +227,7 @@ namespace ultramove
             coinCooldown -= Time.deltaTime;
             if (Input.GetMouseButtonDown(1))
             {
-                if (coinCooldown <= 0f)
+                if (coinCooldown <= 0f && (currentWeapon is RevolverItemClass))
                     Coin();
             }
 
@@ -267,16 +277,24 @@ namespace ultramove
 
             if (whiplashState == WhiplashState.Throwing)
             {
-                LayerMask layerMask = 1 << 18 | 1 << 16;
+                LayerMask layerMask = 1 << 12 | 1 << 16;
                 if (Physics.Raycast(currentWhiplashEnd, whiplashThrowVelocity.normalized, out RaycastHit hit, whiplashThrowVelocity.magnitude * Time.fixedDeltaTime, layerMask))
                 {
                     whiplashState = WhiplashState.Pulling;
                     currentWhiplashEnd = hit.point;
 
+                    EFTBallisticsInterface.Instance.Hit(hit, 5f);
+
                     if (hit.collider.TryGetComponent<BodyPartCollider>(out BodyPartCollider bpc))
                     {
                         whiplashPullingObject = bpc.Player.Transform.Original;
                         whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(hit.point);
+                    }
+                    else if (hit.transform.parent.TryGetComponent<Door>(out Door door))
+                    {
+                        if (door.DoorState == EDoorState.Locked ||
+                            door.DoorState == EDoorState.Shut)
+                            door.Interact(EFT.EInteractionType.Breach);
                     }
                 }
 
@@ -295,7 +313,7 @@ namespace ultramove
                     reelSpeed = whiplashStartSpeed / 4f;
                 }
 
-                currentWhiplashEnd += (cam.transform.position - currentWhiplashEnd).normalized * reelSpeed * Time.fixedDeltaTime;
+                currentWhiplashEnd += (palmL.position - currentWhiplashEnd).normalized * reelSpeed * Time.fixedDeltaTime;
 
                 if (Vector3.Distance(cam.transform.position, currentWhiplashEnd) < 1f)
                     whiplashState = WhiplashState.Idle;
@@ -405,8 +423,7 @@ namespace ultramove
 
         void Coin()
         {
-            if (!(currentWeapon is RevolverItemClass))
-                return;
+            spearhead.SetActive(false);
 
             //coinCooldown = 0.05f;
 
@@ -419,6 +436,8 @@ namespace ultramove
 
         void Parry()
         {
+            spearhead.SetActive(false);
+
             bool parried = false;
 
             int layerMask = 1 << 16 | 1 << 15;
