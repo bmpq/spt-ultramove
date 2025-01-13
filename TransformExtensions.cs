@@ -37,4 +37,29 @@ internal static class TransformExtensions
         SearchChildren(parent); // Initiate the recursive search from the parent
         return matchingChildren;
     }
+
+    public static bool TryGetComponentInParent<T>(this GameObject gameObject, out T component) where T : Component
+    {
+        component = gameObject.GetComponent<T>();
+
+        if (component != null)
+        {
+            return true;
+        }
+
+        Transform currentTransform = gameObject.transform.parent;
+        while (currentTransform != null)
+        {
+            component = currentTransform.GetComponent<T>();
+            if (component != null)
+            {
+                return true;
+            }
+
+            currentTransform = currentTransform.parent;
+        }
+
+        component = null;
+        return false;
+    }
 }

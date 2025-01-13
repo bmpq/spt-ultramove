@@ -301,7 +301,7 @@ namespace ultramove
 
             if (whiplashState == WhiplashState.Throwing)
             {
-                LayerMask layerMask = 1 << 12 | 1 << 16;
+                LayerMask layerMask = 1 << 12 | 1 << 16 | 1 << 15;
                 if (Physics.Raycast(currentWhiplashEnd, whiplashThrowVelocity.normalized, out RaycastHit hit, whiplashThrowVelocity.magnitude * Time.fixedDeltaTime, layerMask))
                 {
                     whiplashState = WhiplashState.Pulling;
@@ -314,11 +314,20 @@ namespace ultramove
                         whiplashPullingObject = bpc.Player.Transform.Original;
                         whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(hit.point);
                     }
-                    else if (hit.transform.parent.TryGetComponent<Door>(out Door door))
+                    else if (hit.collider.gameObject.TryGetComponentInParent<Door>(out Door door))
                     {
                         if (door.DoorState == EDoorState.Locked ||
                             door.DoorState == EDoorState.Shut)
                             door.Interact(EFT.EInteractionType.Breach);
+                    }
+                    else if (hit.collider.gameObject.TryGetComponentInParent<ObservedLootItem>(out ObservedLootItem lootItem))
+                    {
+                        whiplashPullingObject = lootItem.transform;
+                        whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(hit.point);
+
+                        if (lootItem.RigidBody == null)
+                            lootItem.MakePhysicsObject();
+                        lootItem.RigidBody.isKinematic = true;
                     }
                 }
 
@@ -339,8 +348,15 @@ namespace ultramove
 
                 currentWhiplashEnd += (palmL.position - currentWhiplashEnd).normalized * reelSpeed * Time.fixedDeltaTime;
 
-                if (Vector3.Distance(cam.transform.position, currentWhiplashEnd) < 1f)
+                if (Vector3.Distance(cam.transform.position, currentWhiplashEnd) < reelSpeed * Time.fixedDeltaTime * 2f)
+                {
                     whiplashState = WhiplashState.Idle;
+
+                    if (whiplashPullingObject != null && whiplashPullingObject.gameObject.TryGetComponentInParent<ObservedLootItem>(out ObservedLootItem lootItem))
+                    {
+                        lootItem.RigidBody.isKinematic = false;
+                    }
+                }
             }
         }
 

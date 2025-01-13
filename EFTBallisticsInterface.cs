@@ -1,6 +1,7 @@
 ﻿using Comfort.Common;
 using EFT;
 using EFT.Ballistics;
+using EFT.Interactive;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -196,9 +197,19 @@ namespace ultramove
 
         public bool Parry(RaycastHit hit, Transform source)
         {
-            if (hit.rigidbody.TryGetComponent<IParryable>(out IParryable parryable))
+            if (hit.rigidbody != null && hit.rigidbody.TryGetComponent<IParryable>(out IParryable parryable))
             {
                 parryable.Parry(source);
+                return true;
+            }
+
+            if (hit.transform.TryGetComponent<ObservedLootItem>(out ObservedLootItem lootItem))
+            {
+                Rigidbody itemrb = lootItem.GetOrAddComponent<Rigidbody>();
+                itemrb.mass = lootItem.Item.Weight;
+                itemrb.isKinematic = false;
+                itemrb.useGravity = true;
+                itemrb.velocity = source.forward * 5f + source.up;
                 return true;
             }
 
