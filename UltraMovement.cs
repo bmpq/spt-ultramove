@@ -208,7 +208,7 @@ namespace ultramove
             lightSliding.intensity = sliding ? Random.value * 0.3f : 0f;
             lightSliding.transform.position = psSlide.gameObject.transform.position;
 
-            PlayerAudio.Instance.Sliding(sliding && groundCheck.isGrounded, transform.position, slideDir);
+            PlayerAudio.Instance.Loop("wallcling", sliding && groundCheck.isGrounded, transform.position + slideDir + new Vector3(0, 0.1f, 0));
 
             jumpCooldown -= Time.deltaTime;
 

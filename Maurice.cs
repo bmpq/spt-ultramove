@@ -79,7 +79,6 @@ namespace ultramove
             rb.useGravity = true;
             rb.drag = 1f;
 
-            audioBeam.SetBaseVolume(0f);
             audioBeam.Release();
             lightChargeBeam.gameObject.SetActive(false);
         }

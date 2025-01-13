@@ -47,10 +47,6 @@ namespace ultramove
         float timeSinceSpawned;
         float lifetime;
 
-        BetterSource betterSource;
-
-        public static AudioClip audioTwirl;
-
         void Start()
         {
             gameObject.layer = 13;
@@ -75,18 +71,6 @@ namespace ultramove
 
             timeSinceSpawned = 0f;
             lifetime = 20f;
-
-            betterSource = Singleton<BetterAudio>.Instance.GetSource(BetterAudio.AudioSourceGroupType.Weaponry, true);
-            betterSource.Loop = true;
-            betterSource.Play(audioTwirl, null, 1f, 1f, false, false);
-        }
-
-        void OnDisable()
-        {
-            if (betterSource != null)
-            {
-                betterSource.Release();
-            }
         }
 
         public void Disable()
@@ -98,9 +82,6 @@ namespace ultramove
 
         private void Update()
         {
-            if (betterSource != null)
-                betterSource.Position = transform.position;
-
             timeSinceSpawned += Time.deltaTime;
 
             if (timeSinceSpawned >= lifetime)

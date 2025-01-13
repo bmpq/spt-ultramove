@@ -28,10 +28,11 @@ namespace ultramove
         AudioClip[] allClips;
 
         BetterSource sourceSlide;
-        BetterSource sourceGunIdle;
 
         BetterSource sourceWalk;
         BetterSource sourceWaterSkip;
+
+        Dictionary<string, BetterSource> loops = new Dictionary<string, BetterSource>();
 
         public PlayerAudio(AssetBundle bundle)
         {
@@ -59,13 +60,6 @@ namespace ultramove
                 .Where(clip => clip.name.StartsWith("Steampunk Weapons - Shotgun 2 - Shot"))
                 .OrderBy(clip => ExtractIndex(clip.name))
                 .ToArray();
-
-
-            sourceGunIdle = MonoBehaviourSingleton<BetterAudio>.Instance.GetSource(BetterAudio.AudioSourceGroupType.Environment, true);
-            sourceGunIdle.Loop = true;
-            sourceGunIdle.Play(GetClip("RailcannonFull"), null, 1f, 1f);
-
-            Projectile.audioTwirl = allClips.FirstOrDefault(c => c.name.StartsWith("Twirling"));
         }
 
         public AudioClip GetClip(string clip)
@@ -133,7 +127,7 @@ namespace ultramove
 
         public void Play(string clip, float volume = 1f)
         {
-            Vector3 pos = player.position;
+            Vector3 pos = cam.transform.position;
 
             var audioClip = allClips.FirstOrDefault(c => c.name.StartsWith(clip));
             if (audioClip != null)
@@ -142,32 +136,35 @@ namespace ultramove
                 Plugin.Log.LogError($"Could not find audio clip {clip}!");
         }
 
-        public void PlayRailIdleCharged(float volume)
+        public void Loop(string clip, bool active, float volume = 1f)
         {
-            sourceGunIdle.Position = player.position + player.forward;
-            sourceGunIdle.SetBaseVolume(volume);
+            Loop(clip, active, cam.transform.position);
         }
 
-        public void Sliding(bool sliding, Vector3 playerPos, Vector3 slideDir)
+        public void Loop(string clip, bool active, Vector3 pos, float volume = 1f)
         {
-            if (sliding)
+            if (active)
             {
-                if (sourceSlide == null)
+                BetterSource source;
+                if (!loops.ContainsKey(clip))
                 {
-                    sourceSlide = Singleton<BetterAudio>.Instance.GetSource(BetterAudio.AudioSourceGroupType.Collisions, true);
-                    sourceSlide.Loop = true;
-                    sourceSlide.Play(allClips.FirstOrDefault(c => c.name.StartsWith("wallcling")), null, 1f, 1f, false, false);
+                    source = Singleton<BetterAudio>.Instance.GetSource(BetterAudio.AudioSourceGroupType.Collisions, true);
+                    source.Loop = true;
+                    source.Play(allClips.FirstOrDefault(c => c.name.StartsWith(clip)), null, 1f, 1f, false, false);
+                    source.SetBaseVolume(volume);
+                    loops[clip] = source;
                 }
+                else
+                    source = loops[clip];
 
-                Vector3 point = playerPos + slideDir + new Vector3(0, 0.1f, 0);
-                sourceSlide.Position = point;
+                source.Position = pos;
             }
             else
             {
-                if (sourceSlide != null)
+                if (loops.ContainsKey(clip))
                 {
-                    sourceSlide.Release();
-                    sourceSlide = null;
+                    loops[clip].Release();
+                    loops.Remove(clip);
                 }
             }
         }

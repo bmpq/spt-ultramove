@@ -48,6 +48,7 @@ namespace ultramove
             Pulling
         }
         WhiplashState whiplashState;
+        WhiplashState whiplashStatePrev;
         Transform whiplashPullingObject;
         Vector3 whiplashGrabPointOffset;
         RopeVisual ropeVisual;
@@ -191,42 +192,7 @@ namespace ultramove
 
         private void Update()
         {
-            if (whiplashState == WhiplashState.Idle && Input.GetKeyDown(KeyCode.R))
-            {
-                whiplashState = WhiplashState.Throwing;
-                whiplashThrowVelocity = rb.velocity + (cam.transform.forward * whiplashStartSpeed);
-                currentWhiplashEnd = cam.transform.position + (cam.transform.forward * 0.8f) - (cam.transform.up * 0.2f);
-                whiplashPullingObject = null;
-
-                ropeVisual.RopeShoot();
-                spearhead.SetActive(true);
-                spearhead.transform.SetParent(null);
-                PlayerAudio.Instance.Play("Whiplash Throw Start");
-            }
-            else if (whiplashState == WhiplashState.Throwing && Input.GetKeyUp(KeyCode.R))
-            {
-                whiplashState = WhiplashState.Pulling;
-            }
-
-            if (whiplashState != WhiplashState.Idle)
-            {
-                ropeVisual.RopeUpdate(palmL.transform.position, currentWhiplashEnd);
-                spearhead.transform.position = currentWhiplashEnd;
-                spearhead.transform.rotation = Quaternion.LookRotation(whiplashThrowVelocity.normalized);
-                spearhead.transform.localScale = Vector3.one * 1.4f;
-            }
-            else
-            {
-                ropeVisual.RopeRelease();
-                spearhead.transform.SetParent(palmL, false);
-                spearhead.transform.localPosition = new Vector3(-0.029f, -0.0383f, -0.0106f);
-                spearhead.transform.localRotation = Quaternion.Euler(0f, 270f, 80f);
-                spearhead.transform.localScale = Vector3.one;
-            }
-
-            animator.SetBool("WhiplashThrowing", whiplashState == WhiplashState.Throwing);
-            animator.SetBool("WhiplashPulling", whiplashState == WhiplashState.Pulling);
-
+            HandleWhiplash();
 
             coinCooldown -= Time.deltaTime;
             if (Input.GetMouseButtonDown(1))
@@ -273,6 +239,60 @@ namespace ultramove
                     reloadingAnimations[currentWeapon].Evaluate(reloadingTime);
                 }
             }
+
+            PlayerAudio.Instance.Loop("RailcannonFull", currentWeapon is SniperRifleItemClass, recoilPivot.position, 0.5f);
+        }
+
+        private void HandleWhiplash()
+        {
+            if (whiplashState == WhiplashState.Idle && Input.GetKeyDown(KeyCode.R))
+            {
+                whiplashState = WhiplashState.Throwing;
+                whiplashThrowVelocity = rb.velocity + (cam.transform.forward * whiplashStartSpeed);
+                currentWhiplashEnd = cam.transform.position + (cam.transform.forward * 0.8f) - (cam.transform.up * 0.2f);
+                whiplashPullingObject = null;
+
+                ropeVisual.RopeShoot();
+                spearhead.SetActive(true);
+                spearhead.transform.SetParent(null);
+            }
+            else if (whiplashState == WhiplashState.Throwing && Input.GetKeyUp(KeyCode.R))
+            {
+                whiplashState = WhiplashState.Pulling;
+            }
+
+            if (whiplashState != WhiplashState.Idle)
+            {
+                ropeVisual.RopeUpdate(palmL.transform.position, currentWhiplashEnd);
+                spearhead.transform.position = currentWhiplashEnd;
+                spearhead.transform.rotation = Quaternion.LookRotation(whiplashThrowVelocity.normalized);
+                spearhead.transform.localScale = Vector3.one * 1.4f;
+            }
+            else
+            {
+                ropeVisual.RopeRelease();
+                spearhead.transform.SetParent(palmL, false);
+                spearhead.transform.localPosition = new Vector3(-0.029f, -0.0383f, -0.0106f);
+                spearhead.transform.localRotation = Quaternion.Euler(0f, 270f, 80f);
+                spearhead.transform.localScale = Vector3.one;
+            }
+
+            animator.SetBool("WhiplashThrowing", whiplashState == WhiplashState.Throwing);
+            animator.SetBool("WhiplashPulling", whiplashState == WhiplashState.Pulling);
+            PlayerAudio.Instance.Loop("Whiplash Pull Loop", whiplashState == WhiplashState.Pulling);
+            PlayerAudio.Instance.Loop("Whiplash Throw Loop", whiplashState == WhiplashState.Throwing);
+            PlayerAudio.Instance.Loop("Whiplash Whoosh", whiplashState == WhiplashState.Throwing, currentWhiplashEnd);
+
+            if (whiplashStatePrev != whiplashState)
+            {
+                if (whiplashState == WhiplashState.Pulling)
+                    PlayerAudio.Instance.Play("Whiplash Pull Start");
+                else if (whiplashState == WhiplashState.Throwing)
+                    PlayerAudio.Instance.Play("Whiplash Throw Start");
+                else if (whiplashState == WhiplashState.Idle)
+                    PlayerAudio.Instance.Play("Whiplash Catch");
+            }
+            whiplashStatePrev = whiplashState;
         }
 
         void FixedUpdate()
