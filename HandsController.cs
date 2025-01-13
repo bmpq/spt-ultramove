@@ -273,7 +273,7 @@ namespace ultramove
                 ropeVisual.RopeRelease();
                 spearhead.transform.SetParent(palmL, false);
                 spearhead.transform.localPosition = new Vector3(-0.029f, -0.0383f, -0.0106f);
-                spearhead.transform.localRotation = Quaternion.Euler(0f, 270f, 80f);
+                spearhead.transform.localRotation = Quaternion.Euler(0f, 275f, 73f);
                 spearhead.transform.localScale = Vector3.one;
             }
 
@@ -348,7 +348,7 @@ namespace ultramove
 
                 currentWhiplashEnd += (palmL.position - currentWhiplashEnd).normalized * reelSpeed * Time.fixedDeltaTime;
 
-                if (Vector3.Distance(cam.transform.position, currentWhiplashEnd) < reelSpeed * Time.fixedDeltaTime * 2f)
+                if (Vector3.Distance(cam.transform.position, currentWhiplashEnd) < reelSpeed * Time.fixedDeltaTime * 1.5f)
                 {
                     whiplashState = WhiplashState.Idle;
 
@@ -356,6 +356,7 @@ namespace ultramove
                     {
                         lootItem.RigidBody.isKinematic = false;
                     }
+                    whiplashPullingObject = null;
                 }
             }
         }
