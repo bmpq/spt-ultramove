@@ -97,6 +97,7 @@ namespace ultramove
 
             recoil.OverrideCurrent(-0.8f);
             weaponSwapAnimationTime = 0f;
+            reloadingTime = 0.99f;
         }
 
         public void SetWeapons(List<(GameObject, Weapon)> weapons)
@@ -216,8 +217,8 @@ namespace ultramove
             {
                 ropeVisual.RopeRelease();
                 spearhead.transform.SetParent(palmL, false);
-                spearhead.transform.localPosition = Vector3.zero;
-                spearhead.transform.localRotation = Quaternion.Euler(90, 0, 0);
+                spearhead.transform.localPosition = new Vector3(-0.029f, -0.0383f, -0.0106f);
+                spearhead.transform.localRotation = Quaternion.Euler(0f, 270f, 80f);
             }
 
             animator.SetBool("WhiplashThrowing", whiplashState == WhiplashState.Throwing);
@@ -305,7 +306,7 @@ namespace ultramove
             }
             else if (whiplashState == WhiplashState.Pulling)
             {
-                float reelSpeed = whiplashStartSpeed;
+                float reelSpeed = whiplashStartSpeed / 2f;
 
                 if (whiplashPullingObject != null)
                 {
