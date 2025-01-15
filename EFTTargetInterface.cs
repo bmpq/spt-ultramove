@@ -155,5 +155,37 @@ namespace ultramove
                 }
             }
         }
+
+        public static Transform GetAutoAimTarget(Vector3 source, Vector3 dir, float autoAimAngle)
+        {
+            Transform bestTarget = null;
+
+            float closestDistance = Mathf.Infinity;
+            foreach (Player player in Singleton<GameWorld>.Instance.AllAlivePlayersList)
+            {
+                if (player.IsYourPlayer)
+                    continue;
+
+                Transform tr = player.PlayerBones.Spine3.Original;
+
+                Vector3 directionToTarget = (tr.position - source).normalized;
+                float angleToTarget = Vector3.Angle(dir, directionToTarget);
+
+                if (angleToTarget < autoAimAngle)
+                {
+                    if (!LineOfSight(source, player.PlayerBones.Spine3.position, out RaycastHit hit))
+                        continue;
+
+                    float distanceToTarget = directionToTarget.magnitude;
+                    if (distanceToTarget < closestDistance)
+                    {
+                        closestDistance = distanceToTarget;
+                        bestTarget = tr;
+                    }
+                }
+            }
+
+            return bestTarget;
+        }
     }
 }

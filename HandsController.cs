@@ -271,6 +271,12 @@ namespace ultramove
                 currentWhiplashEnd = cam.transform.position + (cam.transform.forward * 0.8f) - (cam.transform.up * 0.2f);
                 whiplashPullingObject = null;
 
+                Transform autoAimTarget = EFTTargetInterface.GetAutoAimTarget(palmL.transform.position + cam.transform.forward, cam.transform.forward, 30f);
+                if (autoAimTarget != null)
+                {
+                    whiplashThrowVelocity = rb.velocity + ((autoAimTarget.position - cam.transform.position).normalized * whiplashStartSpeed);
+                }
+
                 ropeVisual.RopeShoot();
                 spearhead.SetActive(true);
                 spearhead.transform.SetParent(null);
