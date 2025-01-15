@@ -43,7 +43,7 @@ namespace ultramove
         float reloadingTime;
 
         MeshRenderer muzzleFlash;
-        VolumetricLight muzzleFlashLight;
+        Light muzzleFlashLight;
 
         Coroutine animMuzzleFlash;
 
@@ -191,7 +191,7 @@ namespace ultramove
             muzzleFlash = Instantiate(AssetBundleLoader.BundleLoader.LoadAssetBundle(AssetBundleLoader.BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("glint")).GetComponentInChildren<MeshRenderer>();
             muzzleFlash.material = new Material(Shader.Find("Sprites/Default"));
             muzzleFlash.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            muzzleFlashLight = new GameObject("LightMuzzleFlash", typeof(Light)).AddComponent<VolumetricLight>();
+            muzzleFlashLight = new GameObject("LightMuzzleFlash").AddComponent<Light>();
             muzzleFlashLight.transform.position = new Vector3(0f, -200f, 0f);
 
             ropeVisual = gameObject.AddComponent<RopeVisual>();
@@ -400,7 +400,7 @@ namespace ultramove
 
             if (shotgun)
             {
-                Shotgun.ShootProjectiles(origin, dir, rb.velocity, 9, 10f);
+                Shotgun.ShootProjectiles(origin, dir, rb.velocity, 9, 10f, Color.yellow);
 
                 PlayerAudio.Instance.PlayShootShotgun();
                 CameraShaker.Shake(0.5f);
@@ -409,9 +409,9 @@ namespace ultramove
             }
             else if (machinegun)
             {
-                Shotgun.ShootProjectiles(origin, dir, rb.velocity, 1, 3f);
+                Shotgun.ShootProjectiles(origin, dir, rb.velocity, 1, 3f, Color.red);
 
-                PlayerAudio.Instance.PlayShoot();
+                //PlayerAudio.Instance.PlayShoot();
                 CameraShaker.Shake(0.3f);
 
                 shot = true;
@@ -438,21 +438,24 @@ namespace ultramove
 
             if (shot)
             {
+                reloadingTime = 0f;
+
                 float recoilForce = 40f;
                 Color colorMuzzle = Color.white;
                 if (rail)
                 {
                     recoilForce = 70f;
-                    colorMuzzle = Color.cyan;
+                    colorMuzzle = new Color(0.1f, 1f, 1f, 1f);
                 }
                 else if (shotgun)
                 {
                     recoilForce = 60f;
-                    colorMuzzle = Color.yellow;
+                    colorMuzzle = new Color(1f, 1f, 0.1f, 1f);
                 }
                 else if (currentWeaponIsFullauto)
                 {
                     recoilForce = Mathf.Lerp(-5f, 10f, Random.value);
+                    colorMuzzle = new Color(1f, 0.1f, 0.1f, 1f); // the light does not light with pure (1,0,0,1) red for some reason
                 }
 
                 this.recoil.AddForce(recoilForce);
@@ -462,14 +465,14 @@ namespace ultramove
                 if (muzzleManager != null)
                     muzzleManager.Shot();
 
-                muzzleFlash.transform.position = origin;
-
-                muzzleFlash.material.color = colorMuzzle;
-                if (animMuzzleFlash != null)
-                    StopCoroutine(animMuzzleFlash);
-                animMuzzleFlash = StartCoroutine(AnimMuzzleFlash(rail));
-
-                reloadingTime = 0f;
+                if (!currentWeaponIsFullauto || Random.value > 0.5f)
+                {
+                    muzzleFlash.transform.position = origin;
+                    muzzleFlash.material.color = colorMuzzle;
+                    if (animMuzzleFlash != null)
+                        StopCoroutine(animMuzzleFlash);
+                    animMuzzleFlash = StartCoroutine(AnimMuzzleFlash(rail));
+                }
             }
         }
 
@@ -480,9 +483,9 @@ namespace ultramove
             muzzleFlash.transform.rotation = Random.rotation;
 
             muzzleFlashLight.transform.position = muzzleFlash.transform.position;
-            muzzleFlashLight.Light.shadows = LightShadows.None;
-            muzzleFlashLight.Light.range = 1f;
-            muzzleFlashLight.Light.color = muzzleFlash.material.color;
+            muzzleFlashLight.shadows = LightShadows.None;
+            muzzleFlashLight.range = 4f;
+            muzzleFlashLight.color = muzzleFlash.material.color;
 
             while (t < 1f)
             {
@@ -492,8 +495,7 @@ namespace ultramove
 
                 muzzleFlash.transform.localScale = Vector3.Lerp(Vector3.one * (rail ? 0.1f : 0.05f), Vector3.zero, e);
 
-                muzzleFlashLight.Light.intensity = Mathf.Lerp(2f, 0f, e);
-                muzzleFlashLight.CheckIntensity();
+                muzzleFlashLight.intensity = Mathf.Lerp(7f, 0f, e);
 
                 yield return null;
             }

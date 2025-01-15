@@ -58,11 +58,16 @@ namespace ultramove
             projectilePool.Enqueue(projectile);
         }
 
-        public static void ShootProjectiles(Vector3 origin, Vector3 dir, Vector3 addVelocity, int burst, float spread)
+        public static void ShootProjectiles(Vector3 origin, Vector3 dir, Vector3 addVelocity, int burst, float spread, Color color)
         {
             for (int i = 0; i < burst; i++)
             {
                 Projectile projectile = GetFromPool();
+
+                color.a = 0.5f;
+                projectile.trail.startColor = color;
+                color.a = 0f;
+                projectile.trail.endColor = color;
 
                 // Determine spread direction
                 Vector3 spreadDir = CalculateSpreadDirection(dir, spread);
