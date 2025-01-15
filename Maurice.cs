@@ -68,8 +68,19 @@ namespace ultramove
             lightChargeBeam.intensity = 0;
             lightChargeBeam.transform.localScale = Vector3.zero;
 
-            audioBeam = PlayerAudio.Instance.GetSource();
             clipBeamCharge = PlayerAudio.Instance.GetClip("Throat Drone High Frequency2");
+        }
+
+        protected override void Revive()
+        {
+            base.Revive();
+
+            rb.useGravity = false;
+
+            rb.MovePosition(transform.position + new Vector3(0, 1f, 0));
+            rb.MoveRotation(Quaternion.identity);
+
+            audioBeam = PlayerAudio.Instance.GetSource();
         }
 
         protected override void Die()
@@ -85,6 +96,11 @@ namespace ultramove
 
         void Update()
         {
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                Revive();
+            }
+
             if (!alive)
                 return;
 
@@ -100,6 +116,7 @@ namespace ultramove
                 float t = chargingBeamProgress / 2f;
                 t = Mathf.Clamp01(t);
 
+                lightChargeBeam.gameObject.SetActive(true);
                 lightChargeBeam.intensity = Mathf.Lerp(0, 30f, t);
                 lightChargeBeam.transform.localScale = Vector3.one * Mathf.Lerp(0, 2.5f, t);
 
