@@ -5,6 +5,7 @@ using EFT.Interactive;
 using EFT.InventoryLogic;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ultramove
@@ -23,9 +24,13 @@ namespace ultramove
 
         List<(GameObject, Weapon)> equippedWeapons;
         MuzzleManager muzzleManager;
+        Transform fireport;
         Weapon currentWeapon;
 
         float weaponSwapAnimationTime;
+
+        bool currentWeaponIsFullauto => currentWeapon.FireMode.AvailableEFireModes.Contains(Weapon.EFireMode.fullauto);
+        float fullautoCooldown;
 
         CoinTosser coinTosser;
 
@@ -90,6 +95,8 @@ namespace ultramove
             SetWeaponHandPosition(equippedWeapons[index].Item2);
 
             muzzleManager = equippedWeapons[index].Item1.GetComponent<MuzzleManager>();
+
+            fireport = equippedWeapons[index].Item1.transform.FindInChildrenExact("fireport");
 
             for (int i = 0; i < equippedWeapons.Count; i++)
             {
@@ -209,6 +216,16 @@ namespace ultramove
             if (Input.GetMouseButtonDown(0))
             {
                 Shoot();
+            }
+
+            if (Input.GetMouseButton(0) && currentWeaponIsFullauto)
+            {
+                fullautoCooldown += Time.deltaTime;
+                if (fullautoCooldown > 60f / currentWeapon.FireRate)
+                {
+                    Shoot();
+                    fullautoCooldown = 0f;
+                }
             }
 
             if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -363,8 +380,8 @@ namespace ultramove
 
         void Shoot()
         {
-            Vector3 origin = muzzleManager.MuzzleJets[0].transform.position - muzzleManager.MuzzleJets[0].transform.up * 0.2f;
-            Vector3 dir = -muzzleManager.MuzzleJets[0].transform.up;
+            Vector3 origin = fireport.position - fireport.up * 0.1f;
+            Vector3 dir = -fireport.up;
 
             float dmg = 20f;
 
@@ -376,12 +393,23 @@ namespace ultramove
 
             bool shotgun = (currentWeapon is ShotgunItemClass);
 
+            bool machinegun = (currentWeapon is MachineGunItemClass);
+
             if (shotgun)
             {
-                Shotgun.ShootProjectiles(origin, dir, rb.velocity);
+                Shotgun.ShootProjectiles(origin, dir, rb.velocity, 9, 10f);
 
                 PlayerAudio.Instance.PlayShootShotgun();
                 CameraShaker.Shake(0.5f);
+
+                shot = true;
+            }
+            else if (machinegun)
+            {
+                Shotgun.ShootProjectiles(origin, dir, rb.velocity, 1, 3f);
+
+                PlayerAudio.Instance.PlayShoot();
+                CameraShaker.Shake(0.3f);
 
                 shot = true;
             }
@@ -418,6 +446,10 @@ namespace ultramove
                 {
                     recoilForce = 60f;
                     colorMuzzle = Color.yellow;
+                }
+                else if (currentWeaponIsFullauto)
+                {
+                    recoilForce = Mathf.Lerp(-5f, 15f, Random.value);
                 }
 
                 this.recoil.AddForce(recoilForce);

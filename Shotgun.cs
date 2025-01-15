@@ -58,16 +58,14 @@ namespace ultramove
             projectilePool.Enqueue(projectile);
         }
 
-        public static void ShootProjectiles(Vector3 origin, Vector3 dir, Vector3 addVelocity)
+        public static void ShootProjectiles(Vector3 origin, Vector3 dir, Vector3 addVelocity, int burst, float spread)
         {
-            int shot = 9;
-
-            for (int i = 0; i < shot; i++)
+            for (int i = 0; i < burst; i++)
             {
                 Projectile projectile = GetFromPool();
 
                 // Determine spread direction
-                Vector3 spreadDir = CalculateSpreadDirection(dir, 10f);
+                Vector3 spreadDir = CalculateSpreadDirection(dir, spread);
                 Vector3 startVel = addVelocity + spreadDir * projectileSpeed;
 
                 projectile.enabled = true;
