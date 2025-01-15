@@ -38,6 +38,7 @@ namespace ultramove
         Rigidbody rb;
 
         SpringSimulation recoil = new SpringSimulation(0, 0);
+        SpringSimulation recoilHorizontal = new SpringSimulation(0, 0);
         Dictionary<Weapon, ReloadingAnimation> reloadingAnimations;
         float reloadingTime;
 
@@ -221,7 +222,7 @@ namespace ultramove
             if (Input.GetMouseButton(0) && currentWeaponIsFullauto)
             {
                 fullautoCooldown += Time.deltaTime;
-                if (fullautoCooldown > 60f / currentWeapon.FireRate)
+                if (fullautoCooldown > 60f / (currentWeapon.FireRate * 2f))
                 {
                     Shoot();
                     fullautoCooldown = 0f;
@@ -238,6 +239,7 @@ namespace ultramove
             float recoil = this.recoil.Position;
 
             recoilPivot.localRotation = Quaternion.LerpUnclamped(recoilPivotOriginalLocalQuaternion, recoilHighRot, recoil);
+            recoilPivot.localRotation *= Quaternion.Euler(0, 0, recoilHorizontal.Position);
 
             recoilPivot.localPosition = Vector3.LerpUnclamped(recoilPivotOriginalLocalPosition, recoilHighPos, recoil);
 
@@ -315,6 +317,7 @@ namespace ultramove
         void FixedUpdate()
         {
             this.recoil.Tick(Time.fixedDeltaTime);
+            this.recoilHorizontal.Tick(Time.fixedDeltaTime);
 
             if (whiplashState == WhiplashState.Throwing)
             {
@@ -449,10 +452,12 @@ namespace ultramove
                 }
                 else if (currentWeaponIsFullauto)
                 {
-                    recoilForce = Mathf.Lerp(-5f, 15f, Random.value);
+                    recoilForce = Mathf.Lerp(-5f, 10f, Random.value);
                 }
 
                 this.recoil.AddForce(recoilForce);
+
+                recoilHorizontal.AddForce(Mathf.Lerp(-15, 15, Random.value));
 
                 if (muzzleManager != null)
                     muzzleManager.Shot();
