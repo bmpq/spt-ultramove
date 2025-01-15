@@ -87,6 +87,7 @@ namespace ultramove
             if (timeSinceSpawned >= lifetime)
             {
                 OnProjectileDone?.Invoke(this);
+                gameObject.SetActive(false);
             }
         }
 
