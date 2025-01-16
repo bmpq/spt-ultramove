@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using AssetBundleLoader;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ultramove
@@ -22,12 +23,31 @@ namespace ultramove
         private Queue<ParticleSystem> particlePool = new Queue<ParticleSystem>();
         private const int PoolSize = 10; // Adjust based on expected usage
 
+        ParticleSystem particleFall;
+
         private void Init()
         {
+            particleFall = Instantiate(BundleLoader.LoadAssetBundle(BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("FallParticle")).GetComponent<ParticleSystem>();
+
             // Pre-populate the pool with reusable particle systems
             for (int i = 0; i < PoolSize; i++)
             {
                 particlePool.Enqueue(CreateParticleSystem());
+            }
+        }
+
+        public void PlaySlam(Vector3 pos, bool on)
+        {
+            particleFall.transform.position = pos;
+
+            if (particleFall.isPlaying != on)
+            {
+                particleFall.Clear();
+
+                if (on)
+                    particleFall.Play();
+                else
+                    particleFall.Stop();
             }
         }
 

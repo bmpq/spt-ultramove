@@ -208,6 +208,8 @@ namespace ultramove
             lightSliding.intensity = sliding ? Random.value * 0.3f : 0f;
             lightSliding.transform.position = psSlide.gameObject.transform.position;
 
+            ParticleEffectManager.Instance.PlaySlam(transform.position + new Vector3(0, 2, 0), slamming);
+
             PlayerAudio.Instance.Loop("wallcling", sliding && groundCheck.isGrounded, transform.position + slideDir + new Vector3(0, 0.1f, 0));
 
             jumpCooldown -= Time.deltaTime;
