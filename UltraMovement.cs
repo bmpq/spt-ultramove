@@ -50,6 +50,7 @@ namespace ultramove
         Vector3 lastCollisionImpulse;
 
         const float jumpPower = 520f * 90f * 2.6f;
+        float slamEnergyStorage;
 
         Light lightSliding;
 
@@ -95,7 +96,7 @@ namespace ultramove
             groundCheck = new GameObject("GroundCheck").AddComponent<GroundCheck>();
             groundCheck.gameObject.transform.SetParent(transform, false);
             SphereCollider sphere = groundCheck.gameObject.AddComponent<SphereCollider>();
-            sphere.radius = capsule.radius - 0.05f;
+            sphere.radius = capsule.radius - 0.1f;
             sphere.isTrigger = true;
             groundCheck.gameObject.transform.localPosition = new Vector3(0, sphere.radius / 2f, 0);
 
@@ -332,7 +333,8 @@ namespace ultramove
 
                     coyoteTime = -1f;
 
-                    rb.AddForce(Vector3.up * jumpPower);
+                    rb.AddForce(Vector3.up * jumpPower * (1f + slamEnergyStorage * 0.2f));
+                    rb.AddForce(rb.velocity * (slamEnergyStorage) * jumpPower * 0.01f);
 
                     jumpCooldown = 0.1f;
 
@@ -349,6 +351,11 @@ namespace ultramove
                 rb.velocity = new Vector3(0, -40f, 0);
             }
 
+            if (slamming)
+                slamEnergyStorage += Time.fixedDeltaTime * 8f;
+            else
+                slamEnergyStorage = Mathf.Max(0, slamEnergyStorage - Time.fixedDeltaTime * 3);
+
             if (sliding)
             {
                 capsule.height = capsule.radius * 2f;
@@ -358,7 +365,11 @@ namespace ultramove
                 slideVel.y = -1f;
 
                 if (grounded)
+                {
+                    slideVel.x = Mathf.Abs(slideVel.x) > Mathf.Abs(rb.velocity.x) ? slideVel.x : rb.velocity.x;
+                    slideVel.z = Mathf.Abs(slideVel.z) > Mathf.Abs(rb.velocity.z) ? slideVel.z : rb.velocity.z;
                     rb.velocity = slideVel;
+                }
 
                 float waterThreshold = -16.5f;
                 waterSkipping = (rb.position.y < waterThreshold && Singleton<GameWorld>.Instance.MainPlayer.Location == "Woods");
