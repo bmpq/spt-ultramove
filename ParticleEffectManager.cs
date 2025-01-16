@@ -24,10 +24,12 @@ namespace ultramove
         private const int PoolSize = 10; // Adjust based on expected usage
 
         ParticleSystem particleFall;
+        ParticleSystem particleDash;
 
         private void Init()
         {
             particleFall = Instantiate(BundleLoader.LoadAssetBundle(BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("FallParticle")).GetComponent<ParticleSystem>();
+            particleDash = Instantiate(BundleLoader.LoadAssetBundle(BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("DashParticle")).GetComponent<ParticleSystem>();
 
             // Pre-populate the pool with reusable particle systems
             for (int i = 0; i < PoolSize; i++)
@@ -48,6 +50,22 @@ namespace ultramove
                     particleFall.Play();
                 else
                     particleFall.Stop();
+            }
+        }
+
+        public void PlayDash(Vector3 pos, Vector3 dir, bool on)
+        {
+            particleDash.transform.position = pos;
+
+            if (dir != Vector3.zero)
+                particleDash.transform.rotation = Quaternion.LookRotation(dir);
+
+            if (particleDash.isPlaying != on)
+            {
+                if (on)
+                    particleDash.Play();
+                else
+                    particleDash.Stop();
             }
         }
 

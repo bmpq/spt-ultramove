@@ -209,6 +209,7 @@ namespace ultramove
             lightSliding.transform.position = psSlide.gameObject.transform.position;
 
             ParticleEffectManager.Instance.PlaySlam(transform.position + new Vector3(0, 2, 0), slamming);
+            ParticleEffectManager.Instance.PlayDash(transform.position + dashDir * 10f, dashDir, dashTime > 0f);
 
             PlayerAudio.Instance.Loop("wallcling", sliding && groundCheck.isGrounded, transform.position + slideDir + new Vector3(0, 0.1f, 0));
 
