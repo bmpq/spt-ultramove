@@ -272,7 +272,7 @@ namespace ultramove
                         PlayerAudio.Instance.PlayWalk();
                 }
             }
-            else if (!sliding && !slamming)
+            else if (!sliding)
             {
                 Vector3 relativeVelocity = transform.InverseTransformDirection(rb.velocity);
 
@@ -294,15 +294,17 @@ namespace ultramove
 
                 if (DetectWall(out Vector3 wallNormal))
                 {
-                    rb.velocity = new Vector3(rb.velocity.x * 0.9f, Mathf.Max(-1f, rb.velocity.y), rb.velocity.z * 0.9f);
+                    if (!slamming)
+                        rb.velocity = new Vector3(rb.velocity.x, Mathf.Max(-1f, rb.velocity.y), rb.velocity.z);
 
                     if (toJump && jumpCooldown <= 0f)
                     {
                         toJump = false;
                         jumpCooldown = 0.1f;
 
-                        Vector3 jumpDirection = (wallNormal * 0.75f) + Vector3.up;
-                        rb.AddForce(jumpDirection.normalized * jumpPower);
+                        Vector3 jumpDirection = (wallNormal * 0.8f) + Vector3.up;
+                        rb.velocity = new Vector3(rb.velocity.x, Mathf.Max(0, rb.velocity.y), rb.velocity.z);
+                        rb.AddForce(jumpDirection.normalized * jumpPower * 1.4f);
                     }
                 }
             }
@@ -343,7 +345,7 @@ namespace ultramove
                 dashTime = -1f;
                 slamming = true;
                 toSlam = false;
-                rb.velocity = new Vector3(0, -50f, 0);
+                rb.velocity = new Vector3(0, -40f, 0);
             }
 
             if (sliding)
