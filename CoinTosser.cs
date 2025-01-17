@@ -18,6 +18,8 @@ namespace ultramove
         List<Coin> coinPool;
         List<GameObject> glintPool;
 
+        int coinCounter;
+
         private void Start()
         {
             coinPool = new List<Coin>();
@@ -77,10 +79,18 @@ namespace ultramove
             {
                 glintPool[i].transform.position = new Vector3(0, -900, 0);
             }
+
+            if (Input.GetKeyDown(KeyCode.F3))
+            {
+                coinCounter = 0;
+            }
         }
 
         public void Toss()
         {
+            if (coinCounter == 0)
+                Comfort.Common.Singleton<UltraTime>.Instance.SlowMo(2f, 0.4f);
+
             Vector3 newPos = cam.transform.position + (cam.transform.forward * 0.8f) + (cam.transform.up * -0.7f);
 
             Coin coin = GetCoin();
@@ -100,6 +110,8 @@ namespace ultramove
             newRb.angularDrag = 0;
 
             coin.Activate();
+
+            coinCounter++;
         }
 
         Coin GetCoin()
