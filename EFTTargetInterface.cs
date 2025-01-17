@@ -123,7 +123,7 @@ namespace ultramove
 
         public static void Slam(Vector3 pos)
         {
-            float maxDist = 5f;
+            float maxDist = 10f;
 
             foreach (Player player in Singleton<GameWorld>.Instance.AllAlivePlayersList)
             {
@@ -133,7 +133,9 @@ namespace ultramove
                 if (Vector3.Distance(player.Position, pos) > maxDist)
                     continue;
 
-                player.Jump();
+                player.MovementContext.SetPoseLevel(1f, true);
+                player.gameObject.GetComponent<BotOwner>().AimingData.SetTarget(player.Transform.position + new Vector3(0, 50f, 0));
+                player.gameObject.GetOrAddComponent<EnemyPropeller>().addVelocity = new Vector3(0, 40, 0);
 
                 if (player.MainParts.TryGetValue(BodyPartType.leftLeg, out EnemyPart part))
                 {
@@ -144,7 +146,7 @@ namespace ultramove
                     {
                         if (hit.collider.TryGetComponent<BodyPartCollider>(out BodyPartCollider bodyPartCollider))
                         {
-                            if (bodyPartCollider.Player == Singleton<GameWorld>.Instance.MainPlayer)
+                            if (!bodyPartCollider.Player.IsYourPlayer)
                                 continue;
 
                             EFTBallisticsInterface.Instance.Hit(bodyPartCollider, hit, 90f);
