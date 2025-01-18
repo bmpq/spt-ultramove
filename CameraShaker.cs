@@ -11,13 +11,17 @@ namespace ultramove
         private static float shakeIntensity;
 
         PrismEffects prism;
+        float originalBloomThreshold;
+        float originalBloomIntensity;
+        bool originalUseBloom;
 
         void Start()
         {
             instance = this;
             prism = GetComponent<PrismEffects>();
-            prism.bloomThreshold = 0f;
-            prism.bloomIntensity = 0.5f;
+            originalBloomThreshold = prism.bloomThreshold;
+            originalBloomIntensity = prism.bloomIntensity;
+            originalUseBloom = prism.useBloom;
         }
 
         private static IEnumerator DelayedShakeCoroutine(float intensity, float delay)
@@ -45,7 +49,18 @@ namespace ultramove
             if (shakeIntensity < 0f)
                 shakeIntensity = 0f;
 
-            prism.useBloom = Time.timeScale < 0.1f;
+            if (Time.timeScale < 0.1f)
+            {
+                prism.bloomThreshold = 0;
+                prism.bloomIntensity = 0.5f;
+                prism.useBloom = true;
+            }
+            else
+            {
+                prism.bloomThreshold = originalBloomThreshold;
+                prism.bloomIntensity = originalBloomIntensity;
+                prism.useBloom = originalUseBloom;
+            }
         }
     }
 }
