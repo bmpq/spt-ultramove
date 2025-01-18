@@ -233,6 +233,19 @@ namespace ultramove
                 CameraShaker.Shake(0.3f);
         }
 
+        public void Repel(Vector3 worldPoint)
+        {
+            Vector3 direction = transform.position - worldPoint;
+            Vector3 normalizedDirection = direction.normalized;
+            float repulsionStrength = 30000f;
+
+            Vector3 repulsionVelocity = normalizedDirection * repulsionStrength;
+
+            float distance = direction.magnitude;
+            float forceMagnitude = repulsionStrength / Mathf.Max(0.1f, distance); // Avoid division by zero
+            rb.AddForce(normalizedDirection * forceMagnitude + new Vector3(0, jumpPower / 3f, 0));
+        }
+
         void Slam()
         {
             CameraShaker.Shake(1f);

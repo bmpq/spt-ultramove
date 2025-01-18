@@ -94,6 +94,8 @@ namespace ultramove
                     CameraShaker.Shake(1f);
 
                     animator.speed = 1f;
+
+                    Singleton<GameWorld>.Instance.MainPlayer.gameObject.GetComponent<UltraMovement>().Repel(transform.position);
                 }
             }
         }
