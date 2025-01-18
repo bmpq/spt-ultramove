@@ -145,6 +145,7 @@ namespace ultramove
                 Direction = UnityEngine.Random.onUnitSphere,
                 HitNormal = hit.normal,
                 HitPoint = hit.point,
+                MasterOrigin = hit.point,
                 Player = player,
                 IsForwardHit = true,
                 HittedBallisticCollider = ballisticCollider
@@ -173,7 +174,8 @@ namespace ultramove
                         Player = player,
                         HitPoint = enemy.MainParts[BodyPartType.head].Position,
                         HitNormal = (pos - enemy.MainParts[BodyPartType.head].Position).normalized,
-                        IsForwardHit = true
+                        IsForwardHit = true,
+                        MasterOrigin = pos
                     };
 
                     enemy.ApplyDamageInfo(damageInfo, EBodyPart.Head, EBodyPartColliderType.HeadCommon, 0);

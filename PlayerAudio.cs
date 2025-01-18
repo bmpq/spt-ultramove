@@ -85,12 +85,13 @@ namespace ultramove
             if (sourceWalk == null)
             {
                 sourceWalk = Singleton<BetterAudio>.Instance.GetSource(BetterAudio.AudioSourceGroupType.Collisions, true);
+                sourceWalk.SetBaseVolume(0.5f);
                 sourceWalk.Loop = false;
             }
             sourceWalk.Position = player.position;
 
             AudioClip clip = footstepClips[random.Next(footstepClips.Length)];
-            sourceWalk.SetPitch(UnityEngine.Random.Range(0.9f, 1.1f));
+            sourceWalk.SetPitch(UnityEngine.Random.Range(0.8f, 1.2f));
             sourceWalk.Play(clip, null, 1f, 0.5f, false, true);
 
             nextStepTime = Time.time + walkCooldown;

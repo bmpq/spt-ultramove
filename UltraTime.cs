@@ -37,6 +37,12 @@ namespace ultramove
                 return; // Exit early to avoid slow-mo logic while freezing
             }
 
+            if (Input.GetKey(KeyCode.Tab))
+            {
+                slowMoDurationRemaining = 0.1f;
+                targetTimeScale = 0.4f;
+            }
+
             // Handle slow-motion
             if (slowMoDurationRemaining > 0f)
             {

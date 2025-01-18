@@ -71,6 +71,8 @@ namespace ultramove
 
                 // Determine spread direction
                 Vector3 spreadDir = CalculateSpreadDirection(dir, spread);
+                if (i == 0)
+                    spreadDir = dir;
                 Vector3 startVel = addVelocity + spreadDir * projectileSpeed;
 
                 projectile.enabled = true;

@@ -135,7 +135,7 @@ namespace ultramove
             }
             else if (cooldown < 0)
             {
-                if (EFTTargetInterface.LineOfSight(transform.position, EFTTargetInterface.GetPlayerPosition(), out RaycastHit hit))
+                if (EFTTargetInterface.LineOfSight(transform.position, EFTTargetInterface.GetPlayerPosition() + new Vector3(0, 1.5f, 0), out RaycastHit hit))
                 {
                     if (projectileShotThisCycle < 6)
                     {
@@ -151,7 +151,7 @@ namespace ultramove
                         projectileShotThisCycle = 0;
 
                         float distToPlayer = Vector3.Distance(EFTTargetInterface.GetPlayerPosition(), transform.position);
-                        if (distToPlayer < 15f)
+                        if (distToPlayer < 30f)
                         {
                             chargingBeamProgress = 0f;
                             chargingBeam = true;
@@ -205,8 +205,11 @@ namespace ultramove
             if (distToPlayer > 15f)
                 targetVel = (EFTTargetInterface.GetPlayerPosition() - transform.position).normalized;
 
-            if (DistanceToFloor() < 5f)
-                targetVel.y = Mathf.Max(targetVel.y, 0);
+            float distToFloor = DistanceToFloor();
+            if (distToFloor < 5f)
+                targetVel.y = 5f;
+            else if (distToFloor > 10f)
+                targetVel.y = -5f;
 
             if (chargingBeam)
                 targetVel = Vector3.zero;

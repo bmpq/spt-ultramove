@@ -16,6 +16,9 @@ namespace ultramove
 
         void LateUpdate()
         {
+            if (addVelocity == Vector3.zero)
+                return;
+
             player.Position += addVelocity * Time.deltaTime;
         }
 
