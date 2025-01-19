@@ -67,8 +67,6 @@ namespace ultramove
             gameObject.layer = 10; // PlayerCollisionTest
             groundLayer = LayerMask.NameToLayer("LowPolyCollider");
 
-            Physics.gravity = new Vector3(0, -40f, 0);
-
             rb = GetComponent<Rigidbody>();
             rb.isKinematic = false;
             rb.useGravity = true;
@@ -259,6 +257,11 @@ namespace ultramove
 
             bool grounded = groundCheck.isGrounded;
             rb.useGravity = !grounded;
+
+            if (rb.useGravity)
+            {
+                rb.AddForce(Physics.gravity * 3f, ForceMode.Acceleration);
+            }
 
             rb.angularVelocity = Vector3.zero;
             rb.MoveRotation(Quaternion.Euler(0, horizontalRotation, 0));

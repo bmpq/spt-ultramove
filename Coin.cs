@@ -204,6 +204,14 @@ namespace ultramove
             return false;
         }
 
+        void FixedUpdate()
+        {
+            if (rb.useGravity)
+            {
+                rb.AddForce(Physics.gravity * 3f, ForceMode.Acceleration);
+            }
+        }
+
         private void Update()
         {
             if (!active)
