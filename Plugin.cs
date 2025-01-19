@@ -12,6 +12,7 @@ public class Plugin : BaseUnityPlugin
     internal static new ManualLogSource Log;
 
     internal static ConfigEntry<bool> Enabled;
+    internal static ConfigEntry<bool> WhiplashItemInHand;
 
     private void Start()
     {
@@ -30,5 +31,6 @@ public class Plugin : BaseUnityPlugin
     private void InitConfiguration()
     {
         Enabled = Config.Bind("General", "Enabled", true, "");
+        WhiplashItemInHand = Config.Bind("Whiplash", "Yoink", false, "Whiplash grabs the enemy's gun instead of the enemy");
     }
 }

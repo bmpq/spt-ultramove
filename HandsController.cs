@@ -1,5 +1,6 @@
 ﻿using Comfort.Common;
 using EFT;
+using EFT.AssetsManager;
 using EFT.Ballistics;
 using EFT.Interactive;
 using EFT.InventoryLogic;
@@ -271,7 +272,7 @@ namespace ultramove
                 currentWhiplashEnd = cam.transform.position + (cam.transform.forward * 0.8f) - (cam.transform.up * 0.2f);
                 whiplashPullingObject = null;
 
-                Transform autoAimTarget = EFTTargetInterface.GetAutoAimTarget(palmL.transform.position + cam.transform.forward, cam.transform.forward, 30f);
+                Transform autoAimTarget = EFTTargetInterface.GetAutoAimTarget(palmL.transform.position + cam.transform.forward, cam.transform.forward, 15f);
                 if (autoAimTarget != null)
                 {
                     whiplashThrowVelocity = rb.velocity + ((autoAimTarget.position - cam.transform.position).normalized * whiplashStartSpeed);
@@ -337,8 +338,26 @@ namespace ultramove
 
                     if (hit.collider.TryGetComponent<BodyPartCollider>(out BodyPartCollider bpc))
                     {
-                        whiplashPullingObject = bpc.Player.Transform.Original;
-                        whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(hit.point);
+                        Player bot = (bpc.Player as Player);
+
+                        if (Plugin.WhiplashItemInHand.Value && !bot.HandsIsEmpty)
+                        {
+                            whiplashPullingObject = Instantiate(bot.HandsController.ControllerGameObject).transform;
+                            whiplashPullingObject.GetComponent<ObservedLootItem>().MakePhysicsObject();
+                            whiplashPullingObject.localScale = Vector3.one;
+
+                            List<Renderer> rends = whiplashPullingObject.GetComponent<AssetPoolObject>().Renderers;
+                            whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(rends[rends.Count / 2].bounds.center);
+                            Component.Destroy(whiplashPullingObject.GetComponentInChildren<Animator>());
+
+                            bot.HandsController.ControllerGameObject.transform.FindInChildrenExact("weapon").gameObject.SetActive(false);
+                            bot.SetEmptyHands(null);
+                        }
+                        else
+                        {
+                            whiplashPullingObject = bpc.Player.Transform.Original;
+                            whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(hit.point);
+                        }
                     }
                     else if (hit.collider.gameObject.TryGetComponentInParent<Door>(out Door door))
                     {
@@ -378,9 +397,10 @@ namespace ultramove
                 {
                     whiplashState = WhiplashState.Idle;
 
-                    if (whiplashPullingObject != null && whiplashPullingObject.gameObject.TryGetComponentInParent<ObservedLootItem>(out ObservedLootItem lootItem))
+                    if (whiplashPullingObject != null && whiplashPullingObject.gameObject.TryGetComponentInParent<Rigidbody>(out Rigidbody rb))
                     {
-                        lootItem.RigidBody.isKinematic = false;
+                        rb.isKinematic = false;
+                        rb.angularVelocity = Random.onUnitSphere * 4f;
                     }
                     whiplashPullingObject = null;
                 }
@@ -527,7 +547,7 @@ namespace ultramove
             bool parried = false;
 
             int layerMask = 1 << 16 | 1 << 15 | 1 << 13;
-            RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, 0.8f, cam.transform.forward, 4f, layerMask);
+            RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, 1.3f, cam.transform.forward, 3f, layerMask);
 
             RaycastHit hit = new RaycastHit();
 
@@ -550,6 +570,8 @@ namespace ultramove
                     itemrb.useGravity = true;
                     itemrb.velocity = rb.velocity + (cam.transform.forward * 30f) + (Vector3.up * 24f);
                     itemrb.angularVelocity = Random.onUnitSphere * 60f;
+
+                    lootItem.GetOrAddComponent<Projectile>().Parry(cam.transform);
 
                     whiplashState = WhiplashState.Idle;
                     whiplashPullingObject = null;

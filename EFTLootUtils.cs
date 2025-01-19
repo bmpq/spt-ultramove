@@ -1,4 +1,5 @@
-﻿using EFT.Interactive;
+﻿using EFT.AssetsManager;
+using EFT.Interactive;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,29 +14,25 @@ namespace ultramove
     {
         public static void MakePhysicsObject(this ObservedLootItem itemObject)
         {
-            Collider[] allColliders = itemObject.GetComponentsInChildren<Collider>();
-            Collider mainCol = allColliders[0];
-            foreach (Collider collider in allColliders)
+            if (itemObject.TryGetComponent<AssetPoolObject>(out AssetPoolObject assetPoolObject))
             {
-                if (collider.gameObject.GetComponent<Renderer>() != null)
+                foreach (var col in assetPoolObject.GetColliders(false))
                 {
-                    collider.enabled = false;
-                    continue;
+                    col.enabled = true;
+                    col.gameObject.layer = 15;
                 }
-
-                mainCol = collider;
             }
 
-            mainCol.enabled = true;
-            mainCol.gameObject.transform.localScale *= 1.15f;
-
-            itemObject.transform.parent = null;
             itemObject.gameObject.layer = 15;
 
             Rigidbody rb = itemObject.GetOrAddComponent<Rigidbody>();
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
-            rb.mass = itemObject.Item.Weight;
+            rb.isKinematic = true;
 
+            if (itemObject.Item != null)
+            {
+                rb.mass = itemObject.Item.Weight;
+            }
             itemObject.SetItemAndRigidbody(itemObject.Item, rb);
 
             if (itemObject.GetComponent<Collider>() != null)
