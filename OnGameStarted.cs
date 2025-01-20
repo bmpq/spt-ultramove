@@ -59,19 +59,7 @@ namespace ultramove
             Collider[] cols = playerBody.GetComponentsInChildren<Collider>();
             foreach (Collider col in cols)
             {
-                if (col is SphereCollider sphere)
-                {
-                    sphere.radius *= 0.3f;
-                }
-                else if (col is CapsuleCollider capsule)
-                {
-                    capsule.radius *= 0.3f;
-                    capsule.height *= 0.3f;
-                }
-                else if (col is BoxCollider box)
-                {
-                    box.size *= 0.3f;
-                }
+                col.gameObject.layer = 17;
             }
 
             foreach (Renderer rend in playerBody.BodySkins[EBodyModelPart.Hands].GetRenderers())
