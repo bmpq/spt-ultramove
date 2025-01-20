@@ -14,6 +14,8 @@ namespace ultramove
         TrailRenderer trailRenderer;
         Collider[] colliders;
 
+        MeshRenderer meshRenderer;
+
         public float timeActive { get; private set; }
 
         public const float SPLITWINDOWSTART = 0.33f;
@@ -38,6 +40,8 @@ namespace ultramove
 
         void Init()
         {
+            meshRenderer = GetComponentInChildren<MeshRenderer>();
+
             rb = GetComponent<Rigidbody>();
             init = true;
             trailRenderer = GetComponent<TrailRenderer>();
@@ -60,6 +64,7 @@ namespace ultramove
             if (!init)
                 Init();
 
+            meshRenderer.enabled = true;
             rb.isKinematic = false;
             activeCoins.Add(this);
             active = true;
@@ -72,6 +77,7 @@ namespace ultramove
 
         public void Freeze()
         {
+            meshRenderer.enabled = false;
             rb.isKinematic = true;
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
@@ -79,6 +85,8 @@ namespace ultramove
 
         public void Hit(float dmg, bool split = false, bool rail = false)
         {
+            Freeze();
+
             dmg *= 2f;
 
             if (!split)
@@ -91,8 +99,6 @@ namespace ultramove
             PlayerAudio.Instance.Play("Ricochet", 1f);
             ParticleEffectManager.Instance.PlayEffectCoinRicochet(transform);
             timeLastRicoshot = Time.time;
-
-            rb.isKinematic = false;
 
             Disable();
 
@@ -167,8 +173,6 @@ namespace ultramove
 
         private IEnumerator DelayHit(Coin hitCoin, float dmg, bool split, bool rail)
         {
-            hitCoin.Freeze();
-
             yield return new WaitForSeconds(0.1f);
             hitCoin.Hit(dmg, split, rail);
 
