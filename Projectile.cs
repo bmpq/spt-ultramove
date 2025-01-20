@@ -50,6 +50,7 @@ namespace ultramove
         void Start()
         {
             gameObject.layer = 13;
+            lifetime = 20f;
         }
 
         public void Initialize(Vector3 position, Vector3 velocity)
@@ -80,6 +81,11 @@ namespace ultramove
             this.enabled = false;
         }
 
+        void OnDisable()
+        {
+            primed = false;
+        }
+
         private void Update()
         {
             timeSinceSpawned += Time.deltaTime;
@@ -95,7 +101,11 @@ namespace ultramove
         {
             this.enabled = true;
 
-            rb.velocity = source.forward * 100f;
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.angularVelocity = UnityEngine.Random.onUnitSphere * 60f;
+            rb.velocity = source.forward * 40f;
+            //rb.velocity + (source.forward * 30f) + (Vector3.up * 24f);
             primed = true;
         }
 
@@ -113,8 +123,8 @@ namespace ultramove
             else
                 EFTBallisticsInterface.Instance.Hit(col, 30f);
 
-            OnProjectileDone?.Invoke(this);
             gameObject.SetActive(false);
+            OnProjectileDone?.Invoke(this);
         }
     }
 }

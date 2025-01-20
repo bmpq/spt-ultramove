@@ -344,11 +344,8 @@ namespace ultramove
                         {
                             whiplashPullingObject = Instantiate(bot.HandsController.ControllerGameObject).transform;
                             whiplashPullingObject.GetComponent<ObservedLootItem>().MakePhysicsObject();
-                            whiplashPullingObject.localScale = Vector3.one;
 
-                            List<Renderer> rends = whiplashPullingObject.GetComponent<AssetPoolObject>().Renderers;
-                            whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(rends[rends.Count / 2].bounds.center);
-                            Component.Destroy(whiplashPullingObject.GetComponentInChildren<Animator>());
+                            whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(whiplashPullingObject.GetComponent<BoxCollider>().bounds.center);
 
                             bot.HandsController.ControllerGameObject.transform.FindInChildrenExact("weapon").gameObject.SetActive(false);
                             bot.SetEmptyHands(null);
@@ -364,15 +361,18 @@ namespace ultramove
                         if (door.DoorState == EDoorState.Locked ||
                             door.DoorState == EDoorState.Shut)
                             door.Interact(EFT.EInteractionType.Breach);
+                        else if (door.DoorState == EDoorState.Open)
+                            door.Interact(EFT.EInteractionType.Close);
                     }
                     else if (hit.collider.gameObject.TryGetComponentInParent<ObservedLootItem>(out ObservedLootItem lootItem))
                     {
                         whiplashPullingObject = lootItem.transform;
                         whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(hit.point);
 
-                        if (lootItem.RigidBody == null)
+                        if (lootItem.TryGetComponent<Rigidbody>(out Rigidbody itemrb))
+                            itemrb.isKinematic = true;
+                        else
                             lootItem.MakePhysicsObject();
-                        lootItem.RigidBody.isKinematic = true;
                     }
                 }
 
@@ -562,16 +562,9 @@ namespace ultramove
 
             if (!parried && whiplashState == WhiplashState.Pulling && Vector3.Distance(cam.transform.position, currentWhiplashEnd) < 3f)
             {
-                if (whiplashPullingObject != null && whiplashPullingObject.gameObject.TryGetComponentInParent<ObservedLootItem>(out ObservedLootItem lootItem))
+                if (whiplashPullingObject != null && whiplashPullingObject.gameObject.TryGetComponentInParent<Rigidbody>(out Rigidbody rbitem))
                 {
-                    lootItem.RigidBody.isKinematic = false;
-
-                    Rigidbody itemrb = lootItem.RigidBody;
-                    itemrb.useGravity = true;
-                    itemrb.velocity = rb.velocity + (cam.transform.forward * 30f) + (Vector3.up * 24f);
-                    itemrb.angularVelocity = Random.onUnitSphere * 60f;
-
-                    lootItem.GetOrAddComponent<Projectile>().Parry(cam.transform);
+                    rbitem.gameObject.GetOrAddComponent<Projectile>().Parry(cam.transform);
 
                     whiplashState = WhiplashState.Idle;
                     whiplashPullingObject = null;
