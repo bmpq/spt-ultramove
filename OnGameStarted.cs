@@ -69,7 +69,6 @@ namespace ultramove
             }
 
             goPlayer.AddComponent<UltraMovement>();
-            goPlayer.AddComponent<DoorOpener>();
             goPlayer.AddComponent<HandsInertia>();
             goPlayer.AddComponent<CoinTosser>().SetPrefab(
                 bundleUltrakill.LoadAsset<GameObject>("bitcoin"), 

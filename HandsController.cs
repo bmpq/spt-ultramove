@@ -517,7 +517,7 @@ namespace ultramove
 
             bool parried = false;
 
-            int layerMask = 1 << 16 | 1 << 15 | 1 << 13;
+            int layerMask = 1 << 16 | 1 << 15 | 1 << 13 | 1 << 9;
             RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, 1.3f, cam.transform.forward, 3f, layerMask);
 
             RaycastHit hit = new RaycastHit();
