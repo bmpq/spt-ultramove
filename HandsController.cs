@@ -35,6 +35,8 @@ namespace ultramove
 
         CoinTosser coinTosser;
 
+        float timeLastParry;
+
         Camera cam;
         Rigidbody rb;
 
@@ -42,11 +44,6 @@ namespace ultramove
         SpringSimulation recoilHorizontal = new SpringSimulation(0, 0);
         Dictionary<Weapon, ReloadingAnimation> reloadingAnimations;
         float reloadingTime;
-
-        MeshRenderer muzzleFlash;
-        Light muzzleFlashLight;
-
-        Coroutine animMuzzleFlash;
 
         enum WhiplashState
         {
@@ -188,12 +185,6 @@ namespace ultramove
             {
                 kvp.Value.SetRecoilPivotTransform(recoilPivot);
             }
-
-            muzzleFlash = Instantiate(AssetBundleLoader.BundleLoader.LoadAssetBundle(AssetBundleLoader.BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("glint")).GetComponentInChildren<MeshRenderer>();
-            muzzleFlash.material = new Material(Shader.Find("Sprites/Default"));
-            muzzleFlash.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            muzzleFlashLight = new GameObject("LightMuzzleFlash").AddComponent<Light>();
-            muzzleFlashLight.transform.position = new Vector3(0f, -200f, 0f);
 
             ropeVisual = gameObject.AddComponent<RopeVisual>();
             spearhead = Instantiate(AssetBundleLoader.BundleLoader.LoadAssetBundle(AssetBundleLoader.BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("SpearheadPrefab"));
@@ -349,6 +340,8 @@ namespace ultramove
 
                             bot.HandsController.ControllerGameObject.transform.FindInChildrenExact("weapon").gameObject.SetActive(false);
                             bot.SetEmptyHands(null);
+
+                            Singleton<UltraTime>.Instance.Freeze(0, 0.5f);
                         }
                         else
                         {
@@ -493,39 +486,12 @@ namespace ultramove
 
                 if (!currentWeaponIsFullauto || Random.value > 0.5f)
                 {
-                    muzzleFlash.transform.position = origin;
-                    muzzleFlash.material.color = colorMuzzle;
-                    if (animMuzzleFlash != null)
-                        StopCoroutine(animMuzzleFlash);
-                    animMuzzleFlash = StartCoroutine(AnimMuzzleFlash(rail));
+                    ParticleEffectManager.Instance.PlayGlint(origin, colorMuzzle, rail ? 0.5f : 0.2f);
                 }
             }
         }
 
-        IEnumerator AnimMuzzleFlash(bool rail)
-        {
-            float t = 0f;
-
-            muzzleFlash.transform.rotation = Random.rotation;
-
-            muzzleFlashLight.transform.position = muzzleFlash.transform.position;
-            muzzleFlashLight.shadows = LightShadows.None;
-            muzzleFlashLight.range = 4f;
-            muzzleFlashLight.color = muzzleFlash.material.color;
-
-            while (t < 1f)
-            {
-                t += Time.deltaTime * (rail ? 2f : 5f);
-
-                float e = 1f - Mathf.Pow(1f - t, 3f);
-
-                muzzleFlash.transform.localScale = Vector3.Lerp(Vector3.one * (rail ? 0.1f : 0.05f), Vector3.zero, e);
-
-                muzzleFlashLight.intensity = Mathf.Lerp(7f, 0f, e);
-
-                yield return null;
-            }
-        }
+        
 
         void Coin()
         {
@@ -542,6 +508,9 @@ namespace ultramove
 
         void Parry()
         {
+            if ((Time.time - timeLastParry) < 0.1f)
+                return;
+
             spearhead.SetActive(false);
 
             bool parried = false;
@@ -575,6 +544,8 @@ namespace ultramove
 
             if (parried)
             {
+                timeLastParry = Time.time;
+
                 animator.SetTrigger("Parry");
 
                 Singleton<UltraTime>.Instance.Freeze(0.05f, 0.25f);

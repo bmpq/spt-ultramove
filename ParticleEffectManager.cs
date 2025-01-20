@@ -1,4 +1,5 @@
 ﻿using AssetBundleLoader;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,6 +37,8 @@ namespace ultramove
             {
                 particlePool.Enqueue(CreateParticleSystem());
             }
+
+            InitGlint();
         }
 
         public void PlaySlam(Vector3 pos, bool on)
@@ -152,6 +155,51 @@ namespace ultramove
             ps.Stop();
 
             particlePool.Enqueue(ps);
+        }
+
+        void InitGlint()
+        {
+            glint = Instantiate(BundleLoader.LoadAssetBundle(BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("glint")).GetComponentInChildren<MeshRenderer>();
+            glint.material = new Material(Shader.Find("Sprites/Default"));
+            glint.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            glintLight = new GameObject("GlintLight").AddComponent<Light>();
+        }
+
+        MeshRenderer glint;
+        Light glintLight;
+        Coroutine animGlint;
+
+        public void PlayGlint(Vector3 pos, Color color, float duration)
+        {
+            if (animGlint != null)
+                StopCoroutine(animGlint);
+            animGlint = StartCoroutine(AnimGlint(pos, color, duration));
+        }
+
+        IEnumerator AnimGlint(Vector3 pos, Color color, float duration)
+        {
+            float t = 0f;
+
+            glint.transform.position = pos;
+            glint.transform.rotation = Random.rotation;
+            glint.material.color = color;
+
+            glintLight.transform.position = pos;
+            glintLight.shadows = LightShadows.None;
+            glintLight.range = 4f;
+            glintLight.color = color;
+
+            while (t < duration)
+            {
+                t += Time.deltaTime;
+
+                float e = 1f - Mathf.Pow(1f - t / duration, 3f);
+
+                glint.transform.localScale = Vector3.Lerp(Vector3.one * 0.1f, Vector3.zero, e);
+                glintLight.intensity = Mathf.Lerp(7f, 0f, e);
+
+                yield return null;
+            }
         }
     }
 }
