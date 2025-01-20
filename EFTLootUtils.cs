@@ -72,6 +72,8 @@ namespace ultramove
                 itemObject.transform.rotation = origItemRot;
             }
 
+            itemObject.GetOrAddComponent<DebugMonitor>();
+
             Rigidbody rb = itemObject.GetOrAddComponent<Rigidbody>();
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
             rb.isKinematic = true;
