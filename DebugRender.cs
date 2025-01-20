@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace tui
 {
@@ -11,29 +6,8 @@ namespace tui
     {
         public static GUIStyle StringStyle { get; set; } = new GUIStyle(GUI.skin.label);
 
-        public static Vector2 ScreenCenter
-        {
-            get
-            {
-                return new Vector2((float)Screen.width / 2f, (float)Screen.height / 2f);
-            }
-        }
-
-        public static Color Color
-        {
-            get
-            {
-                return GUI.color;
-            }
-            set
-            {
-                GUI.color = value;
-            }
-        }
-
         public static Vector2 DrawString(Vector2 position, string label, Color color, bool centered = true)
         {
-            DebugRender.Color = color;
             return DebugRender.DrawString(position, label, centered);
         }
 
@@ -54,7 +28,6 @@ namespace tui
 
         public static void DrawCrosshair(Vector2 position, float size, Color color, float thickness)
         {
-            DebugRender.Color = color;
             Texture2D whiteTexture = Texture2D.whiteTexture;
             GUI.DrawTexture(new Rect(position.x - size, position.y, size * 2f + thickness, thickness), whiteTexture);
             GUI.DrawTexture(new Rect(position.x, position.y - size, thickness, size * 2f + thickness), whiteTexture);
@@ -62,7 +35,6 @@ namespace tui
 
         public static void DrawBox(float x, float y, float w, float h, float thickness, Color color)
         {
-            DebugRender.Color = color;
             Texture2D whiteTexture = Texture2D.whiteTexture;
             GUI.DrawTexture(new Rect(x, y, w + thickness, thickness), whiteTexture);
             GUI.DrawTexture(new Rect(x, y, thickness, h + thickness), whiteTexture);
@@ -72,7 +44,6 @@ namespace tui
 
         public static void DrawLine(Vector2 lineStart, Vector2 lineEnd, float thickness, Color color)
         {
-            DebugRender.Color = color;
             Vector2 vector = lineEnd - lineStart;
             float num = 57.29578f * Mathf.Atan(vector.y / vector.x);
             if (vector.x < 0f)
@@ -85,7 +56,7 @@ namespace tui
             }
             int num2 = checked((int)Mathf.Ceil(thickness / 2f));
             GUIUtility.RotateAroundPivot(num, lineStart);
-            GUI.DrawTexture(new Rect(lineStart.x, lineStart.y - (float)num2, vector.magnitude, thickness), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(lineStart.x, lineStart.y - (float)num2, vector.magnitude, thickness), Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 1f, color, 0f, 0f);
             GUIUtility.RotateAroundPivot(-num, lineStart);
         }
 
@@ -130,7 +101,20 @@ namespace tui
             return num * num * num * s + 3f * num * num * t * st + 3f * num * t * t * et + t * t * t * e;
         }
 
-        public static void DrawBoxOnBounds3d(Camera cam, Bounds bounds, Color color)
+        private static bool IsVisible(Camera camera, Vector3 worldPos)
+        {
+            Vector3 viewportPoint = camera.WorldToViewportPoint(worldPos);
+            return viewportPoint.z > 0; // If z is positive, the point is in front of the camera
+        }
+
+        private static Vector2 WorldToScreen(Camera camera, Vector3 worldPos)
+        {
+            Vector3 screenPoint = camera.WorldToScreenPoint(worldPos);
+            screenPoint.y = (float)Screen.height - screenPoint.y;
+            return screenPoint;
+        }
+
+        public static void DrawBounds(Camera cam, Bounds bounds, Color color)
         {
             Vector3 center = bounds.center;
             Vector3 extents = bounds.extents;
@@ -147,28 +131,21 @@ namespace tui
                 new Vector3(center.x - extents.x, center.y - extents.y, center.z + extents.z)
             };
 
-            // convert world point to screen point
-            Vector2[] screenPoint = new Vector2[worldPoint.Length];
-            for (int i = 0; i < screenPoint.Length; i++)
-            {
-                screenPoint[i] = cam.WorldToScreenPoint(worldPoint[i]);
-                screenPoint[i].y = (float)Screen.height - screenPoint[i].y;
-            }
-
             float thickness = 1.5f;
 
-            DebugRender.DrawLine(screenPoint[0], screenPoint[1], thickness, color);
-            DebugRender.DrawLine(screenPoint[1], screenPoint[2], thickness, color);
-            DebugRender.DrawLine(screenPoint[2], screenPoint[3], thickness, color);
-            DebugRender.DrawLine(screenPoint[3], screenPoint[0], thickness, color);
-            DebugRender.DrawLine(screenPoint[4], screenPoint[5], thickness, color);
-            DebugRender.DrawLine(screenPoint[5], screenPoint[6], thickness, color);
-            DebugRender.DrawLine(screenPoint[6], screenPoint[7], thickness, color);
-            DebugRender.DrawLine(screenPoint[7], screenPoint[4], thickness, color);
-            DebugRender.DrawLine(screenPoint[0], screenPoint[4], thickness, color);
-            DebugRender.DrawLine(screenPoint[1], screenPoint[5], thickness, color);
-            DebugRender.DrawLine(screenPoint[2], screenPoint[6], thickness, color);
-            DebugRender.DrawLine(screenPoint[3], screenPoint[7], thickness, color);
+            // Check if the points are in front of the camera before drawing
+            if (IsVisible(cam, worldPoint[0]) && IsVisible(cam, worldPoint[1])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[0]), WorldToScreen(cam, worldPoint[1]), thickness, color);
+            if (IsVisible(cam, worldPoint[1]) && IsVisible(cam, worldPoint[2])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[1]), WorldToScreen(cam, worldPoint[2]), thickness, color);
+            if (IsVisible(cam, worldPoint[2]) && IsVisible(cam, worldPoint[3])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[2]), WorldToScreen(cam, worldPoint[3]), thickness, color);
+            if (IsVisible(cam, worldPoint[3]) && IsVisible(cam, worldPoint[0])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[3]), WorldToScreen(cam, worldPoint[0]), thickness, color);
+            if (IsVisible(cam, worldPoint[4]) && IsVisible(cam, worldPoint[5])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[4]), WorldToScreen(cam, worldPoint[5]), thickness, color);
+            if (IsVisible(cam, worldPoint[5]) && IsVisible(cam, worldPoint[6])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[5]), WorldToScreen(cam, worldPoint[6]), thickness, color);
+            if (IsVisible(cam, worldPoint[6]) && IsVisible(cam, worldPoint[7])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[6]), WorldToScreen(cam, worldPoint[7]), thickness, color);
+            if (IsVisible(cam, worldPoint[7]) && IsVisible(cam, worldPoint[4])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[7]), WorldToScreen(cam, worldPoint[4]), thickness, color);
+            if (IsVisible(cam, worldPoint[0]) && IsVisible(cam, worldPoint[4])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[0]), WorldToScreen(cam, worldPoint[4]), thickness, color);
+            if (IsVisible(cam, worldPoint[1]) && IsVisible(cam, worldPoint[5])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[1]), WorldToScreen(cam, worldPoint[5]), thickness, color);
+            if (IsVisible(cam, worldPoint[2]) && IsVisible(cam, worldPoint[6])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[2]), WorldToScreen(cam, worldPoint[6]), thickness, color);
+            if (IsVisible(cam, worldPoint[3]) && IsVisible(cam, worldPoint[7])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[3]), WorldToScreen(cam, worldPoint[7]), thickness, color);
         }
 
         public static void DrawBoxCollider(Camera cam, BoxCollider boxCollider, Color color)
@@ -177,6 +154,9 @@ namespace tui
             Transform transform = boxCollider.transform;
             Vector3 center = transform.TransformPoint(boxCollider.center); // Collider's center is local
             Vector3 halfExtents = boxCollider.size / 2f;
+            halfExtents.x *= boxCollider.transform.localScale.x;
+            halfExtents.y *= boxCollider.transform.localScale.y;
+            halfExtents.z *= boxCollider.transform.localScale.z;
 
             // Calculate the eight corner points of the box collider in world space
             Vector3[] worldPoint = new Vector3[]
@@ -191,29 +171,21 @@ namespace tui
             center + transform.rotation * new Vector3(-halfExtents.x, -halfExtents.y, halfExtents.z)
             };
 
-            // Convert world points to screen points
-            Vector2[] screenPoint = new Vector2[worldPoint.Length];
-            for (int i = 0; i < screenPoint.Length; i++)
-            {
-                screenPoint[i] = cam.WorldToScreenPoint(worldPoint[i]);
-                screenPoint[i].y = (float)Screen.height - screenPoint[i].y;
-            }
-
             float thickness = 1.5f;
 
-            // Draw the lines connecting the corners
-            DebugRender.DrawLine(screenPoint[0], screenPoint[1], thickness, color);
-            DebugRender.DrawLine(screenPoint[1], screenPoint[2], thickness, color);
-            DebugRender.DrawLine(screenPoint[2], screenPoint[3], thickness, color);
-            DebugRender.DrawLine(screenPoint[3], screenPoint[0], thickness, color);
-            DebugRender.DrawLine(screenPoint[4], screenPoint[5], thickness, color);
-            DebugRender.DrawLine(screenPoint[5], screenPoint[6], thickness, color);
-            DebugRender.DrawLine(screenPoint[6], screenPoint[7], thickness, color);
-            DebugRender.DrawLine(screenPoint[7], screenPoint[4], thickness, color);
-            DebugRender.DrawLine(screenPoint[0], screenPoint[4], thickness, color);
-            DebugRender.DrawLine(screenPoint[1], screenPoint[5], thickness, color);
-            DebugRender.DrawLine(screenPoint[2], screenPoint[6], thickness, color);
-            DebugRender.DrawLine(screenPoint[3], screenPoint[7], thickness, color);
+            // Check if the points are in front of the camera before drawing
+            if (IsVisible(cam, worldPoint[0]) && IsVisible(cam, worldPoint[1])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[0]), WorldToScreen(cam, worldPoint[1]), thickness, color);
+            if (IsVisible(cam, worldPoint[1]) && IsVisible(cam, worldPoint[2])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[1]), WorldToScreen(cam, worldPoint[2]), thickness, color);
+            if (IsVisible(cam, worldPoint[2]) && IsVisible(cam, worldPoint[3])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[2]), WorldToScreen(cam, worldPoint[3]), thickness, color);
+            if (IsVisible(cam, worldPoint[3]) && IsVisible(cam, worldPoint[0])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[3]), WorldToScreen(cam, worldPoint[0]), thickness, color);
+            if (IsVisible(cam, worldPoint[4]) && IsVisible(cam, worldPoint[5])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[4]), WorldToScreen(cam, worldPoint[5]), thickness, color);
+            if (IsVisible(cam, worldPoint[5]) && IsVisible(cam, worldPoint[6])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[5]), WorldToScreen(cam, worldPoint[6]), thickness, color);
+            if (IsVisible(cam, worldPoint[6]) && IsVisible(cam, worldPoint[7])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[6]), WorldToScreen(cam, worldPoint[7]), thickness, color);
+            if (IsVisible(cam, worldPoint[7]) && IsVisible(cam, worldPoint[4])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[7]), WorldToScreen(cam, worldPoint[4]), thickness, color);
+            if (IsVisible(cam, worldPoint[0]) && IsVisible(cam, worldPoint[4])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[0]), WorldToScreen(cam, worldPoint[4]), thickness, color);
+            if (IsVisible(cam, worldPoint[1]) && IsVisible(cam, worldPoint[5])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[1]), WorldToScreen(cam, worldPoint[5]), thickness, color);
+            if (IsVisible(cam, worldPoint[2]) && IsVisible(cam, worldPoint[6])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[2]), WorldToScreen(cam, worldPoint[6]), thickness, color);
+            if (IsVisible(cam, worldPoint[3]) && IsVisible(cam, worldPoint[7])) DebugRender.DrawLine(WorldToScreen(cam, worldPoint[3]), WorldToScreen(cam, worldPoint[7]), thickness, color);
         }
 
         public static void DrawPlainAxes(Camera camera, Vector3 worldPos, Color color)
@@ -228,31 +200,24 @@ namespace tui
 
             float size = 0.2f;
 
-            Vector2 xa = camera.WorldToScreenPoint(worldPos - new Vector3(size, 0f, 0f));
-            Vector2 xb = camera.WorldToScreenPoint(worldPos + new Vector3(size, 0f, 0f));
-            Vector2 ya = camera.WorldToScreenPoint(worldPos - new Vector3(0f, size, 0f));
-            Vector2 yb = camera.WorldToScreenPoint(worldPos + new Vector3(0f, size, 0f));
-            Vector2 za = camera.WorldToScreenPoint(worldPos - new Vector3(0f, 0f, size));
-            Vector2 zb = camera.WorldToScreenPoint(worldPos + new Vector3(0f, 0f, size));
-
-            // inverting screen space y coordinate
-            xa.y = (float)Screen.height - xa.y;
-            xb.y = (float)Screen.height - xb.y;
-            ya.y = (float)Screen.height - ya.y;
-            yb.y = (float)Screen.height - yb.y;
-            za.y = (float)Screen.height - za.y;
-            zb.y = (float)Screen.height - zb.y;
+            Vector3 xa = worldPos - new Vector3(size, 0f, 0f);
+            Vector3 xb = worldPos + new Vector3(size, 0f, 0f);
+            Vector3 ya = worldPos - new Vector3(0f, size, 0f);
+            Vector3 yb = worldPos + new Vector3(0f, size, 0f);
+            Vector3 za = worldPos - new Vector3(0f, 0f, size);
+            Vector3 zb = worldPos + new Vector3(0f, 0f, size);
 
             float thickness = 1.5f;
 
-            DebugRender.DrawLine(xa, xb, thickness, color);
-            DebugRender.DrawLine(ya, yb, thickness, color);
-            DebugRender.DrawLine(za, zb, thickness, color);
+            // Check if the points are in front of the camera before drawing
+            if (IsVisible(camera, xa) && IsVisible(camera, xb)) DebugRender.DrawLine(WorldToScreen(camera, xa), WorldToScreen(camera, xb), thickness, color);
+            if (IsVisible(camera, ya) && IsVisible(camera, yb)) DebugRender.DrawLine(WorldToScreen(camera, ya), WorldToScreen(camera, yb), thickness, color);
+            if (IsVisible(camera, za) && IsVisible(camera, zb)) DebugRender.DrawLine(WorldToScreen(camera, za), WorldToScreen(camera, zb), thickness, color);
 
             Vector2 letterOffset = new Vector2(0, 10);
-            DebugRender.DrawString(xb + letterOffset, "x", color);
-            DebugRender.DrawString(yb + letterOffset, "y", color);
-            DebugRender.DrawString(zb + letterOffset, "z", color);
+            if (IsVisible(camera, xb)) DrawString(WorldToScreen(camera, xb) + letterOffset, "x", color);
+            if (IsVisible(camera, yb)) DrawString(WorldToScreen(camera, yb) + letterOffset, "y", color);
+            if (IsVisible(camera, zb)) DrawString(WorldToScreen(camera, zb) + letterOffset, "z", color);
         }
     }
 }
