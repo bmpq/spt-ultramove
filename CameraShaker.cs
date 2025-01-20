@@ -52,7 +52,7 @@ namespace ultramove
             if (Time.timeScale < 0.1f)
             {
                 prism.bloomThreshold = 0;
-                prism.bloomIntensity = 0.5f;
+                prism.bloomIntensity = 0.2f;
                 prism.useBloom = true;
             }
             else

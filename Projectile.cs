@@ -46,6 +46,7 @@ namespace ultramove
 
         float timeSinceSpawned;
         float lifetime;
+        float timeSinceParried = 999f;
 
         void Start()
         {
@@ -89,6 +90,7 @@ namespace ultramove
         private void Update()
         {
             timeSinceSpawned += Time.deltaTime;
+            timeSinceParried += Time.deltaTime;
 
             if (timeSinceSpawned >= lifetime)
             {
@@ -107,11 +109,15 @@ namespace ultramove
             rb.velocity = source.forward * 40f;
             //rb.velocity + (source.forward * 30f) + (Vector3.up * 24f);
             primed = true;
+            timeSinceParried = 0f;
         }
 
         void OnCollisionEnter(Collision col)
         {
             if (!enabled)
+                return;
+
+            if (timeSinceParried < 0.05f)
                 return;
 
             if (primed)

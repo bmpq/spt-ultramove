@@ -19,10 +19,12 @@ namespace ultramove
             Collider[] allcols = itemObject.GetComponentsInChildren<Collider>();
             for (int i = 0; i < allcols.Length; i++)
             {
+                allcols[i].enabled = false;
                 Component.Destroy(allcols[i]);
             }
 
             itemObject.gameObject.layer = 15;
+            itemObject.gameObject.transform.localScale = Vector3.one;
 
             if (itemObject.TryGetComponent<WeaponPrefab>(out WeaponPrefab weaponPrefab))
             {
@@ -49,17 +51,7 @@ namespace ultramove
                     weapon.localPosition = Vector3.zero;
                 }
 
-                List<Renderer> list = new List<Renderer>();
-                LODGroup[] lodGroups = itemObject.GetComponentsInChildren<LODGroup>();
-                foreach (var lodgroup in lodGroups)
-                {
-                    foreach (var rend in lodgroup.GetLODs()[0].renderers)
-                    {
-                        list.Add(rend);
-                    }
-                }
-
-                ColliderHelper.CreateBoundingBoxColliderInChildren(itemObject.gameObject, list.ToArray());
+                ColliderHelper.CreateBoundingBoxColliderInChildren(itemObject.gameObject);
 
                 itemObject.transform.position = origPos;
                 itemObject.transform.rotation = origRot;
@@ -72,17 +64,14 @@ namespace ultramove
                 itemObject.transform.rotation = origItemRot;
             }
 
-            itemObject.GetOrAddComponent<DebugMonitor>();
-
             Rigidbody rb = itemObject.GetOrAddComponent<Rigidbody>();
-            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             rb.isKinematic = true;
 
             if (itemObject.Item != null)
             {
                 rb.mass = itemObject.Item.Weight;
             }
-            itemObject.SetItemAndRigidbody(itemObject.Item, rb);
 
             SceneManager.MoveGameObjectToScene(itemObject.gameObject, SceneManager.GetActiveScene()); // pull back from dontdestroyonload
         }

@@ -336,12 +336,14 @@ namespace ultramove
                             whiplashPullingObject = Instantiate(bot.HandsController.ControllerGameObject).transform;
                             whiplashPullingObject.GetComponent<ObservedLootItem>().MakePhysicsObject();
 
-                            whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(whiplashPullingObject.GetComponent<BoxCollider>().bounds.center);
+                            Vector3 worldGrabPoint = whiplashPullingObject.GetComponent<BoxCollider>().bounds.center;
+                            whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(worldGrabPoint);
 
                             bot.HandsController.ControllerGameObject.transform.FindInChildrenExact("weapon").gameObject.SetActive(false);
                             bot.SetEmptyHands(null);
 
-                            Singleton<UltraTime>.Instance.Freeze(0, 0.5f);
+                            ParticleEffectManager.Instance.PlayGlint(worldGrabPoint + (worldGrabPoint - cam.transform.position).normalized * 0.2f, Color.white, 0.2f);
+                            Singleton<UltraTime>.Instance.Freeze(0.01f, 0.5f);
                         }
                         else
                         {
@@ -531,7 +533,9 @@ namespace ultramove
 
             if (!parried && whiplashState == WhiplashState.Pulling && Vector3.Distance(cam.transform.position, currentWhiplashEnd) < 3f)
             {
-                if (whiplashPullingObject != null && whiplashPullingObject.gameObject.TryGetComponentInParent<Rigidbody>(out Rigidbody rbitem))
+                if (whiplashPullingObject != null 
+                    && (whiplashPullingObject.gameObject.layer == 13 || whiplashPullingObject.gameObject.layer == 15) 
+                    && whiplashPullingObject.gameObject.TryGetComponentInParent<Rigidbody>(out Rigidbody rbitem))
                 {
                     rbitem.gameObject.GetOrAddComponent<Projectile>().Parry(cam.transform);
 

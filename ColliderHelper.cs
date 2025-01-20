@@ -33,10 +33,12 @@ public static class ColliderHelper
         Bounds combinedBounds = renderers[0].bounds;
         for (int i = 1; i < renderers.Length; i++)
         {
+            if (renderers[i].gameObject.name.Contains("MuzzleJet"))
+                continue;
             combinedBounds.Encapsulate(renderers[i].bounds);
         }
 
-        BoxCollider boxCollider = targetGameObject.GetOrAddComponent<BoxCollider>();
+        BoxCollider boxCollider = targetGameObject.AddComponent<BoxCollider>();
         boxCollider.center = targetGameObject.transform.InverseTransformPoint(combinedBounds.center);
         boxCollider.size = combinedBounds.size;
 
