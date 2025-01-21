@@ -14,6 +14,12 @@ public class Plugin : BaseUnityPlugin
     internal static ConfigEntry<bool> Enabled;
     internal static ConfigEntry<bool> WhiplashItemInHand;
 
+    internal static ConfigEntry<bool> UndyingEnemies;
+
+    internal static ConfigEntry<bool> MauriceAutoChargeback;
+    internal static ConfigEntry<float> MauriceAutoChargebackOffset;
+    internal static ConfigEntry<float> MauriceAutoChargebackDistanceMultiplier;
+
     private void Start()
     {
         Log = base.Logger;
@@ -32,5 +38,11 @@ public class Plugin : BaseUnityPlugin
     {
         Enabled = Config.Bind("General", "Enabled", true, "");
         WhiplashItemInHand = Config.Bind("Whiplash", "Yoink", false, "Whiplash grabs the enemy's gun instead of the enemy");
+
+        UndyingEnemies = Config.Bind("UndyingEnemies", "UndyingEnemies", false, "");
+
+        MauriceAutoChargeback = Config.Bind("Coin", "MauriceAutoChargeback", false, "Auto chargeback's a maurice if you are looking at it");
+        MauriceAutoChargebackOffset = Config.Bind("Coin", "MauriceAutoChargebackOffset", -0.66f, "Auto chargeback timing");
+        MauriceAutoChargebackDistanceMultiplier = Config.Bind("Coin", "MauriceAutoChargebackDistanceMultiplier", 0f, "Auto chargeback distance");
     }
 }

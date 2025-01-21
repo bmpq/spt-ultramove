@@ -62,4 +62,20 @@ internal static class TransformExtensions
         component = null;
         return false;
     }
+
+    public static bool IsLookingAt(this Transform looker, Transform target, float angleMargin)
+    {
+        Vector3 directionToTarget = target.position - looker.position;
+        Vector3 forward = looker.forward;
+        float angle = Vector3.Angle(forward, directionToTarget);
+        return angle <= angleMargin;
+    }
+
+    public static bool IsLookingAt(this Transform looker, Vector3 targetPosition, float angleMargin)
+    {
+        Vector3 directionToTarget = targetPosition - looker.position;
+        Vector3 forward = looker.forward;
+        float angle = Vector3.Angle(forward, directionToTarget);
+        return angle <= angleMargin;
+    }
 }

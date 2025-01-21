@@ -19,8 +19,9 @@ namespace ultramove
 
         private readonly Queue<Projectile> projectilePool = new Queue<Projectile>();
 
-        bool chargingBeam;
-        float chargingBeamProgress;
+        public bool chargingBeam { get; private set; }
+        public float chargingBeamProgress { get; private set; }
+        public const float BeamChargeTime = 3f;
 
         Light lightChargeBeam;
 
@@ -120,7 +121,7 @@ namespace ultramove
                 lightChargeBeam.intensity = Mathf.Lerp(0, 30f, t);
                 lightChargeBeam.transform.localScale = Vector3.one * Mathf.Lerp(0, 2.5f, t);
 
-                if (chargingBeamProgress >= 3f)
+                if (chargingBeamProgress >= BeamChargeTime)
                 {
                     ShootBeam();
                     lightChargeBeam.intensity = 0f;
@@ -171,7 +172,7 @@ namespace ultramove
         {
             Vector3 origin = lightChargeBeam.transform.position;
 
-            RaycastHit[] hits = EFTBallisticsInterface.Instance.Shoot(origin, transform.forward, 100f);
+            RaycastHit[] hits = EFTBallisticsInterface.Instance.Shoot(origin, transform.forward, 900f);
             if (hits.Length > 0)
             {
                 RaycastHit hit = hits[0];

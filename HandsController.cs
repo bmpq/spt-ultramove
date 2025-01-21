@@ -62,6 +62,10 @@ namespace ultramove
         float whiplashStartSpeed = 100f;
         GameObject spearhead;
 
+        UltraMovement movement;
+        Maurice maurice;
+        bool coinedThisCycle;
+
         void SetWeaponHandPosition(Weapon weaponClass)
         {
             float blendPalmDist = 0;
@@ -164,6 +168,7 @@ namespace ultramove
 
         void Start()
         {
+            movement = GetComponent<UltraMovement>();
             rb = GetComponent<Rigidbody>();
             cam = Camera.main;
 
@@ -188,6 +193,8 @@ namespace ultramove
 
             ropeVisual = gameObject.AddComponent<RopeVisual>();
             spearhead = Instantiate(AssetBundleLoader.BundleLoader.LoadAssetBundle(AssetBundleLoader.BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("SpearheadPrefab"));
+
+            maurice = FindObjectOfType<Maurice>();
         }
 
         private void Update()
@@ -199,6 +206,27 @@ namespace ultramove
             {
                 if (coinCooldown <= 0f && (currentWeapon is RevolverItemClass))
                     Coin();
+            }
+
+            if (movement.dashTime <= 0f && maurice != null)
+            {
+                if (maurice.chargingBeam)
+                {
+                    if (maurice.chargingBeamProgress >= Maurice.BeamChargeTime + Plugin.MauriceAutoChargebackOffset.Value + (Vector3.Distance(maurice.transform.position, transform.position) * Plugin.MauriceAutoChargebackDistanceMultiplier.Value))
+                    {
+                        if (cam.transform.IsLookingAt(maurice.transform, 10f))
+                        {
+                            if (!coinedThisCycle)
+                                Coin();
+
+                            coinedThisCycle = true;
+                        }
+                    }
+                }
+                else
+                {
+                    coinedThisCycle = false;
+                }
             }
 
             if (Input.GetKeyDown(KeyCode.V))
@@ -404,14 +432,14 @@ namespace ultramove
 
         void Shoot()
         {
-            Vector3 origin = fireport.position - fireport.up * 0.1f;
+            Vector3 origin = fireport.position;
             Vector3 dir = -fireport.up;
 
-            float dmg = 20f;
+            float dmg = 40f;
 
             bool rail = (currentWeapon is SniperRifleItemClass);
             if (rail)
-                dmg = 60f;
+                dmg = 80f;
 
             bool shot = false;
 
@@ -499,7 +527,7 @@ namespace ultramove
         {
             spearhead.SetActive(false);
 
-            //coinCooldown = 0.05f;
+            coinCooldown = 0.05f;
 
             animator.SetTrigger("Coin");
 

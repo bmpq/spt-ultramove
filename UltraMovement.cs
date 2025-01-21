@@ -44,7 +44,7 @@ namespace ultramove
         bool slamming;
 
         Vector3 dashDir;
-        float dashTime;
+        public float dashTime { get; private set; }
 
         Vector3 prevVelocity;
         Vector3 lastCollisionImpulse;
@@ -125,8 +125,8 @@ namespace ultramove
 
         void Update()
         {
-            float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-            float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+            float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.unscaledDeltaTime;
+            float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.unscaledDeltaTime;
 
             vectorInput = Vector3.zero;
             if (Input.GetKey(KeyCode.A))

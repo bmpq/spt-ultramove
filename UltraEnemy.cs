@@ -106,6 +106,9 @@ namespace ultramove
 
             health -= damageInfo.Damage;
 
+            if (Plugin.UndyingEnemies.Value)
+                health = Mathf.Max(1, health);
+
             if (health <= 0)
                 Die();
         }
