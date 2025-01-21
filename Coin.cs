@@ -234,7 +234,7 @@ namespace ultramove
             if (!active)
                 return false;
 
-            return timeActive > SPLITWINDOWSTART && timeActive < SPLITWINDOWSTART + SPLITWINDOWSIZE;
+            return timeActive > SPLITWINDOWSTART && timeActive < (SPLITWINDOWSTART + SPLITWINDOWSIZE);
         }
 
         public void Parry(Transform source)

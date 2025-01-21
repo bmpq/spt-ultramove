@@ -20,6 +20,8 @@ public class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float> MauriceAutoChargebackOffset;
     internal static ConfigEntry<float> MauriceAutoChargebackDistanceMultiplier;
 
+    internal static ConfigEntry<bool> TimedApexAutoShoot;
+
     private void Start()
     {
         Log = base.Logger;
@@ -44,5 +46,7 @@ public class Plugin : BaseUnityPlugin
         MauriceAutoChargeback = Config.Bind("Coin", "MauriceAutoChargeback", false, "Auto chargeback's a maurice if you are looking at it");
         MauriceAutoChargebackOffset = Config.Bind("Coin", "MauriceAutoChargebackOffset", -0.66f, "Auto chargeback timing");
         MauriceAutoChargebackDistanceMultiplier = Config.Bind("Coin", "MauriceAutoChargebackDistanceMultiplier", 0f, "Auto chargeback distance");
+
+        TimedApexAutoShoot = Config.Bind("Coin", "TimedApexAutoShoot", false, "Auto shoot at the coin at its apex (cheat for split shots)");
     }
 }

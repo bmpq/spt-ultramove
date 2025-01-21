@@ -205,7 +205,16 @@ namespace ultramove
             if (Input.GetMouseButtonDown(1))
             {
                 if (coinCooldown <= 0f && (currentWeapon is RevolverItemClass))
-                    Coin();
+                    TossCoin();
+            }
+
+            if (Coin.activeCoins.Count == 1 && Plugin.TimedApexAutoShoot.Value)
+            {
+                Coin targetCoin = Coin.activeCoins.First();
+                if (targetCoin.timeActive > (Coin.SPLITWINDOWSTART + Time.deltaTime) && targetCoin.timeActive < (Coin.SPLITWINDOWSTART + Coin.SPLITWINDOWSIZE))
+                {
+                    Shoot();
+                }
             }
 
             if (movement.dashTime <= 0f && maurice != null)
@@ -217,7 +226,7 @@ namespace ultramove
                         if (cam.transform.IsLookingAt(maurice.transform, 10f))
                         {
                             if (!coinedThisCycle)
-                                Coin();
+                                TossCoin();
 
                             coinedThisCycle = true;
                         }
@@ -523,11 +532,11 @@ namespace ultramove
 
         
 
-        void Coin()
+        void TossCoin()
         {
             spearhead.SetActive(false);
 
-            coinCooldown = 0.05f;
+            coinCooldown = 0.2f;
 
             animator.SetTrigger("Coin");
 

@@ -220,7 +220,7 @@ namespace ultramove
             if (bodyPartCollider == null)
                 return false;
 
-            if (bodyPartCollider.Player.IsYourPlayer)
+            if (bodyPartCollider.playerBridge.iPlayer != null && bodyPartCollider.playerBridge.iPlayer.IsYourPlayer)
                 return false;
 
             Hit(hit, 9999);
