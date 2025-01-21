@@ -43,6 +43,9 @@ namespace ultramove
             {
                 meshRend.sharedMaterial = matGlass;
             }
+
+            // hiding the pallet that looks ugly
+            TransformExtensions.FindGameObjectWithComponentAtPosition<LODGroup>(new Vector3(-61.848f, 27.1f, 155.212f)).SetActive(false); 
         }
 
         protected override void Revive()

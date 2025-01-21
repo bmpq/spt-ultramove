@@ -78,4 +78,19 @@ internal static class TransformExtensions
         float angle = Vector3.Angle(forward, directionToTarget);
         return angle <= angleMargin;
     }
+
+    public static GameObject FindGameObjectWithComponentAtPosition<T>(Vector3 position, float tolerance = 0.001f) where T : Component
+    {
+        T[] components = Object.FindObjectsOfType<T>();
+
+        foreach (T component in components)
+        {
+            if (component != null && Vector3.Distance(component.transform.position, position) <= tolerance)
+            {
+                return component.gameObject;
+            }
+        }
+
+        return null;
+    }
 }
