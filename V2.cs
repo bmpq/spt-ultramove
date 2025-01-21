@@ -11,9 +11,9 @@ using UnityEngine;
 
 namespace ultramove
 {
-    internal class V2 : UltraEnemy
+    internal class V2 : UltraEnemy, IParryable
     {
-        protected override float GetStartingHealth() => 2000f;
+        protected override float GetStartingHealth() => 10f;
 
         bool crashedThroughRoof;
         bool landed;
@@ -23,6 +23,13 @@ namespace ultramove
 
         void Awake()
         {
+            Light[] lights = GetComponentsInChildren<Light>();
+            for (int i = 0; i < lights.Length; i++)
+            {
+                if (lights[i].type == LightType.Spot)
+                    lights[i].gameObject.GetOrAddComponent<VolumetricLight>();
+            }
+
             animator = GetComponent<Animator>();
 
             Singleton<GameWorld>.Instance.MainPlayer.Position = new Vector3(-91.9198f, 27.0865f, 156.2152f);
@@ -103,6 +110,23 @@ namespace ultramove
         void PlayGlassCrashEffect()
         {
 
+        }
+
+        protected override void Die()
+        {
+            base.Die();
+
+            animator.Play("Death", -1);
+        }
+
+        public void Parry(Transform source)
+        {
+            if (!alive)
+                return;
+
+            DamageInfoStruct dmg = new DamageInfoStruct();
+            dmg.Damage = 5000f;
+            Hit(dmg);
         }
     }
 }
