@@ -88,7 +88,7 @@ namespace ultramove
 
         public void Toss()
         {
-            if (coinCounter == 0)
+            if (coinCounter == 0 && Plugin.FirstCoinSlowMo.Value)
                 Comfort.Common.Singleton<UltraTime>.Instance.SlowMo(2f, 0.4f);
 
             Vector3 newPos = cam.transform.position + (cam.transform.forward * 0.8f) + (cam.transform.up * -0.7f);

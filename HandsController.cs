@@ -223,7 +223,7 @@ namespace ultramove
                 {
                     if (maurice.chargingBeamProgress >= Maurice.BeamChargeTime + Plugin.MauriceAutoChargebackOffset.Value + (Vector3.Distance(maurice.transform.position, transform.position) * Plugin.MauriceAutoChargebackDistanceMultiplier.Value))
                     {
-                        if (cam.transform.IsLookingAt(maurice.transform, 10f))
+                        if (cam.transform.IsLookingAt(maurice.transform, 30f))
                         {
                             if (!coinedThisCycle)
                                 TossCoin();
@@ -555,7 +555,7 @@ namespace ultramove
             bool parried = false;
 
             int layerMask = 1 << 16 | 1 << 15 | 1 << 13 | 1 << 9;
-            RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, 1.3f, cam.transform.forward, 3f, layerMask);
+            RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, 1.3f, cam.transform.forward, Plugin.ParryRange.Value, layerMask);
 
             RaycastHit hit = new RaycastHit();
 
@@ -568,7 +568,7 @@ namespace ultramove
                     break;
             }
 
-            if (!parried && whiplashState == WhiplashState.Pulling && Vector3.Distance(cam.transform.position, currentWhiplashEnd) < 3f)
+            if (!parried && whiplashState == WhiplashState.Pulling && Vector3.Distance(cam.transform.position, currentWhiplashEnd) < Plugin.ParryRange.Value)
             {
                 if (whiplashPullingObject != null 
                     && (whiplashPullingObject.gameObject.layer == 13 || whiplashPullingObject.gameObject.layer == 15) 

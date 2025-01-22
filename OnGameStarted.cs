@@ -89,7 +89,8 @@ namespace ultramove
                 GameObject newV2 = GameObject.Instantiate(prefabV2);
                 newV2.AddComponent<V2>();
             }
-            else if (__instance.MainPlayer.Location.ToLower() == "shoreline")
+            
+            if (Plugin.SpawnMaurice.Value)
             {
                 GameObject prefabMaurice = bundleUltrakill.LoadAsset<GameObject>("Maurice");
                 GameObject newMaurice = GameObject.Instantiate(prefabMaurice, new Vector3(-10, 5, -10), Quaternion.identity);
