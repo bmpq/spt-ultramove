@@ -238,7 +238,7 @@ namespace ultramove
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.V))
+            if (Input.GetKeyDown(KeyCode.V) || (Plugin.ParryContinuous.Value && Input.GetKey(KeyCode.V)))
             {
                 Parry();
             }

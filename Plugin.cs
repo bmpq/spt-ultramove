@@ -25,6 +25,7 @@ public class Plugin : BaseUnityPlugin
     internal static ConfigEntry<bool> FirstCoinSlowMo;
 
     internal static ConfigEntry<float> ParryRange;
+    internal static ConfigEntry<bool> ParryContinuous;
 
     private void Start()
     {
@@ -52,9 +53,10 @@ public class Plugin : BaseUnityPlugin
         MauriceAutoChargebackOffset = Config.Bind("Coin", "MauriceAutoChargebackOffset", -0.66f, "Auto chargeback timing");
         MauriceAutoChargebackDistanceMultiplier = Config.Bind("Coin", "MauriceAutoChargebackDistanceMultiplier", 0f, "Auto chargeback distance");
 
-        TimedApexAutoShoot = Config.Bind("Coin", "TimedApexAutoShoot", false, "Auto shoot at the coin at its apex (cheat for split shots)");
+        TimedApexAutoShoot = Config.Bind("Coin", "TimedApexAutoShoot", false, "Auto shoot at the current coin's apex timing window (for split shots)");
         FirstCoinSlowMo = Config.Bind("Coin", "FirstCoinSlowMo", false, "First tossed of the match coin triggers slow mo");
 
+        ParryContinuous = Config.Bind("Parry", "ParryContinuous", false, "Allows holding down V to continously check for parries, instead of timing");
         ParryRange = Config.Bind("Parry", "ParryRange", 2f, "");
     }
 }
