@@ -39,7 +39,12 @@ namespace ultramove
             int layer30 = 1 << 30; // TransparentCollider
             int layerMask = layer12 | layer16 | layer11 | layer15 | layer30;
 
-            RaycastHit[] hits = Physics.RaycastAll(ray, rayDistance, layerMask);
+            RaycastHit[] hits;
+            if (piercing)
+                hits = Physics.SphereCastAll(ray, 0.3f, rayDistance, layerMask);
+            else
+                hits = Physics.RaycastAll(ray, rayDistance, layerMask);
+
             hits = hits.OrderBy(hit => Vector3.Distance(ray.origin, hit.point)).ToArray();
             for (int i = 0; i < hits.Length; i++)
             {
@@ -148,7 +153,10 @@ namespace ultramove
                 MasterOrigin = hit.point,
                 Player = player,
                 IsForwardHit = true,
-                HittedBallisticCollider = ballisticCollider
+                HittedBallisticCollider = ballisticCollider,
+
+                BlockedBy = null,
+                DeflectedBy = null
             };
 
             ballisticCollider.ApplyHit(damageInfo, ShotIdStruct.EMPTY_SHOT_ID);
@@ -156,29 +164,43 @@ namespace ultramove
             Singleton<Effects>.Instance.Emit(ballisticCollider.TypeOfMaterial, ballisticCollider, hit.point, hit.normal, 1f);
         }
 
+        Collider[] explosionOverlap = new Collider[50];
         public void Explosion(Vector3 pos)
         {
-            foreach (var enemy in Singleton<GameWorld>.Instance.AllAlivePlayersList)
+            int overlapCount = Physics.OverlapSphereNonAlloc(pos, 2.5f, explosionOverlap, 1 << 16);
+
+            int limitBodyPartsPerPlayer = 3;
+
+            Dictionary<IPlayer, int> limit = new Dictionary<IPlayer, int>();
+
+            for (int i = 0; i < overlapCount; i++)
             {
-                if (Vector3.Distance(enemy.Position, pos) < 5f)
+                if (explosionOverlap[i].TryGetComponent(out BodyPartCollider bodyPart))
                 {
-                    float dmg = 9999;
+                    if (!limit.ContainsKey(bodyPart.playerBridge.iPlayer))
+                        limit[bodyPart.playerBridge.iPlayer] = 0;
+                    else if (limit[bodyPart.playerBridge.iPlayer] == limitBodyPartsPerPlayer)
+                        continue;
+
+                    float dmg = 300f;
 
                     DamageInfoStruct damageInfo = new DamageInfoStruct
                     {
-                        DamageType = EDamageType.Bullet,
+                        DamageType = EDamageType.Explosion,
                         Damage = dmg,
                         ArmorDamage = dmg,
                         StaminaBurnRate = dmg,
                         PenetrationPower = dmg,
                         Player = player,
-                        HitPoint = enemy.MainParts[BodyPartType.head].Position,
-                        HitNormal = (pos - enemy.MainParts[BodyPartType.head].Position).normalized,
+                        HitPoint = bodyPart.gameObject.transform.position,
+                        HitNormal = (bodyPart.gameObject.transform.position - pos).normalized,
+                        HittedBallisticCollider = bodyPart,
                         IsForwardHit = true,
                         MasterOrigin = pos
                     };
+                    bodyPart.ApplyHit(damageInfo, ShotIdStruct.EMPTY_SHOT_ID);
 
-                    enemy.ApplyDamageInfo(damageInfo, EBodyPart.Head, EBodyPartColliderType.HeadCommon, 0);
+                    limit[bodyPart.playerBridge.iPlayer]++;
                 }
             }
 
