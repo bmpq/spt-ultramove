@@ -46,6 +46,8 @@ namespace ultramove
                 hits = Physics.RaycastAll(ray, rayDistance, layerMask);
 
             hits = hits.OrderBy(hit => Vector3.Distance(ray.origin, hit.point)).ToArray();
+
+            Dictionary<IPlayer, int> limit = new Dictionary<IPlayer, int>();
             for (int i = 0; i < hits.Length; i++)
             {
                 RaycastHit hit = hits[i];
@@ -69,6 +71,20 @@ namespace ultramove
                             return hits;
                         }
                     }
+                }
+                else if (hit.transform.gameObject.layer == 16 && hit.transform.TryGetComponent(out BodyPartCollider bodyPart))
+                {
+                    if (bodyPart.playerBridge != null && bodyPart.playerBridge.iPlayer != null)
+                    {
+                        if (!limit.ContainsKey(bodyPart.playerBridge.iPlayer))
+                            limit[bodyPart.playerBridge.iPlayer] = 0;
+                        else if (limit[bodyPart.playerBridge.iPlayer] == 3)
+                            continue;
+
+                        limit[bodyPart.playerBridge.iPlayer]++;
+                    }
+
+                    Hit(bodyPart, hit, dmg);
                 }
                 else
                 {
@@ -136,6 +152,15 @@ namespace ultramove
             Hit(baseBallistic as BallisticCollider, hit, dmg);
         }
 
+        public void Hit(BallisticCollider ballisticCollider, Vector3 hitPoint, Vector3 hitNormal, float dmg)
+        {
+            RaycastHit fakeHit = new RaycastHit();
+            fakeHit.point = hitPoint;
+            fakeHit.normal = hitNormal;
+
+            Hit(ballisticCollider, fakeHit, dmg);
+        }
+
         public void Hit(BallisticCollider ballisticCollider, RaycastHit hit, float dmg)
         {
             if (ballisticCollider == null)
@@ -143,7 +168,7 @@ namespace ultramove
 
             DamageInfoStruct damageInfo = new DamageInfoStruct
             {
-                DamageType = EDamageType.Bullet,
+                DamageType = dmg > 200f ? EDamageType.Explosion : EDamageType.Bullet,
                 Damage = dmg,
                 ArmorDamage = dmg,
                 StaminaBurnRate = dmg,
@@ -168,7 +193,7 @@ namespace ultramove
         Collider[] explosionOverlap = new Collider[50];
         public void Explosion(Vector3 pos)
         {
-            int overlapCount = Physics.OverlapSphereNonAlloc(pos, 2.5f, explosionOverlap, 1 << 16);
+            int overlapCount = Physics.OverlapSphereNonAlloc(pos, 4f, explosionOverlap, 1 << 16);
 
             int limitBodyPartsPerPlayer = 3;
 
@@ -178,30 +203,18 @@ namespace ultramove
             {
                 if (explosionOverlap[i].TryGetComponent(out BodyPartCollider bodyPart))
                 {
-                    if (!limit.ContainsKey(bodyPart.playerBridge.iPlayer))
-                        limit[bodyPart.playerBridge.iPlayer] = 0;
-                    else if (limit[bodyPart.playerBridge.iPlayer] == limitBodyPartsPerPlayer)
-                        continue;
-
-                    float dmg = 300f;
-
-                    DamageInfoStruct damageInfo = new DamageInfoStruct
+                    if (bodyPart.playerBridge != null && bodyPart.playerBridge.iPlayer != null)
                     {
-                        DamageType = EDamageType.Explosion,
-                        Damage = dmg,
-                        ArmorDamage = dmg,
-                        StaminaBurnRate = dmg,
-                        PenetrationPower = dmg,
-                        Player = player,
-                        HitPoint = bodyPart.gameObject.transform.position,
-                        HitNormal = (bodyPart.gameObject.transform.position - pos).normalized,
-                        HittedBallisticCollider = bodyPart,
-                        IsForwardHit = true,
-                        MasterOrigin = pos
-                    };
-                    bodyPart.ApplyHit(damageInfo, ShotIdStruct.EMPTY_SHOT_ID);
+                        if (!limit.ContainsKey(bodyPart.playerBridge.iPlayer))
+                            limit[bodyPart.playerBridge.iPlayer] = 0;
+                        else if (limit[bodyPart.playerBridge.iPlayer] == limitBodyPartsPerPlayer)
+                            continue;
 
-                    limit[bodyPart.playerBridge.iPlayer]++;
+                        limit[bodyPart.playerBridge.iPlayer]++;
+                    }
+
+                    float dmg = 999f;
+                    Hit(bodyPart, bodyPart.transform.position, (bodyPart.gameObject.transform.position - pos).normalized, dmg);
                 }
             }
 
