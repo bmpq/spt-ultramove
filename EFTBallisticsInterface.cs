@@ -41,7 +41,7 @@ namespace ultramove
 
             RaycastHit[] hits;
             if (piercing)
-                hits = Physics.SphereCastAll(ray, 0.3f, rayDistance, layerMask);
+                hits = Physics.SphereCastAll(ray, 0.4f, rayDistance, layerMask);
             else
                 hits = Physics.RaycastAll(ray, rayDistance, layerMask);
 
@@ -50,49 +50,52 @@ namespace ultramove
             Dictionary<IPlayer, int> limit = new Dictionary<IPlayer, int>();
             for (int i = 0; i < hits.Length; i++)
             {
-                RaycastHit hit = hits[i];
-
-                MaterialType matHit = MaterialType.None;
-
-                if (hit.transform.tag == "DynamicCollider")
+                if (hits[i].transform.gameObject.layer == 16)
                 {
-                    if (hit.rigidbody.TryGetComponent<Coin>(out Coin coin))
+                    if (hits[i].transform.TryGetComponent(out BodyPartCollider bodyPart))
                     {
-                        if (coin.active)
+                        if (bodyPart.playerBridge != null && bodyPart.playerBridge.iPlayer != null)
                         {
-                            hit.point = coin.transform.position;
-                            coin.Hit(dmg, false, piercing);
+                            if (!limit.ContainsKey(bodyPart.playerBridge.iPlayer))
+                                limit[bodyPart.playerBridge.iPlayer] = 0;
+                            else if (limit[bodyPart.playerBridge.iPlayer] == 3)
+                                continue;
 
-                            hits[i].point = coin.transform.position;
-                            hits = hits.Take(i + 1).ToArray();
-
-                            PlayerAudio.Instance.Play("Ricochet");
-
-                            return hits;
+                            limit[bodyPart.playerBridge.iPlayer]++;
                         }
-                    }
-                }
-                else if (hit.transform.gameObject.layer == 16 && hit.transform.TryGetComponent(out BodyPartCollider bodyPart))
-                {
-                    if (bodyPart.playerBridge != null && bodyPart.playerBridge.iPlayer != null)
-                    {
-                        if (!limit.ContainsKey(bodyPart.playerBridge.iPlayer))
-                            limit[bodyPart.playerBridge.iPlayer] = 0;
-                        else if (limit[bodyPart.playerBridge.iPlayer] == 3)
-                            continue;
 
-                        limit[bodyPart.playerBridge.iPlayer]++;
+                        Hit(bodyPart, hits[i], dmg);
                     }
-
-                    Hit(bodyPart, hit, dmg);
                 }
                 else
                 {
-                    Hit(hit, dmg);
+                    if (hits[i].transform.tag == "DynamicCollider")
+                    {
+                        if (hits[i].rigidbody.TryGetComponent<Coin>(out Coin coin))
+                        {
+                            if (coin.active)
+                            {
+                                hits[i].point = coin.transform.position;
+                                coin.Hit(dmg, false, piercing);
+
+                                PlayerAudio.Instance.Play("Ricochet");
+
+                                hits = hits.Take(i + 1).ToArray();
+                                return hits;
+                            }
+                        }
+                    }
+                    else if (hits[i].transform.gameObject.layer == 30)
+                        continue;
+
+                    Hit(hits[i], dmg);
                 }
 
                 if (!piercing)
-                    break;
+                {
+                    hits = hits.Take(1).ToArray();
+                    return hits;
+                }
             }
 
             return hits;

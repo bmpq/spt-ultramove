@@ -132,7 +132,7 @@ namespace ultramove
                 }
                 else
                 {
-                    EFTBallisticsInterface.Instance.Hit(target.Item1, target.Item2, dmg);
+                    RaycastHit[] hits = EFTBallisticsInterface.Instance.Shoot(transform.position, (target.Item2.point - transform.position).normalized, dmg, rail);
 
                     CheckIfKilled(target.Item1);
 
