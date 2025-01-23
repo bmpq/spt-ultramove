@@ -372,6 +372,7 @@ namespace ultramove
                         {
                             whiplashPullingObject = Instantiate(bot.HandsController.ControllerGameObject).transform;
                             whiplashPullingObject.GetComponent<ObservedLootItem>().MakePhysicsObject();
+                            whiplashPullingObject.GetComponent<BoxCollider>().size *= 0.8f;
 
                             Vector3 worldGrabPoint = whiplashPullingObject.GetComponent<BoxCollider>().bounds.center;
                             whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(worldGrabPoint);
@@ -448,7 +449,7 @@ namespace ultramove
 
             bool rail = (currentWeapon is SniperRifleItemClass);
             if (rail)
-                dmg = 80f;
+                dmg = Plugin.DamageRail.Value;
 
             bool shot = false;
 
@@ -470,7 +471,7 @@ namespace ultramove
                 Shotgun.ShootProjectiles(origin, dir, rb.velocity, 1, 3f, Color.red);
 
                 //PlayerAudio.Instance.PlayShoot();
-                CameraShaker.Shake(0.3f);
+                CameraShaker.Shake(0.4f);
 
                 shot = true;
             }
@@ -536,7 +537,7 @@ namespace ultramove
         {
             spearhead.SetActive(false);
 
-            coinCooldown = 0.2f;
+            coinCooldown = 0.1f;
 
             animator.SetTrigger("Coin");
 
@@ -549,8 +550,6 @@ namespace ultramove
         {
             if ((Time.time - timeLastParry) < 0.1f)
                 return;
-
-            spearhead.SetActive(false);
 
             bool parried = false;
 
@@ -585,6 +584,8 @@ namespace ultramove
 
             if (parried)
             {
+                spearhead.SetActive(false);
+
                 timeLastParry = Time.time;
 
                 animator.SetTrigger("Parry");

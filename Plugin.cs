@@ -16,6 +16,8 @@ public class Plugin : BaseUnityPlugin
 
     internal static ConfigEntry<bool> UndyingEnemies;
     internal static ConfigEntry<bool> SpawnMaurice;
+    internal static ConfigEntry<bool> SpawnV2;
+    internal static ConfigEntry<bool> SpawnMinos;
 
     internal static ConfigEntry<bool> MauriceAutoChargeback;
     internal static ConfigEntry<float> MauriceAutoChargebackOffset;
@@ -26,6 +28,11 @@ public class Plugin : BaseUnityPlugin
 
     internal static ConfigEntry<float> ParryRange;
     internal static ConfigEntry<bool> ParryContinuous;
+
+    internal static ConfigEntry<float> DamageProjectile;
+    internal static ConfigEntry<float> DamageRail;
+
+    internal static ConfigEntry<float> TimeScale;
 
     private void Start()
     {
@@ -44,10 +51,17 @@ public class Plugin : BaseUnityPlugin
     private void InitConfiguration()
     {
         Enabled = Config.Bind("_General", "Enabled", true, "");
+        TimeScale = Config.Bind("_General", "TimeScale", 0.4f, "Hold (Tab) to apply this time scale");
+
         WhiplashItemInHand = Config.Bind("Whiplash", "Yoink", false, "Whiplash grabs the enemy's gun instead of the enemy");
 
+        DamageProjectile = Config.Bind("Weapons", "DamageProjectile", 30f, "Shotgun and machinegun use projectiles");
+        DamageRail = Config.Bind("Weapons", "DamageRail", 5000f, "");
+
         UndyingEnemies = Config.Bind("Ultra Enemies", "UndyingEnemies", false, "");
-        SpawnMaurice = Config.Bind("Ultra Enemies", "SpawnMaurice", true, "");
+        SpawnMaurice = Config.Bind("Ultra Enemies", "Spawn Maurice", true, "");
+        SpawnV2 = Config.Bind("Ultra Enemies", "Spawn V2", true, "Spawn the V2 cutscene on Interchange");
+        SpawnMinos = Config.Bind("Ultra Enemies", "Spawn Minos", true, "Spawn Minos on Woods");
 
         MauriceAutoChargeback = Config.Bind("Coin", "MauriceAutoChargeback", false, "Auto chargeback's a maurice if you are looking at it");
         MauriceAutoChargebackOffset = Config.Bind("Coin", "MauriceAutoChargebackOffset", -0.66f, "Auto chargeback timing");

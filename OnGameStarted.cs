@@ -77,13 +77,13 @@ namespace ultramove
 
             Camera.main.gameObject.AddComponent<CameraShaker>();
 
-            if (__instance.MainPlayer.Location.ToLower() == "woods")
+            if (Plugin.SpawnMinos.Value && __instance.MainPlayer.Location.ToLower() == "woods")
             {
                 GameObject prefabMinos = bundleUltrakill.LoadAsset<GameObject>("MinosPrefab");
                 GameObject newMinos = GameObject.Instantiate(prefabMinos, new Vector3(-135.4775f, -55.7413f, -218.6555f), Quaternion.Euler(345.2719f, 242.4667f, 0));
                 newMinos.AddComponent<Minos>();
             }
-            else if (__instance.MainPlayer.Location.ToLower() == "interchange")
+            else if (Plugin.SpawnV2.Value && __instance.MainPlayer.Location.ToLower() == "interchange")
             {
                 GameObject prefabV2 = bundleUltrakill.LoadAsset<GameObject>("v2prefab");
                 GameObject newV2 = GameObject.Instantiate(prefabV2);

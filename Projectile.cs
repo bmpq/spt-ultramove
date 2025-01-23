@@ -52,18 +52,18 @@ namespace ultramove
         {
             gameObject.layer = 13;
             lifetime = 20f;
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         }
 
         public void Initialize(Vector3 position, Vector3 velocity)
         {
             rb.useGravity = false;
 
-            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             col.enabled = true;
             col.isTrigger = false;
 
             transform.position = position;
-            rb.position = position;
+            rb.position = position + (velocity * Time.fixedDeltaTime);
             rb.velocity = velocity;
             rb.transform.rotation = Quaternion.LookRotation(velocity.normalized);
 
@@ -127,7 +127,7 @@ namespace ultramove
                 EFTBallisticsInterface.Instance.Explosion(transform.position);
             }
             else
-                EFTBallisticsInterface.Instance.Hit(col, 30f);
+                EFTBallisticsInterface.Instance.Hit(col, Plugin.DamageRail.Value);
 
             gameObject.SetActive(false);
             OnProjectileDone?.Invoke(this);

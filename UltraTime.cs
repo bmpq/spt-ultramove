@@ -40,7 +40,7 @@ namespace ultramove
             if (Input.GetKey(KeyCode.Tab))
             {
                 slowMoDurationRemaining = 0.1f;
-                targetTimeScale = 0.4f;
+                targetTimeScale = Plugin.TimeScale.Value;
             }
 
             // Handle slow-motion

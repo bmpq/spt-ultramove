@@ -49,10 +49,10 @@ namespace ultramove
             inertia = Vector3.Lerp(inertia, Vector3.zero, Time.deltaTime * 5f);
             inertiaSmoothed = Vector3.Lerp(inertiaSmoothed, inertia, Time.deltaTime * 10f);
 
-            sway.y = Mathf.Cos(Time.unscaledTime * 2f) * 0.01f;
+            sway.y = Mathf.Cos(Time.time * 2f) * 0.01f;
 
             if (groundCheck.isGrounded && !ultraMovement.sliding)
-                sway.x = Mathf.Lerp(sway.x, Mathf.Sin(Time.unscaledTime * 8f) * 0.03f * rb.velocity.magnitude, Time.deltaTime);
+                sway.x = Mathf.Lerp(sway.x, Mathf.Sin(Time.time * 8f) * 0.03f * rb.velocity.magnitude, Time.deltaTime);
             else
                 sway.x = Mathf.Lerp(sway.x, 0f, Time.deltaTime);
 
