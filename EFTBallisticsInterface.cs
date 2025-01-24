@@ -47,25 +47,22 @@ namespace ultramove
 
             hits = hits.OrderBy(hit => Vector3.Distance(ray.origin, hit.point)).ToArray();
 
-            Dictionary<IPlayer, int> limit = new Dictionary<IPlayer, int>();
+            Dictionary<int, int> limitPerPlayer = new Dictionary<int, int>();
             for (int i = 0; i < hits.Length; i++)
             {
-                if (hits[i].transform.gameObject.layer == 16)
+                if (hits[i].transform.TryGetComponent(out BodyPartCollider bodyPart))
                 {
-                    if (hits[i].transform.TryGetComponent(out BodyPartCollider bodyPart))
+                    if (bodyPart.playerBridge != null && bodyPart.playerBridge.iPlayer != null)
                     {
-                        if (bodyPart.playerBridge != null && bodyPart.playerBridge.iPlayer != null)
-                        {
-                            if (!limit.ContainsKey(bodyPart.playerBridge.iPlayer))
-                                limit[bodyPart.playerBridge.iPlayer] = 0;
-                            else if (limit[bodyPart.playerBridge.iPlayer] == 3)
-                                continue;
+                        if (!limitPerPlayer.ContainsKey(bodyPart.playerBridge.iPlayer.Id))
+                            limitPerPlayer[bodyPart.playerBridge.iPlayer.Id] = 0;
+                        else if (limitPerPlayer[bodyPart.playerBridge.iPlayer.Id] >= 3)
+                            continue;
 
-                            limit[bodyPart.playerBridge.iPlayer]++;
-                        }
-
-                        Hit(bodyPart, hits[i], dmg);
+                        limitPerPlayer[bodyPart.playerBridge.iPlayer.Id]++;
                     }
+
+                    Hit(bodyPart, hits[i], dmg);
                 }
                 else
                 {
@@ -179,7 +176,6 @@ namespace ultramove
                 Direction = UnityEngine.Random.onUnitSphere,
                 HitNormal = hit.normal,
                 HitPoint = hit.point,
-                MasterOrigin = hit.point,
                 Player = player,
                 IsForwardHit = true,
                 HittedBallisticCollider = ballisticCollider,
