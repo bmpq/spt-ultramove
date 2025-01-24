@@ -30,6 +30,7 @@ public class Plugin : BaseUnityPlugin
     internal static ConfigEntry<bool> ParryContinuous;
 
     internal static ConfigEntry<float> DamageProjectile;
+    internal static ConfigEntry<float> DamageRevolver;
     internal static ConfigEntry<float> DamageRail;
 
     internal static ConfigEntry<float> TimeScale;
@@ -55,8 +56,9 @@ public class Plugin : BaseUnityPlugin
 
         WhiplashItemInHand = Config.Bind("Whiplash", "Yoink", false, "Whiplash grabs the enemy's gun instead of the enemy");
 
-        DamageProjectile = Config.Bind("Weapons", "DamageProjectile", 30f, "Shotgun and machinegun use projectiles");
-        DamageRail = Config.Bind("Weapons", "DamageRail", 5000f, "");
+        DamageProjectile = Config.Bind("Weapons", "DamageProjectile", 25f, "Shotgun and machinegun use projectiles");
+        DamageRevolver = Config.Bind("Weapons", "DamageRevolver", 40f, "");
+        DamageRail = Config.Bind("Weapons", "DamageRail", 300f, "");
 
         UndyingEnemies = Config.Bind("Ultra Enemies", "UndyingEnemies", false, "");
         SpawnMaurice = Config.Bind("Ultra Enemies", "Spawn Maurice", true, "");

@@ -445,7 +445,7 @@ namespace ultramove
             Vector3 origin = fireport.position;
             Vector3 dir = -fireport.up;
 
-            float dmg = 40f;
+            float dmg = Plugin.DamageRevolver.Value;
 
             bool rail = (currentWeapon is SniperRifleItemClass);
             if (rail)
