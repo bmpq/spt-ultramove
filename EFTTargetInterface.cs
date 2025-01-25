@@ -135,7 +135,7 @@ namespace ultramove
 
                 player.MovementContext.SetPoseLevel(1f, true);
                 player.gameObject.GetComponent<BotOwner>().AimingData.SetTarget(player.Transform.position + new Vector3(0, 50f, 0));
-                player.gameObject.GetOrAddComponent<EnemyPropeller>().addVelocity = new Vector3(0, 40, 0);
+                player.MovementContext.PlayerAnimatorEnableJump(true);
 
                 if (player.MainParts.TryGetValue(BodyPartType.leftLeg, out EnemyPart part))
                 {
