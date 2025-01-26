@@ -128,6 +128,12 @@ namespace ultramove
             float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.unscaledDeltaTime;
             float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.unscaledDeltaTime;
 
+            if (Input.GetMouseButton(2))
+            {
+                mouseX = 0;
+                mouseY = 0;
+            }
+
             vectorInput = Vector3.zero;
             if (Input.GetKey(KeyCode.A))
                 vectorInput.x = -1f;

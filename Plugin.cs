@@ -35,6 +35,8 @@ public class Plugin : BaseUnityPlugin
 
     internal static ConfigEntry<float> TimeScale;
 
+    internal static ConfigEntry<float> GroundSlamInfluence;
+
     private void Start()
     {
         Log = base.Logger;
@@ -47,23 +49,6 @@ public class Plugin : BaseUnityPlugin
         GameObject ultraTime = new GameObject("UltraTime");
         Singleton<UltraTime>.Create(ultraTime.AddComponent<UltraTime>());
         DontDestroyOnLoad(ultraTime);
-
-        Invoke("ModifyEFTSettings", 10f);
-    }
-
-    void ModifyEFTSettings()
-    {
-        AnimationCurve newCurve = new AnimationCurve(new Keyframe(0, 15f), new Keyframe(1f, 15f));
-        newCurve.postWrapMode = WrapMode.Loop;
-        newCurve.preWrapMode = WrapMode.Loop;
-        EFTHardSettings.Instance.LIFT_VELOCITY_BY_SPEED = newCurve;
-
-        AnimationCurve curveZero = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1f, 0));
-        newCurve.postWrapMode = WrapMode.Loop;
-        newCurve.preWrapMode = WrapMode.Loop;
-        EFTHardSettings.Instance.JUMP_DELAY_BY_SPEED = curveZero;
-
-        Log.LogInfo("EFT Settings modified!");
     }
 
     private void InitConfiguration()
@@ -91,5 +76,7 @@ public class Plugin : BaseUnityPlugin
 
         ParryContinuous = Config.Bind("Parry", "ParryContinuous", false, "Allows holding down V to continously check for parries, instead of timing");
         ParryRange = Config.Bind("Parry", "ParryRange", 2f, "");
+
+        GroundSlamInfluence = Config.Bind("Movement", "GroundSlamInfluence", 10f, "How high the enemies fly up after a ground slam");
     }
 }

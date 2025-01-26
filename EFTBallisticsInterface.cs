@@ -189,12 +189,12 @@ namespace ultramove
             Singleton<Effects>.Instance.Emit(ballisticCollider.TypeOfMaterial, ballisticCollider, hit.point, hit.normal, 1f);
         }
 
-        Collider[] explosionOverlap = new Collider[50];
+        Collider[] explosionOverlap = new Collider[300];
         public void Explosion(Vector3 pos)
         {
-            int overlapCount = Physics.OverlapSphereNonAlloc(pos, 4f, explosionOverlap, 1 << 16);
+            int overlapCount = Physics.OverlapSphereNonAlloc(pos, 6f, explosionOverlap, 1 << 16);
 
-            int limitBodyPartsPerPlayer = 3;
+            int limitBodyPartsPerPlayer = 4;
 
             Dictionary<IPlayer, int> limit = new Dictionary<IPlayer, int>();
 
@@ -206,7 +206,7 @@ namespace ultramove
                     {
                         if (!limit.ContainsKey(bodyPart.playerBridge.iPlayer))
                             limit[bodyPart.playerBridge.iPlayer] = 0;
-                        else if (limit[bodyPart.playerBridge.iPlayer] == limitBodyPartsPerPlayer)
+                        else if (limit[bodyPart.playerBridge.iPlayer] >= limitBodyPartsPerPlayer)
                             continue;
 
                         limit[bodyPart.playerBridge.iPlayer]++;

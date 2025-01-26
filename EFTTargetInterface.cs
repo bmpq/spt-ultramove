@@ -121,8 +121,23 @@ namespace ultramove
             return true;
         }
 
+        static void UpdateEFTJumpHeight()
+        {
+            AnimationCurve newCurve = new AnimationCurve(new Keyframe(0, Plugin.GroundSlamInfluence.Value), new Keyframe(1f, Plugin.GroundSlamInfluence.Value));
+            newCurve.postWrapMode = WrapMode.Loop;
+            newCurve.preWrapMode = WrapMode.Loop;
+            EFTHardSettings.Instance.LIFT_VELOCITY_BY_SPEED = newCurve;
+
+            AnimationCurve curveZero = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1f, 0));
+            newCurve.postWrapMode = WrapMode.Loop;
+            newCurve.preWrapMode = WrapMode.Loop;
+            EFTHardSettings.Instance.JUMP_DELAY_BY_SPEED = curveZero;
+        }
+
         public static void Slam(Vector3 pos)
         {
+            UpdateEFTJumpHeight();
+
             float maxDist = 10f;
 
             foreach (Player player in Singleton<GameWorld>.Instance.AllAlivePlayersList)
@@ -134,27 +149,7 @@ namespace ultramove
                     continue;
 
                 player.MovementContext.SetPoseLevel(1f, true);
-                player.gameObject.GetComponent<BotOwner>().AimingData.SetTarget(player.Transform.position + new Vector3(0, 50f, 0));
                 player.MovementContext.PlayerAnimatorEnableJump(true);
-
-                if (player.MainParts.TryGetValue(BodyPartType.leftLeg, out EnemyPart part))
-                {
-                    int layerMask = 1 << 16;
-                    RaycastHit[] hits = Physics.RaycastAll(pos, (part.Position - pos).normalized, maxDist, layerMask);
-
-                    foreach (var hit in hits)
-                    {
-                        if (hit.collider.TryGetComponent<BodyPartCollider>(out BodyPartCollider bodyPartCollider))
-                        {
-                            if (!bodyPartCollider.Player.IsYourPlayer)
-                                continue;
-
-                            EFTBallisticsInterface.Instance.Hit(bodyPartCollider, hit, 90f);
-
-                            break;
-                        }
-                    }
-                }
             }
         }
 
