@@ -64,6 +64,7 @@ namespace ultramove
         private static HashSet<UltraEnemy> _currentAlive = new HashSet<UltraEnemy>();
 
         private float health;
+        protected abstract float startingHealth { get; }
         public bool alive => health > 0;
 
         private void Start()
@@ -97,8 +98,6 @@ namespace ultramove
             Revive();
         }
 
-        protected abstract float GetStartingHealth();
-
         public void Hit(DamageInfoStruct damageInfo)
         {
             if (!alive)
@@ -115,7 +114,7 @@ namespace ultramove
 
         protected virtual void Revive()
         {
-            health = GetStartingHealth();
+            health = startingHealth;
             _currentAlive.Add(this);
         }
 

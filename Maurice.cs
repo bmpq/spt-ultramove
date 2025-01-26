@@ -27,7 +27,7 @@ namespace ultramove
 
         BetterSource audioBeam;
         AudioClip clipBeamCharge;
-        protected override float GetStartingHealth() => 400f;
+        protected override float startingHealth => 400f;
 
         public void SetPrefabProjectile(GameObject prefabProjectile)
         {

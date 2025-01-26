@@ -9,7 +9,7 @@ using UnityEngine;
 internal class Minos : UltraEnemy, IParryable
 {
     Animator animator;
-    protected override float GetStartingHealth() => 100000f;
+    protected override float startingHealth => 100000f;
 
     VolumetricLight[] eyeLights;
 
@@ -170,7 +170,7 @@ internal class Minos : UltraEnemy, IParryable
         animator.SetTrigger("Parry");
 
         DamageInfoStruct dmg = new DamageInfoStruct();
-        dmg.Damage = GetStartingHealth() / 2f;
+        dmg.Damage = startingHealth / 2f;
         Hit(dmg);
     }
 }

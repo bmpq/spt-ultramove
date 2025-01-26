@@ -13,7 +13,7 @@ namespace ultramove
 {
     internal class V2 : UltraEnemy, IParryable
     {
-        protected override float GetStartingHealth() => 10f;
+        protected override float startingHealth => 10f;
 
         bool crashedThroughRoof;
         bool landed;
