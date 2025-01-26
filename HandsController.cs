@@ -55,6 +55,7 @@ namespace ultramove
         WhiplashState whiplashStatePrev;
         Transform whiplashPullingObject;
         Vector3 whiplashGrabPointOffset;
+        BotOwner whiplashedBot;
         RopeVisual ropeVisual;
         Transform palmL;
         Vector3 currentWhiplashEnd;
@@ -319,6 +320,9 @@ namespace ultramove
                 whiplashState = WhiplashState.Pulling;
             }
 
+            if (whiplashState == WhiplashState.Pulling)
+                HandleWhiplashedBot();
+
             if (whiplashState != WhiplashState.Idle)
             {
                 ropeVisual.RopeUpdate(palmL.transform.position, currentWhiplashEnd);
@@ -390,6 +394,7 @@ namespace ultramove
                         else
                         {
                             whiplashPullingObject = bpc.Player.Transform.Original;
+                            whiplashedBot = bpc.Player.Transform.Original.GetComponent<BotOwner>();
                             whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(hit.point);
                         }
                     }
@@ -420,28 +425,58 @@ namespace ultramove
             }
             else if (whiplashState == WhiplashState.Pulling)
             {
-                float reelSpeed = whiplashStartSpeed / 2f;
+                bool hooked = whiplashPullingObject != null;
+                float reelSpeed = whiplashStartSpeed / (hooked ? 4f : 2f);
 
-                if (whiplashPullingObject != null)
+                Vector3 reelVector = (palmL.position - currentWhiplashEnd).normalized * reelSpeed * Time.fixedDeltaTime;
+
+                currentWhiplashEnd += reelVector;
+
+                if (hooked && whiplashedBot == null)
                 {
                     whiplashPullingObject.position = currentWhiplashEnd - whiplashGrabPointOffset;
-                    reelSpeed = whiplashStartSpeed / 4f;
                 }
-
-                currentWhiplashEnd += (palmL.position - currentWhiplashEnd).normalized * reelSpeed * Time.fixedDeltaTime;
 
                 if (Vector3.Distance(cam.transform.position, currentWhiplashEnd) < reelSpeed * Time.fixedDeltaTime * 1.5f)
                 {
-                    whiplashState = WhiplashState.Idle;
-
-                    if (whiplashPullingObject != null && whiplashPullingObject.gameObject.TryGetComponentInParent<Rigidbody>(out Rigidbody rb))
-                    {
-                        rb.isKinematic = false;
-                        rb.angularVelocity = Random.onUnitSphere * 4f;
-                    }
-                    whiplashPullingObject = null;
+                    WhiplashDrop();
                 }
             }
+        }
+
+        void HandleWhiplashedBot()
+        {
+            if (whiplashedBot != null)
+            {
+                whiplashedBot.GetPlayer.Physical.StaminaParameters.TransitionSpeed = new Vector2(40, 40);
+                whiplashedBot.GetPlayer.Physical.TransitionSpeed.SetDirty();
+
+                whiplashedBot.BotState = EBotState.NonActive;
+                whiplashedBot.BotLay.IsLay = false;
+                whiplashedBot.SetPose(1f);
+                Vector3 worldPosTarget = currentWhiplashEnd;
+                whiplashedBot.GetPlayer.CharacterController.Move(currentWhiplashEnd - whiplashedBot.PlayerBones.Spine3.Original.position, Time.deltaTime);
+            }
+        }
+
+        void WhiplashDrop()
+        {
+            if (whiplashPullingObject != null && whiplashPullingObject.gameObject.TryGetComponentInParent<Rigidbody>(out Rigidbody rb))
+            {
+                rb.isKinematic = false;
+                rb.angularVelocity = Random.onUnitSphere * 4f;
+            }
+
+            if (whiplashedBot != null)
+            {
+                whiplashedBot.BotState = EBotState.Active;
+                whiplashedBot.GetPlayer.Physical.StaminaParameters.TransitionSpeed = new Vector2(1f, 0.7f);
+                whiplashedBot.GetPlayer.Physical.TransitionSpeed.SetDirty();
+                whiplashedBot = null;
+            }
+
+            whiplashState = WhiplashState.Idle;
+            whiplashPullingObject = null;
         }
 
         void Shoot()
