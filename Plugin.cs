@@ -45,6 +45,7 @@ public class Plugin : BaseUnityPlugin
 
         new OnGameStarted().Enable();
         new OnGrenadeSetThrowForce().Enable();
+        new PatchPreventApplyGravity().Enable();
 
         GameObject ultraTime = new GameObject("UltraTime");
         Singleton<UltraTime>.Create(ultraTime.AddComponent<UltraTime>());

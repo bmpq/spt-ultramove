@@ -448,12 +448,20 @@ namespace ultramove
         {
             if (whiplashedBot != null)
             {
+                if (!whiplashedBot.GetPlayer.HealthController.IsAlive)
+                {
+                    WhiplashDrop();
+                    return;
+                }
+
                 whiplashedBot.GetPlayer.Physical.StaminaParameters.TransitionSpeed = new Vector2(40, 40);
                 whiplashedBot.GetPlayer.Physical.TransitionSpeed.SetDirty();
 
                 whiplashedBot.BotState = EBotState.NonActive;
                 whiplashedBot.BotLay.IsLay = false;
                 whiplashedBot.SetPose(1f);
+
+                PatchPreventApplyGravity.targetPlayer = whiplashedBot.GetPlayer;
                 Vector3 worldPosTarget = currentWhiplashEnd;
                 whiplashedBot.GetPlayer.CharacterController.Move(currentWhiplashEnd - whiplashedBot.PlayerBones.Spine3.Original.position, Time.deltaTime);
             }
@@ -474,6 +482,8 @@ namespace ultramove
                 whiplashedBot.GetPlayer.Physical.TransitionSpeed.SetDirty();
                 whiplashedBot = null;
             }
+
+            PatchPreventApplyGravity.targetPlayer = null;
 
             whiplashState = WhiplashState.Idle;
             whiplashPullingObject = null;
@@ -608,14 +618,11 @@ namespace ultramove
 
             if (!parried && whiplashState == WhiplashState.Pulling && Vector3.Distance(cam.transform.position, currentWhiplashEnd) < Plugin.ParryRange.Value)
             {
-                if (whiplashPullingObject != null 
+                if (whiplashPullingObject != null && whiplashedBot == null
                     && (whiplashPullingObject.gameObject.layer == 13 || whiplashPullingObject.gameObject.layer == 15) 
-                    && whiplashPullingObject.gameObject.TryGetComponentInParent<Rigidbody>(out Rigidbody rbitem))
+                    && whiplashPullingObject.gameObject.TryGetComponent(out Rigidbody rbitem))
                 {
                     rbitem.gameObject.GetOrAddComponent<Projectile>().Parry(cam.transform);
-
-                    whiplashState = WhiplashState.Idle;
-                    whiplashPullingObject = null;
 
                     parried = true;
                 }
@@ -623,6 +630,8 @@ namespace ultramove
 
             if (parried)
             {
+                WhiplashDrop();
+
                 spearhead.SetActive(false);
 
                 timeLastParry = Time.time;
