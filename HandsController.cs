@@ -303,7 +303,11 @@ namespace ultramove
                 Transform autoAimTarget = EFTTargetInterface.GetAutoAimTarget(palmL.transform.position + cam.transform.forward, cam.transform.forward, 15f);
                 if (autoAimTarget != null)
                 {
-                    whiplashThrowVelocity = rb.velocity + ((autoAimTarget.position - cam.transform.position).normalized * whiplashStartSpeed);
+                    Vector3 targetDirection = (autoAimTarget.position - cam.transform.position).normalized;
+                    whiplashThrowVelocity = targetDirection * whiplashStartSpeed;
+
+                    Vector3 playerVelocityProjection = Vector3.Project(rb.velocity, targetDirection);
+                    whiplashThrowVelocity += playerVelocityProjection;
                 }
 
                 ropeVisual.RopeShoot();
