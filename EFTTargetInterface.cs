@@ -158,19 +158,19 @@ namespace ultramove
             Transform bestTarget = null;
 
             float closestDistance = Mathf.Infinity;
-            foreach (Player player in Singleton<GameWorld>.Instance.AllAlivePlayersList)
+            foreach (BotOwner bot in GetAliveBots())
             {
-                if (player.IsYourPlayer)
+                if (bot.BotsGroup.InitialBotType == WildSpawnType.shooterBTR)
                     continue;
 
-                Transform tr = player.PlayerBones.Spine3.Original;
+                Transform tr = bot.PlayerBones.Spine3.Original;
 
                 Vector3 directionToTarget = (tr.position - source).normalized;
                 float angleToTarget = Vector3.Angle(dir, directionToTarget);
 
                 if (angleToTarget < autoAimAngle)
                 {
-                    if (!LineOfSight(source, player.PlayerBones.Spine3.position, out RaycastHit hit))
+                    if (!LineOfSight(source, tr.position, out RaycastHit hit))
                         continue;
 
                     float distanceToTarget = directionToTarget.magnitude;
@@ -183,6 +183,12 @@ namespace ultramove
             }
 
             return bestTarget;
+        }
+
+        static List<BotOwner> GetAliveBots()
+        {
+            IEnumerable<BotOwner> bots = ((IBotGame)Singleton<AbstractGame>.Instance).BotsController.Bots.BotOwners;
+            return bots.Where(bot => bot.HealthController.IsAlive).ToList();
         }
     }
 }

@@ -34,6 +34,7 @@ public class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float> DamageRail;
 
     internal static ConfigEntry<float> TimeScale;
+    internal static ConfigEntry<KeyboardShortcut> KeybindSlowMo;
 
     internal static ConfigEntry<float> GroundSlamInfluence;
 
@@ -55,7 +56,8 @@ public class Plugin : BaseUnityPlugin
     private void InitConfiguration()
     {
         Enabled = Config.Bind("_General", "Enabled", true, "");
-        TimeScale = Config.Bind("_General", "TimeScale", 0.4f, "Hold (Tab) to apply this time scale");
+        TimeScale = Config.Bind("_General", "TimeScale", 0.4f, "Hold SlowMo key to apply this time scale");
+        KeybindSlowMo = Config.Bind("_General", "KeybindSlowMo", new KeyboardShortcut(KeyCode.CapsLock), "Hold to apply TimeScale");
 
         WhiplashItemInHand = Config.Bind("Whiplash", "Yoink", false, "Whiplash grabs the enemy's gun instead of the enemy");
 

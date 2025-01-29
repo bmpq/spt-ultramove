@@ -157,6 +157,37 @@ namespace ultramove
             particlePool.Enqueue(ps);
         }
 
+        public void LightExplosion(Vector3 pos)
+        {
+            StartCoroutine(AnimLight(pos));
+        }
+
+        IEnumerator AnimLight(Vector3 pos)
+        {
+            float t = 0f;
+
+            Light newLight = new GameObject("GlintLight").AddComponent<Light>();
+            newLight.shadows = LightShadows.Hard;
+            newLight.range = 11f;
+            newLight.transform.position = pos + new Vector3(0, 0.3f, 0f);
+
+            newLight.color = new Color(1f, 0.31f, 0f);
+
+            while (t < 1f)
+            {
+                t += Time.deltaTime * 4f;
+
+                float e = 1f - Mathf.Pow(1f - t / 1f, 3f);
+
+                newLight.intensity = Mathf.Lerp(50f, 0f, e);
+
+                yield return null;
+
+            }
+
+            GameObject.Destroy(newLight);
+        }
+
         void InitGlint()
         {
             glint = Instantiate(BundleLoader.LoadAssetBundle(BundleLoader.GetDefaultModAssetBundlePath("ultrakill")).LoadAsset<GameObject>("glint")).GetComponentInChildren<MeshRenderer>();
@@ -195,7 +226,7 @@ namespace ultramove
 
                 float e = 1f - Mathf.Pow(1f - t / duration, 3f);
 
-                glint.transform.localScale = Vector3.Lerp(Vector3.one * 0.1f, Vector3.zero, e);
+                glint.transform.localScale = Vector3.Lerp(Vector3.one * 0.08f, Vector3.zero, e);
                 glintLight.intensity = Mathf.Lerp(7f, 0f, e);
 
                 yield return null;

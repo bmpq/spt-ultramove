@@ -110,7 +110,7 @@ namespace ultramove
                 Coin hitCoin = activeCoins.OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).FirstOrDefault();
                 StartCoroutine(DelayHit(hitCoin, dmg, split, rail));
 
-                if (!split)
+                if (!split || rail)
                     return;
 
                 split = false;

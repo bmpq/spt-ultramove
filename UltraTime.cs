@@ -37,7 +37,7 @@ namespace ultramove
                 return; // Exit early to avoid slow-mo logic while freezing
             }
 
-            if (Input.GetKey(KeyCode.Tab))
+            if (Input.GetKey(Plugin.KeybindSlowMo.Value.MainKey))
             {
                 slowMoDurationRemaining = 0.1f;
                 targetTimeScale = Plugin.TimeScale.Value;

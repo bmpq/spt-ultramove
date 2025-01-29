@@ -1,6 +1,7 @@
 using Comfort.Common;
 using EFT;
 using EFT.Ballistics;
+using EFT.Vehicle;
 using UnityEngine;
 
 namespace ultramove
@@ -257,8 +258,21 @@ namespace ultramove
             EFTTargetInterface.Slam(transform.position);
         }
 
+        bool foundbtr;
         void FixedUpdate()
         {
+
+            // DELETE THIS LATER
+            if (!foundbtr && false)
+            {
+                BTRView btr = FindObjectOfType<BTRView>();
+                if (btr != null && btr.transform.position.y > 0)
+                {
+                    transform.position = btr.transform.position + new Vector3(0, 3f, 0);
+                    foundbtr = true;
+                }
+            }
+
             Vector3 curVelocity = rb.velocity;
 
             bool grounded = groundCheck.isGrounded;
@@ -393,8 +407,8 @@ namespace ultramove
                     rb.velocity = slideVel;
                 }
 
-                float waterThreshold = -16.5f;
-                waterSkipping = (rb.position.y < waterThreshold && Singleton<GameWorld>.Instance.MainPlayer.Location == "Woods");
+                float waterThreshold = GetSeaLevel();
+                waterSkipping = (rb.position.y < waterThreshold);
 
                 if (waterSkipping)
                 {
@@ -419,6 +433,19 @@ namespace ultramove
             toJump = false;
 
             prevVelocity = curVelocity;
+        }
+
+        float GetSeaLevel()
+        {
+            switch (Singleton<GameWorld>.Instance.MainPlayer.Location)
+            {
+                case "Woods":
+                    return -16.5f;
+                case "Lighthouse":
+                    return -0.2f;
+                default:
+                    return -1000f;
+            }
         }
 
         private void OnCollisionEnter(Collision collision)

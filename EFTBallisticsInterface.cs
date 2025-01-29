@@ -3,6 +3,7 @@ using EFT;
 using EFT.Ballistics;
 using EFT.Interactive;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -218,7 +219,7 @@ namespace ultramove
             }
 
             Effect("big_explosion", pos);
-
+            ParticleEffectManager.Instance.LightExplosion(pos);
 
             float maxDistance = 10f; 
             float minDistance = 1f;

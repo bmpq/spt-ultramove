@@ -1,9 +1,12 @@
-﻿using Comfort.Common;
+﻿using Audio.Vehicles;
+using Audio.Vehicles.BTR;
+using Comfort.Common;
 using EFT;
 using EFT.AssetsManager;
 using EFT.Ballistics;
 using EFT.Interactive;
 using EFT.InventoryLogic;
+using EFT.Vehicle;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -372,39 +375,71 @@ namespace ultramove
 
                     EFTBallisticsInterface.Instance.Hit(hit, 5f);
 
-                    if (hit.collider.TryGetComponent<BodyPartCollider>(out BodyPartCollider bpc))
+                    if (hit.collider.TryGetComponent(out BallisticCollider ballistic))
                     {
-                        Player bot = (bpc.Player as Player);
-
-                        if (Plugin.WhiplashItemInHand.Value && !bot.HandsIsEmpty)
+                        if (ballistic is BodyPartCollider bpc)
                         {
-                            whiplashPullingObject = Instantiate(bot.HandsController.ControllerGameObject).transform;
-                            whiplashPullingObject.GetComponent<ObservedLootItem>().MakePhysicsObject();
-                            whiplashPullingObject.GetComponent<BoxCollider>().size *= 0.8f;
+                            Player bot = (bpc.Player as Player);
 
-                            Vector3 worldGrabPoint = whiplashPullingObject.GetComponent<BoxCollider>().bounds.center;
-                            whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(worldGrabPoint);
+                            if (Plugin.WhiplashItemInHand.Value && !bot.HandsIsEmpty)
+                            {
+                                whiplashPullingObject = Instantiate(bot.HandsController.ControllerGameObject).transform;
+                                whiplashPullingObject.GetComponent<ObservedLootItem>().MakePhysicsObject();
+                                whiplashPullingObject.GetComponent<BoxCollider>().size *= 0.8f;
 
-                            bot.HandsController.ControllerGameObject.transform.FindInChildrenExact("weapon").gameObject.SetActive(false);
-                            bot.SetEmptyHands(null);
+                                Vector3 worldGrabPoint = whiplashPullingObject.GetComponent<BoxCollider>().bounds.center;
+                                whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(worldGrabPoint);
 
-                            ParticleEffectManager.Instance.PlayGlint(worldGrabPoint + (worldGrabPoint - cam.transform.position).normalized * 0.2f, Color.white, 0.2f);
-                            Singleton<UltraTime>.Instance.Freeze(0.01f, 0.5f);
+                                bot.HandsController.ControllerGameObject.transform.FindInChildrenExact("weapon").gameObject.SetActive(false);
+                                bot.SetEmptyHands(null);
+
+                                ParticleEffectManager.Instance.PlayGlint(worldGrabPoint + (worldGrabPoint - cam.transform.position).normalized * 0.2f, Color.white, 0.2f);
+                                Singleton<UltraTime>.Instance.Freeze(0.01f, 0.5f);
+                            }
+                            else
+                            {
+                                whiplashPullingObject = bpc.Player.Transform.Original;
+                                whiplashedBot = bpc.Player.Transform.Original.GetComponent<BotOwner>();
+                                whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(hit.point);
+                            }
                         }
-                        else
+                        else if (hit.collider.transform.parent != null && hit.collider.transform.parent.TryGetComponent(out WorldInteractiveObject interactiveObject))
                         {
-                            whiplashPullingObject = bpc.Player.Transform.Original;
-                            whiplashedBot = bpc.Player.Transform.Original.GetComponent<BotOwner>();
+                            if (interactiveObject is Door door)
+                            {
+                                if (door.DoorState == EDoorState.Locked ||
+                                    door.DoorState == EDoorState.Shut)
+                                    door.Interact(EFT.EInteractionType.Breach);
+                                else if (door.DoorState == EDoorState.Open)
+                                    door.Interact(EFT.EInteractionType.Close);
+                            }
+                            else
+                            {
+                                interactiveObject.Unlock();
+                                interactiveObject.Open();
+                            }
+                        }
+                        else if (ballistic.HitType == EFT.NetworkPackets.EHitType.Btr && ballistic.gameObject.TryGetComponentInParent(out BTRView btr))
+                        {
+                            GameObject originalBtr = btr.gameObject;
+                            originalBtr.GetComponentsInChildren<BtrSoundController>().ToList().ForEach(e => { Destroy(e); });
+                            originalBtr.GetComponentsInChildren<VehicleMovementSoundContext>().ToList().ForEach(e => { Destroy(e); });
+                            originalBtr.GetComponentsInChildren<BTRSide>().ToList().ForEach(e => { Destroy(e); });
+                            originalBtr.GetComponentsInChildren<BTRTurretView>().ToList().ForEach(e => { Destroy(e); });
+                            originalBtr.GetComponentsInChildren<Joint>().ToList().ForEach(e => { Destroy(e); });
+                            originalBtr.GetComponentsInChildren<Rigidbody>().ToList().ForEach(e => { Destroy(e); });
+                            originalBtr.GetComponentsInChildren<Collider>().ToList().ForEach(e => { Destroy(e); });
+                            Destroy(btr);
+
+                            whiplashPullingObject = Instantiate(originalBtr).transform;
                             whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(hit.point);
+                            whiplashPullingObject.gameObject.GetOrAddComponent<Rigidbody>().isKinematic = true;
+                            whiplashPullingObject.gameObject.GetOrAddComponent<BoxCollider>();
+                            whiplashPullingObject.gameObject.layer = 15;
+
+                            originalBtr.SetActive(false);
+                            whiplashPullingObject.gameObject.SetActive(true);
                         }
-                    }
-                    else if (hit.collider.gameObject.TryGetComponentInParent<Door>(out Door door))
-                    {
-                        if (door.DoorState == EDoorState.Locked ||
-                            door.DoorState == EDoorState.Shut)
-                            door.Interact(EFT.EInteractionType.Breach);
-                        else if (door.DoorState == EDoorState.Open)
-                            door.Interact(EFT.EInteractionType.Close);
                     }
                     else if (hit.collider.gameObject.TryGetComponentInParent<ObservedLootItem>(out ObservedLootItem lootItem))
                     {
@@ -602,8 +637,8 @@ namespace ultramove
 
             bool parried = false;
 
-            int layerMask = 1 << 16 | 1 << 15 | 1 << 13 | 1 << 9;
-            RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, 1.3f, cam.transform.forward, Plugin.ParryRange.Value, layerMask);
+            int layerMask = 1 << 16 | 1 << 15 | 1 << 13 | 1 << 9 | 1 << 22;
+            RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, 0.7f, cam.transform.forward, Plugin.ParryRange.Value, layerMask);
 
             RaycastHit hit = new RaycastHit();
 
@@ -611,9 +646,15 @@ namespace ultramove
             {
                 hit = hits[i];
 
-                parried = EFTBallisticsInterface.Instance.Parry(hit, cam.transform);
-                if (parried)
-                    break;
+                if (!parried)
+                    parried = EFTBallisticsInterface.Instance.Parry(hit, cam.transform);
+
+                if (hit.transform.TryGetComponent(out WorldInteractiveObject interactiveObject))
+                {
+                    interactiveObject.Unlock();
+                    interactiveObject.Open();
+                    parried = true;
+                }
             }
 
             if (!parried && whiplashState == WhiplashState.Pulling && Vector3.Distance(cam.transform.position, currentWhiplashEnd) < Plugin.ParryRange.Value)

@@ -97,6 +97,8 @@ namespace ultramove
 
             Rigidbody newRb = coin.GetComponent<Rigidbody>();
 
+            newRb.isKinematic = false;
+
             coin.transform.position = newPos;
             coin.transform.rotation = cam.transform.rotation;
             newRb.position = newPos;
@@ -105,8 +107,8 @@ namespace ultramove
             Vector3 vel = cam.transform.forward * 18f + Vector3.up * 15f;
             newRb.velocity = playerrb.velocity + vel;
 
-            newRb.maxAngularVelocity = 25;
-            newRb.AddRelativeTorque(new Vector3(25, 0, 0), ForceMode.VelocityChange);
+            newRb.maxAngularVelocity = 35;
+            newRb.AddRelativeTorque(new Vector3(35, 0, 0), ForceMode.VelocityChange);
             newRb.angularDrag = 0;
 
             coin.Activate();

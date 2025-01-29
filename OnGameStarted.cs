@@ -40,7 +40,6 @@ namespace ultramove
                 rend.forceRenderingOff = true;
             }
 
-            goPlayer.GetComponent<EftGamePlayerOwner>().enabled = false;
             goPlayer.GetComponent<PlayerCameraController>().enabled = false;
             goPlayer.GetComponent<SimpleCharacterController>().enabled = false;
             goPlayer.GetComponent<CharacterControllerSpawner>().enabled = false;
