@@ -235,16 +235,6 @@ namespace ultramove
 
         public bool Parry(RaycastHit hit, Transform source)
         {
-            if (hit.transform.parent!= null && hit.transform.parent.gameObject.layer == 22 && hit.transform.parent.gameObject.TryGetComponent<Door>(out Door door))
-            {
-                if (door.DoorState == EDoorState.Locked ||
-                    door.DoorState == EDoorState.Shut)
-                {
-                    door.Interact(EFT.EInteractionType.Breach);
-                    return true;
-                }
-            }
-
             if (hit.rigidbody != null && hit.rigidbody.TryGetComponent<IParryable>(out IParryable parryable))
             {
                 parryable.Parry(source);

@@ -646,11 +646,22 @@ namespace ultramove
             {
                 hit = hits[i];
 
-                if (!parried)
-                    parried = EFTBallisticsInterface.Instance.Parry(hit, cam.transform);
+                if (EFTBallisticsInterface.Instance.Parry(hit, cam.transform))
+                    parried = true;
 
                 if (hit.transform.TryGetComponent(out WorldInteractiveObject interactiveObject))
                 {
+                    if (interactiveObject is Door door)
+                    {
+                        if (door.DoorState == EDoorState.Locked || door.DoorState == EDoorState.Shut)
+                            door.Interact(EInteractionType.Breach);
+                        else
+                            door.Interact(EInteractionType.Close);
+
+                        parried = true;
+                        continue;
+                    }
+
                     interactiveObject.Unlock();
                     interactiveObject.Open();
                     parried = true;
