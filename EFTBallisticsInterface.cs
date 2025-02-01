@@ -63,7 +63,7 @@ namespace ultramove
                         limitPerPlayer[bodyPart.playerBridge.iPlayer.Id]++;
                     }
 
-                    Hit(bodyPart, hits[i], dmg);
+                    Hit(origin, bodyPart, hits[i], dmg);
                 }
                 else
                 {
@@ -86,7 +86,7 @@ namespace ultramove
                     else if (hits[i].transform.gameObject.layer == 30)
                         continue;
 
-                    Hit(hits[i], dmg);
+                    Hit(origin, hits[i], dmg);
                 }
 
                 if (!piercing)
@@ -99,7 +99,7 @@ namespace ultramove
             return hits;
         }
 
-        public void Hit(Collision collision, float damage = 1f)
+        public void Hit(Vector3 origin, Collision collision, float damage = 1f)
         {
             BaseBallistic baseBallistic = collision.transform.GetComponent<BaseBallistic>();
 
@@ -121,48 +121,35 @@ namespace ultramove
                 fakeHit.normal = collision.contacts[i].normal;
 
                 if (baseBallistic is TerrainBallistic terrainBallistic)
-                    Hit(terrainBallistic.Get(fakeHit.point), fakeHit, dmg);
+                    Hit(origin, terrainBallistic.Get(fakeHit.point), fakeHit, dmg);
                 else
-                    Hit(baseBallistic as BallisticCollider, fakeHit, dmg);
+                    Hit(origin, baseBallistic as BallisticCollider, fakeHit, dmg);
             }
         }
 
-        public void Hit(RaycastHit hit, float dmg)
+        public void Hit(Vector3 origin, RaycastHit hit, float dmg)
         {
             BaseBallistic baseBallistic = hit.collider.gameObject.GetComponent<BaseBallistic>();
 
             if (baseBallistic is TerrainBallistic terrainBallistic)
             {
-                Hit(terrainBallistic.Get(hit.point), hit, dmg);
+                Hit(origin, terrainBallistic.Get(hit.point), hit, dmg);
                 return;
             }
 
-            Hit(baseBallistic as BallisticCollider, hit, dmg);
+            Hit(origin, baseBallistic as BallisticCollider, hit, dmg);
         }
 
-        public void Hit(Collider col, RaycastHit hit, float dmg)
-        {
-            BaseBallistic baseBallistic = col.gameObject.GetComponent<BaseBallistic>();
-
-            if (baseBallistic is TerrainBallistic terrainBallistic)
-            {
-                Hit(terrainBallistic.Get(hit.point), hit, dmg);
-                return;
-            }
-
-            Hit(baseBallistic as BallisticCollider, hit, dmg);
-        }
-
-        public void Hit(BallisticCollider ballisticCollider, Vector3 hitPoint, Vector3 hitNormal, float dmg)
+        public void Hit(Vector3 origin, BallisticCollider ballisticCollider, Vector3 hitPoint, Vector3 hitNormal, float dmg)
         {
             RaycastHit fakeHit = new RaycastHit();
             fakeHit.point = hitPoint;
             fakeHit.normal = hitNormal;
 
-            Hit(ballisticCollider, fakeHit, dmg);
+            Hit(origin, ballisticCollider, fakeHit, dmg);
         }
 
-        public void Hit(BallisticCollider ballisticCollider, RaycastHit hit, float dmg)
+        public void Hit(Vector3 origin, BallisticCollider ballisticCollider, RaycastHit hit, float dmg)
         {
             if (ballisticCollider == null)
                 return;
@@ -174,7 +161,7 @@ namespace ultramove
                 ArmorDamage = dmg,
                 StaminaBurnRate = dmg,
                 PenetrationPower = dmg,
-                Direction = UnityEngine.Random.onUnitSphere,
+                Direction = (hit.point - origin).normalized,
                 HitNormal = hit.normal,
                 HitPoint = hit.point,
                 Player = player,
@@ -185,7 +172,18 @@ namespace ultramove
                 DeflectedBy = null
             };
 
+            Rigidbody rbBodyPart = null;
+            if (ballisticCollider is BodyPartCollider)
+            {
+                rbBodyPart = ballisticCollider.transform.GetComponent<Rigidbody>();
+                if (rbBodyPart != null)
+                    rbBodyPart.velocity += damageInfo.Direction * Plugin.RagdollAddForce.Value * dmg;
+            }
+
             ballisticCollider.ApplyHit(damageInfo, ShotIdStruct.EMPTY_SHOT_ID);
+
+            if (rbBodyPart != null)
+                rbBodyPart.velocity += damageInfo.Direction * Plugin.RagdollAddForce.Value * dmg;
 
             Singleton<Effects>.Instance.Emit(ballisticCollider.TypeOfMaterial, ballisticCollider, hit.point, hit.normal, 1f);
         }
@@ -214,7 +212,7 @@ namespace ultramove
                     }
 
                     float dmg = 999f;
-                    Hit(bodyPart, bodyPart.transform.position, (bodyPart.gameObject.transform.position - pos).normalized, dmg);
+                    Hit(pos, bodyPart, bodyPart.transform.position, (bodyPart.gameObject.transform.position - pos).normalized, dmg);
                 }
             }
 
@@ -249,7 +247,7 @@ namespace ultramove
             if (bodyPartCollider.playerBridge.iPlayer != null && bodyPartCollider.playerBridge.iPlayer.IsYourPlayer)
                 return false;
 
-            Hit(hit, 9999);
+            Hit(source.position, hit, 1000f);
             return true;
         }
 

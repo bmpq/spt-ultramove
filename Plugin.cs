@@ -38,6 +38,8 @@ public class Plugin : BaseUnityPlugin
 
     internal static ConfigEntry<float> GroundSlamInfluence;
 
+    internal static ConfigEntry<float> RagdollAddForce;
+
     private void Start()
     {
         Log = base.Logger;
@@ -81,6 +83,8 @@ public class Plugin : BaseUnityPlugin
 
         ParryContinuous = Config.Bind("Parry", "ParryContinuous", false, "Allows holding down V to continously check for parries, instead of timing");
         ParryRange = Config.Bind("Parry", "ParryRange", 2f, "");
+
+        RagdollAddForce = Config.Bind("Physics", "RagdollAddForce", 40f, "");
 
         GroundSlamInfluence = Config.Bind("Movement", "GroundSlamInfluence", 10f, "How high the enemies fly up after a ground slam");
     }

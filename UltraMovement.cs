@@ -57,6 +57,9 @@ namespace ultramove
 
         void Start()
         {
+            if (Singleton<GameWorld>.Instance.LocationId == "Lighthouse")
+                transform.position = new Vector3(439.0945f, 32.1944f, 461.7361f);
+
             cam = Camera.main;
 
             camParent = new GameObject().transform;

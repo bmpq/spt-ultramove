@@ -123,11 +123,11 @@ namespace ultramove
             if (primed)
             {
                 primed = false;
-                EFTBallisticsInterface.Instance.Hit(col, 300f);
+                EFTBallisticsInterface.Instance.Hit(transform.position, col, 300f);
                 EFTBallisticsInterface.Instance.Explosion(transform.position);
             }
             else
-                EFTBallisticsInterface.Instance.Hit(col, Plugin.DamageRail.Value);
+                EFTBallisticsInterface.Instance.Hit(transform.position, col, Plugin.DamageRail.Value);
 
             gameObject.SetActive(false);
             OnProjectileDone?.Invoke(this);

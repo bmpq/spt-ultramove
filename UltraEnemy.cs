@@ -126,7 +126,7 @@ namespace ultramove
 
         void OnCollisionEnter(Collision collision)
         {
-            EFTBallisticsInterface.Instance.Hit(collision);
+            EFTBallisticsInterface.Instance.Hit(transform.position, collision);
         }
     }
 }

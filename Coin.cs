@@ -126,7 +126,7 @@ namespace ultramove
                 {
                     if (RaycastInRandomDir(transform, out RaycastHit hit))
                     {
-                        EFTBallisticsInterface.Instance.Hit(hit, dmg);
+                        EFTBallisticsInterface.Instance.Hit(transform.position, hit, dmg);
                         Trail(transform.position, hit.point, rail);
                     }
                 }
@@ -247,7 +247,7 @@ namespace ultramove
         {
             if (parried)
             {
-                EFTBallisticsInterface.Instance.Hit(collision, 300f);
+                EFTBallisticsInterface.Instance.Hit(transform.position, collision, 300f);
                 EFTBallisticsInterface.Instance.Explosion(transform.position);
                 parried = false;
                 Disable();

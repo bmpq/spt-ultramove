@@ -373,7 +373,7 @@ namespace ultramove
                     whiplashState = WhiplashState.Pulling;
                     currentWhiplashEnd = hit.point;
 
-                    EFTBallisticsInterface.Instance.Hit(hit, 5f);
+                    EFTBallisticsInterface.Instance.Hit(currentWhiplashEnd, hit, 5f);
 
                     if (hit.collider.TryGetComponent(out BallisticCollider ballistic))
                     {
@@ -647,7 +647,10 @@ namespace ultramove
                 hit = hits[i];
 
                 if (EFTBallisticsInterface.Instance.Parry(hit, cam.transform))
+                {
                     parried = true;
+                    break;
+                }
 
                 if (hit.transform.TryGetComponent(out WorldInteractiveObject interactiveObject))
                 {
@@ -659,7 +662,7 @@ namespace ultramove
                             door.Interact(EInteractionType.Close);
 
                         parried = true;
-                        continue;
+                        break;
                     }
 
                     interactiveObject.Unlock();
