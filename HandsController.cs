@@ -381,22 +381,13 @@ namespace ultramove
                         {
                             Player bot = (bpc.Player as Player);
 
-                            if (Plugin.WhiplashItemInHand.Value && !bot.HandsIsEmpty)
+                            bool yoinked = false;
+                            if (Plugin.WhiplashYoink.Value)
                             {
-                                whiplashPullingObject = Instantiate(bot.HandsController.ControllerGameObject).transform;
-                                whiplashPullingObject.GetComponent<ObservedLootItem>().MakePhysicsObject();
-                                whiplashPullingObject.GetComponent<BoxCollider>().size *= 0.8f;
-
-                                Vector3 worldGrabPoint = whiplashPullingObject.GetComponent<BoxCollider>().bounds.center;
-                                whiplashGrabPointOffset = whiplashPullingObject.InverseTransformPoint(worldGrabPoint);
-
-                                bot.HandsController.ControllerGameObject.transform.FindInChildrenExact("weapon").gameObject.SetActive(false);
-                                bot.SetEmptyHands(null);
-
-                                ParticleEffectManager.Instance.PlayGlint(worldGrabPoint + (worldGrabPoint - cam.transform.position).normalized * 0.2f, Color.white, 0.2f);
-                                Singleton<UltraTime>.Instance.Freeze(0.01f, 0.5f);
+                                yoinked = TryYoink(bot);
                             }
-                            else
+
+                            if (!yoinked)
                             {
                                 whiplashPullingObject = bpc.Player.Transform.Original;
                                 whiplashedBot = bpc.Player.Transform.Original.GetComponent<BotOwner>();
@@ -469,6 +460,11 @@ namespace ultramove
 
                 if (hooked && whiplashedBot == null)
                 {
+                    whiplashPullingObject.gameObject.SetActive(true);
+                    if (whiplashPullingObject.TryGetComponent(out BoxCollider boxCollider))
+                    {
+                        whiplashGrabPointOffset = whiplashPullingObject.TransformPoint(boxCollider.center) - whiplashPullingObject.position;
+                    }
                     whiplashPullingObject.position = currentWhiplashEnd - whiplashGrabPointOffset;
                 }
 
@@ -477,6 +473,87 @@ namespace ultramove
                     WhiplashDrop();
                 }
             }
+        }
+
+        bool TryYoink(Player target)
+        {
+            bool yoinked = false;
+
+            GameWorld game = Singleton<GameWorld>.Instance;
+
+            EquipmentSlot[] slotsSortedByPriority = new EquipmentSlot[] {
+                EquipmentSlot.FirstPrimaryWeapon,
+                EquipmentSlot.SecondPrimaryWeapon,
+                EquipmentSlot.Holster,
+                EquipmentSlot.Backpack,
+                EquipmentSlot.TacticalVest,
+                EquipmentSlot.ArmorVest,
+                EquipmentSlot.Headwear,
+                EquipmentSlot.Earpiece,
+                EquipmentSlot.Eyewear,
+                EquipmentSlot.FaceCover,
+                EquipmentSlot.ArmBand
+            };
+
+            foreach (EquipmentSlot slotType in slotsSortedByPriority)
+            {
+                Slot slot = null;
+                try // the bot can straight up not have the slot, and it never checks if the key exists, so it throws an exception (wtf bsg??)
+                {
+                    slot = target.Inventory.Equipment.GetSlot(slotType);
+                }
+                catch
+                {
+                    continue;
+                }
+                if (slot != null && slot.ContainedItem != null)
+                {
+                    GameObject cloneItem = Singleton<PoolManager>.Instance.CreateLootPrefab(slot.ContainedItem, Player.GetVisibleToCamera(Singleton<GameWorld>.Instance.MainPlayer), null);
+
+                    // this won't work!
+                    // ObservedLootItem.Item is null!
+                    // LootItem existingEquipmentItem = target.GetComponentsInChildren<ObservedLootItem>(true).Where(l => l.ItemId == slot.ContainedItem.Id).FirstOrDefault();
+
+                    GameObject existingEquipmentItem = target.PlayerBody.SlotViews.GetByKey(slotType).Model;
+                    if (existingEquipmentItem != null)
+                    {
+                        cloneItem.transform.rotation = existingEquipmentItem.transform.rotation;
+
+                        existingEquipmentItem.GetComponent<AssetPoolObject>().ReturnToPool();
+                    }
+
+                    if ((target.HandsController is Player.FirearmController) && target.HandsController.ControllerGameObject != null)
+                    {
+                        target.HandsController.ControllerGameObject.transform.FindInChildrenExact("weapon").gameObject.SetActive(false);
+                    }
+
+                    if (cloneItem.TryGetComponent<DressItem>(out DressItem dressItem))
+                    {
+                        dressItem.EnableLoot(true);
+                    }
+
+                    cloneItem.GetComponent<ObservedLootItem>().MakePhysicsObject();
+
+                    whiplashPullingObject = cloneItem.transform;
+
+                    // this shit doesn't work??? but it works later. idk
+                    whiplashGrabPointOffset = whiplashPullingObject.TransformPoint(whiplashPullingObject.GetComponent<BoxCollider>().center) - whiplashPullingObject.position;
+
+                    slot.ContainedItem = null;
+                    yoinked = true;
+                    break;
+                }
+            }
+
+            if (yoinked)
+            {
+                target.SetEmptyHands(null);
+
+                ParticleEffectManager.Instance.PlayGlint(currentWhiplashEnd + (currentWhiplashEnd - cam.transform.position).normalized * 0.2f, Color.white, 0.2f);
+                Singleton<UltraTime>.Instance.Freeze(0.01f, 0.5f);
+            }
+
+            return yoinked;
         }
 
         void HandleWhiplashedBot()

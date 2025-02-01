@@ -12,7 +12,7 @@ public class Plugin : BaseUnityPlugin
     internal static new ManualLogSource Log;
 
     internal static ConfigEntry<bool> Enabled;
-    internal static ConfigEntry<bool> WhiplashItemInHand;
+    internal static ConfigEntry<bool> WhiplashYoink;
 
     internal static ConfigEntry<bool> UndyingEnemies;
     internal static ConfigEntry<bool> SpawnMaurice;
@@ -63,7 +63,7 @@ public class Plugin : BaseUnityPlugin
         TimeScale = Config.Bind("_General", "TimeScale", 0.4f, "Hold SlowMo key to apply this time scale");
         KeybindSlowMo = Config.Bind("_General", "KeybindSlowMo", new KeyboardShortcut(KeyCode.CapsLock), "Hold to apply TimeScale");
 
-        WhiplashItemInHand = Config.Bind("Whiplash", "Yoink", false, "Whiplash grabs the enemy's gun instead of the enemy");
+        WhiplashYoink = Config.Bind("Whiplash", "Yoink", false, "Whiplash grabs the bot's equipment instead of the whole bot");
 
         DamageProjectile = Config.Bind("Weapons", "DamageProjectile", 25f, "Shotgun and machinegun use projectiles");
         DamageRevolver = Config.Bind("Weapons", "DamageRevolver", 40f, "");
