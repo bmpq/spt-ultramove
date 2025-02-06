@@ -12,7 +12,7 @@ namespace ultramove
 {
     public static class EFTLootUtils
     {
-        public static void MakePhysicsObject(this ObservedLootItem itemObject)
+        public static void MakePhysicsObject(this ObservedLootItem itemObject, bool kinematicAtStart = true)
         {
             Component.Destroy(itemObject.GetComponentInChildren<Animator>());
 
@@ -66,7 +66,7 @@ namespace ultramove
 
             Rigidbody rb = itemObject.GetOrAddComponent<Rigidbody>();
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            rb.isKinematic = true;
+            rb.isKinematic = kinematicAtStart;
 
             if (itemObject.Item != null)
             {

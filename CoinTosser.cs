@@ -57,6 +57,9 @@ namespace ultramove
 
             foreach (Coin coin in Coin.activeCoins)
             {
+                if (coin.animVending)
+                    continue;
+
                 if (coin.IsOnApex())
                 {
                     GameObject glint = glintPool[activeGlintIndex];

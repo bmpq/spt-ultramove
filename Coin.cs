@@ -1,5 +1,8 @@
 ﻿using Comfort.Common;
+using EFT;
 using EFT.Ballistics;
+using EFT.Interactive;
+using EFT.InventoryLogic;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +41,8 @@ namespace ultramove
 
         bool parried;
 
+        public bool animVending;
+
         void Init()
         {
             meshRenderer = GetComponentInChildren<MeshRenderer>();
@@ -61,6 +66,8 @@ namespace ultramove
 
         public void Activate()
         {
+            gameObject.SetActive(true);
+
             if (!init)
                 Init();
 
@@ -245,6 +252,9 @@ namespace ultramove
 
         private void OnCollisionEnter(Collision collision)
         {
+            if (animVending)
+                return;
+
             if (parried)
             {
                 EFTBallisticsInterface.Instance.Hit(transform.position, collision, 300f);
@@ -253,10 +263,89 @@ namespace ultramove
                 Disable();
             }
 
+            if (collision.transform.parent != null && collision.transform.parent.name == "Coke_automate_update")
+            {
+                StartCoroutine(AnimVending(collision.transform.parent));
+                return;
+            }
+
             if (timeActive < 0.2f)
                 return;
 
             Disable();
+            gameObject.SetActive(false);
+        }
+
+        IEnumerator AnimVending(Transform trVendingMachine)
+        {
+            animVending = true;
+
+            trailRenderer.emitting = false;
+            trailRenderer.Clear();
+            rb.isKinematic = true;
+
+            float t = 0f;
+
+            Vector3 startPos = trVendingMachine.position + new Vector3(0.69f, 1.16f, 0.54f);
+            Vector3 endPos = startPos + new Vector3(-0.20f, 0, 0);
+
+            Quaternion initRot = transform.rotation;
+            Vector3 initPos = transform.position;
+            while (t < 1f)
+            {
+                t = Mathf.Clamp01(t + Time.deltaTime * 6f);
+
+                float e = EasingFunction.EaseOutElastic(0, 1f, t);
+
+                transform.position = Vector3.Lerp(initPos, startPos, e);
+                transform.rotation = Quaternion.Lerp(initRot, Quaternion.Euler(90f, 0, 0), e);
+
+                yield return null;
+            }
+
+            t = 0f;
+            while (t < 1f)
+            {
+                t = Mathf.Clamp01(t + Time.deltaTime * 2f);
+
+                float e = EasingFunction.EaseInCubic(t);
+
+                transform.position = Vector3.Lerp(startPos, endPos, e);
+
+                lightGlint.intensity = 0;
+
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(0.5f);
+
+            Item newItem = Singleton<ItemFactoryClass>.Instance.CreateItem(MongoID.Generate(false), "57514643245977207f2c2d09", null);
+            GameObject itemObject = Singleton<PoolManager>.Instance.CreateItem(newItem, false);
+            itemObject.transform.parent = null;
+            itemObject.transform.position = trVendingMachine.position + new Vector3(0.6f, 0.4f, 0.05f);
+            itemObject.transform.rotation = Quaternion.Euler(90f, 0, 0);
+            itemObject.GetComponent<ObservedLootItem>().MakePhysicsObject(true);
+            itemObject.layer = 12;
+            itemObject.SetActive(true);
+
+            Rigidbody newItemRb = itemObject.GetComponent<Rigidbody>();
+
+            t = 0f;
+            while (t < 1f)
+            {
+                t += Time.deltaTime * 8f;
+
+                newItemRb.position += new Vector3(4f, 0, 0) * Time.deltaTime;
+
+                yield return null;
+            }
+            newItemRb.isKinematic = false;
+            newItemRb.AddForce(new Vector3(5f, 0, 0), ForceMode.VelocityChange);
+            newItemRb.AddRelativeTorque(new Vector3(Mathf.Lerp(-1f, 1f, Random.value) * 1000f, 0, 1000f), ForceMode.VelocityChange);
+
+            animVending = false;
+            Disable();
+            gameObject.SetActive(false);
         }
 
         void Disable()

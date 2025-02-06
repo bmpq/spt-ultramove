@@ -233,11 +233,13 @@ namespace ultramove
 
         public bool Parry(RaycastHit hit, Transform source)
         {
-            if (hit.rigidbody != null && hit.rigidbody.TryGetComponent<IParryable>(out IParryable parryable))
+            if (hit.collider.attachedRigidbody != null && hit.collider.attachedRigidbody.TryGetComponent<IParryable>(out IParryable parryable))
             {
                 parryable.Parry(source);
                 return true;
             }
+
+            return false;
 
             BodyPartCollider bodyPartCollider = hit.transform.GetComponent<BodyPartCollider>();
 

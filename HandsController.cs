@@ -536,8 +536,8 @@ namespace ultramove
 
                     whiplashPullingObject = cloneItem.transform;
 
-                    // this shit doesn't work??? but it works later. idk
-                    whiplashGrabPointOffset = whiplashPullingObject.TransformPoint(whiplashPullingObject.GetComponent<BoxCollider>().center) - whiplashPullingObject.position;
+                    // this shit doesn't work??? but it works later, on the next FixedUpdate tick. no idea why.
+                    // whiplashGrabPointOffset = whiplashPullingObject.TransformPoint(whiplashPullingObject.GetComponent<BoxCollider>().center) - whiplashPullingObject.position;
 
                     slot.ContainedItem = null;
                     yoinked = true;
@@ -714,7 +714,7 @@ namespace ultramove
 
             bool parried = false;
 
-            int layerMask = 1 << 16 | 1 << 15 | 1 << 13 | 1 << 9 | 1 << 22;
+            int layerMask = 1 << 16 | 1 << 15 | 1 << 13 | 1 << 9 | 1 << 22 | 1 << 18;
             RaycastHit[] hits = Physics.SphereCastAll(cam.transform.position, 0.7f, cam.transform.forward, Plugin.ParryRange.Value, layerMask);
 
             RaycastHit hit = new RaycastHit();
