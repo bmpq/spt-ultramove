@@ -12,7 +12,9 @@ public class Plugin : BaseUnityPlugin
     internal static new ManualLogSource Log;
 
     internal static ConfigEntry<bool> Enabled;
+
     internal static ConfigEntry<bool> WhiplashYoink;
+    internal static ConfigEntry<bool> DebugDrawBoxCollider;
 
     internal static ConfigEntry<bool> UndyingEnemies;
     internal static ConfigEntry<bool> SpawnMaurice;
@@ -28,6 +30,8 @@ public class Plugin : BaseUnityPlugin
 
     internal static ConfigEntry<float> ParryRange;
     internal static ConfigEntry<bool> ParryContinuous;
+    internal static ConfigEntry<bool> Punch;
+    internal static ConfigEntry<float> PunchDamage;
 
     internal static ConfigEntry<float> DamageProjectile;
     internal static ConfigEntry<float> DamageRevolver;
@@ -62,17 +66,18 @@ public class Plugin : BaseUnityPlugin
         KeybindSlowMo = Config.Bind("_General", "KeybindSlowMo", new KeyboardShortcut(KeyCode.CapsLock), "Hold to apply TimeScale");
 
         WhiplashYoink = Config.Bind("Whiplash", "Yoink", false, "Whiplash grabs the bot's equipment instead of the whole bot");
+        DebugDrawBoxCollider = Config.Bind("Whiplash", "DebugDrawBoxCollider", false, "Draw debug overlay for the generated item collider");
 
         DamageProjectile = Config.Bind("Weapons", "DamageProjectile", 25f, "Shotgun and machinegun use projectiles");
         DamageRevolver = Config.Bind("Weapons", "DamageRevolver", 40f, "");
         DamageRail = Config.Bind("Weapons", "DamageRail", 300f, "");
 
         UndyingEnemies = Config.Bind("Ultra Enemies", "UndyingEnemies", false, "");
-        SpawnMaurice = Config.Bind("Ultra Enemies", "Spawn Maurice", true, "");
+        SpawnMaurice = Config.Bind("Ultra Enemies", "Spawn Maurice", true, "Spawn a Maurice on any map on (-10, 5, -10) coordinates");
         SpawnV2 = Config.Bind("Ultra Enemies", "Spawn V2", true, "Spawn the V2 cutscene on Interchange");
         SpawnMinos = Config.Bind("Ultra Enemies", "Spawn Minos", true, "Spawn Minos on Woods");
 
-        MauriceAutoChargeback = Config.Bind("Coin", "MauriceAutoChargeback", false, "Auto chargeback's a maurice if you are looking at it");
+        MauriceAutoChargeback = Config.Bind("Coin", "MauriceAutoChargeback", false, "Auto chargeback's a maurice if you are looking at it (this aint reliable, does not compensate for angles)");
         MauriceAutoChargebackOffset = Config.Bind("Coin", "MauriceAutoChargebackOffset", -0.66f, "Auto chargeback timing");
         MauriceAutoChargebackDistanceMultiplier = Config.Bind("Coin", "MauriceAutoChargebackDistanceMultiplier", 0f, "Auto chargeback distance");
 
@@ -81,8 +86,10 @@ public class Plugin : BaseUnityPlugin
 
         ParryContinuous = Config.Bind("Parry", "ParryContinuous", false, "Allows holding down V to continously check for parries, instead of timing");
         ParryRange = Config.Bind("Parry", "ParryRange", 2f, "");
+        Punch = Config.Bind("Parry", "Punch", false, "Allow punching (breaks minos parry)");
+        PunchDamage = Config.Bind("Parry", "PunchDamage", 100f, "");
 
-        RagdollAddForce = Config.Bind("Physics", "RagdollAddForce", 40f, "");
+        RagdollAddForce = Config.Bind("Physics", "RagdollAddForce", 0.01f, "");
 
         GroundSlamInfluence = Config.Bind("Movement", "GroundSlamInfluence", 10f, "How high the enemies fly up after a ground slam");
     }

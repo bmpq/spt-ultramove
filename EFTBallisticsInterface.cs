@@ -239,7 +239,8 @@ namespace ultramove
                 return true;
             }
 
-            return false;
+            if (!Plugin.Punch.Value)
+                return false;
 
             BodyPartCollider bodyPartCollider = hit.transform.GetComponent<BodyPartCollider>();
 
@@ -249,7 +250,7 @@ namespace ultramove
             if (bodyPartCollider.playerBridge.iPlayer != null && bodyPartCollider.playerBridge.iPlayer.IsYourPlayer)
                 return false;
 
-            Hit(source.position, hit, 1000f);
+            Hit(source.position, hit, Plugin.PunchDamage.Value);
             return true;
         }
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using ultramove;
 
 public static class ColliderHelper
 {
@@ -44,5 +45,10 @@ public static class ColliderHelper
 
 
         Plugin.Log.LogInfo($"{targetGameObject.name}: Success creating bound box collider.");
+
+        if (Plugin.DebugDrawBoxCollider.Value)
+        {
+            targetGameObject.AddComponent<DebugMonitor>();
+        }
     }
 }

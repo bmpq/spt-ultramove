@@ -44,6 +44,8 @@ namespace ultramove
             goPlayer.GetComponent<SimpleCharacterController>().enabled = false;
             goPlayer.GetComponent<CharacterControllerSpawner>().enabled = false;
 
+            goPlayer.GetComponent<PlayerOwner>().enabled = false;
+
             Player player = goPlayer.GetComponent<Player>();
             player.enabled = false;
             goPlayer.AddComponent<HandsController>().SetWeapons(GetEquippedWeapons(player));
